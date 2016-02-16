@@ -1,0 +1,7 @@
+<class_libraries>
+  <library path="lib/libvector_costmap">
+    <class type="vector_costmap_plugins::PolygonObstacleLayer" base_class_type="costmap_2d::Layer">
+      <description>Layer that adds specific polygons to the obstacle layer to allow the user to define keep out/in zones</description>
+    </class>
+  </library>
+</class_libraries>

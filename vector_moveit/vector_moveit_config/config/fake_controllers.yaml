@@ -1,0 +1,13 @@
+controller_list:
+  - name: fake_arm_controller
+    joints:
+      - linear_joint
+      - jaco_shoulder_pan_joint
+      - jaco_shoulder_lift_joint
+      - jaco_elbow_joint
+      - jaco_wrist_1_joint
+      - jaco_wrist_2_joint
+      - jaco_wrist_3_joint
+  - name: fake_gripper_controller
+    joints:
+      - jaco_robotiq_85_left_knuckle_joint

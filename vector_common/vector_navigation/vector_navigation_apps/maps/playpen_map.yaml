@@ -1,0 +1,7 @@
+image: /home/phussey/segway_ws/src/segway_v3/segway_navigation/segway_navigation_apps/maps/playpen_map.pgm
+resolution: 0.050000
+origin: [-117.600000, -114.400000, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

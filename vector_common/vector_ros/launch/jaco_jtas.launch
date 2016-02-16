@@ -1,0 +1,74 @@
+<!-- Launch file for jaco platform startup -->
+<launch>
+    <arg name="two_arms" default="false"/>
+    <arg name="has_gripper" default="true"/>
+    <arg name="right_arm_sn" default=""/>
+    <arg name="left_arm_sn" default=""/>
+    <arg name="gripper_comport" default="/dev/ttyUSB0"/>
+    <arg name="gripper_baud" default="115200"/>
+    <arg name="run_test" default="true"/>
+    
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find vector_description)/launch/jaco_upload.launch">
+        <!--arg name="two_arms" value="$(arg two_arms)"/-->
+        <!--arg name="has_gripper" value="$(arg has_gripper)"/-->
+    </include>
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" type="double" value="100.0" />
+    </node>
+
+    <group if="$(arg two_arms)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" if="$(arg has_gripper)">
+            <param name="use_gui" value="false" />
+            <rosparam param="source_list">[vector/right_arm/joint_states,
+                                           vector/left_arm/joint_states,
+                                           vector/right_gripper/joint_states,
+                                           vector/left_gripper/joint_states]</rosparam>
+        </node>
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg has_gripper)">
+            <param name="use_gui" value="false" />
+            <rosparam param="source_list">[vector/right_arm/joint_states,
+                                           vector/left_arm/joint_states]</rosparam>
+        </node>
+    </group>
+    
+    <group unless="$(arg two_arms)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" if="$(arg has_gripper)">
+            <param name="use_gui" value="false" />
+            <rosparam param="source_list">[vector/right_arm/joint_states,
+                                           vector/right_gripper/joint_states]</rosparam>
+        </node>
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg has_gripper)">
+            <param name="use_gui" value="false" />
+            <rosparam param="source_list">[vector/right_arm/joint_states]</rosparam>
+        </node>
+    </group>
+    
+    <node pkg="vector_ros" ns="vector" type="jaco_joint_controller" name="jaco_joint_controller" output="screen">
+        <param name="num_arms" value="2" if="$(arg two_arms)"/>
+        <param name="num_arms" value="1" unless="$(arg two_arms)"/>
+        <param name="right_arm_sn" value="$(arg right_arm_sn)"/>
+        <param name="left_arm_sn" value="$(arg left_arm_sn)" if="$(arg two_arms)"/>
+    </node>
+    
+    <group if="$(arg has_gripper)">
+        <include file="$(find vector_ros)/launch/robotiq_85.launch" if="$(arg has_gripper)">
+            <arg name="num_grippers" value="1" unless="$(arg two_arms)"/>
+            <arg name="num_grippers" value="2" if="$(arg two_arms)"/>
+            <arg name="comport" value="$(arg gripper_comport)"/>
+            <arg name="baud" value="$(arg gripper_baud)"/>
+        </include>
+        <!-- Robotiq 85 ROS Test -->
+        <!--node pkg="vector_ros" type="robotiq_85_test" name="robotiq_85_test" output="screen" if="$(arg run_test)">
+            <param name="num_grippers" value="1" unless="$(arg two_arms)"/>
+            <param name="num_grippers" value="2" if="$(arg two_arms)"/>
+        </node-->
+    </group>
+    <!-- Jaco ROS Test -->
+    <!--node pkg="vector_ros" type="jaco_joint_controller_test" name="jaco_joint_controller_test" output="screen" if="$(arg run_test)">
+        <param name="num_arms" value="2" if="$(arg two_arms)"/>
+        <param name="num_arms" value="1" unless="$(arg two_arms)"/>
+    </node-->
+</launch>
+    

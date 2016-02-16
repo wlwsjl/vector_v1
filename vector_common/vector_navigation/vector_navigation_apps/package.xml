@@ -1,0 +1,29 @@
+<package>
+	<name>vector_navigation_apps</name>
+	<version>0.0.1</version>
+	<description>Autonomous mapping and navigation demos for the Stanley Innovation Vector platform</description>
+    <maintainer email="dev@stanleyinnovation.com">Patrick Hussey</maintainer>
+    <author>Patrick Hussey</author>
+    <url type="repository">https://github.com/stanley_innovation</url>
+    <license>BSD</license>
+    
+    <buildtool_depend>catkin</buildtool_depend>
+    
+	<build_depend>roslaunch</build_depend>
+    <run_depend>frontier_exploration</run_depend>
+    <run_depend>amcl</run_depend>
+    <run_depend>gmapping</run_depend>
+    <run_depend>map_server</run_depend>
+    <run_depend>move_base</run_depend>
+    <run_depend>navfn</run_depend>
+    <run_depend>base_local_planner</run_depend>
+    <run_depend>dwa_local_planner</run_depend>
+    <run_depend>move_base</run_depend>
+    <run_depend>vector_ros</run_depend>	
+    <run_depend>vector_assisted_teleop</run_depend>
+    <run_depend>map_server</run_depend>
+    <run_depend>vector_costmap_plugins</run_depend>
+    
+	<export>
+	</export>
+</package>
