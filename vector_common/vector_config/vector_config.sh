@@ -79,6 +79,7 @@ export VECTOR_HAS_KINECT_PAN_TILT=true
 export KINECT_PAN_TILT_PARENT_LINK=linear_actuator_fixed_link
 export KINECT_PAN_TILT_XYZ="0.16688476 0 0.96899800"
 export KINECT_PAN_TILT_RPY="0 0 0"
+export OCL_IGNORE_SELF_TEST=1
 
 # Machine vision  configuration used for visual odometry, landmark detection, etc
 # To add machine vision cabability please contact info@stanleyinnovation.com

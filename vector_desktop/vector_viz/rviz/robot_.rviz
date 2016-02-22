@@ -10,6 +10,7 @@ Panels:
         - /TF1/Frames1
         - /Sensing1
         - /Sensing1/LaserScan1
+        - /Sensing1/PointCloud21
         - /Navigation1/Exploration1
         - /Navigation1/Static Map1
         - /Navigation1/Global Costmap1
@@ -83,11 +84,12 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        kinect_depth_frame:
+        kinect_ir_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        kinect_depth_optical_frame:
+          Value: true
+        kinect_ir_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -96,7 +98,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        kinect_rgb_frame:
+        kinect_rgb_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -208,6 +210,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        sic_imu_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         tilt_link:
           Alpha: 1
           Show Axes: false
@@ -232,19 +238,13 @@ Visualization Manager:
           Value: true
         ext_imu_frame:
           Value: true
-        kinect2_ir_optical_frame:
+        kinect_ir_link:
           Value: true
-        kinect2_link:
-          Value: true
-        kinect2_rgb_optical_frame:
-          Value: true
-        kinect_depth_frame:
-          Value: true
-        kinect_depth_optical_frame:
+        kinect_ir_optical_frame:
           Value: true
         kinect_link:
           Value: true
-        kinect_rgb_frame:
+        kinect_rgb_link:
           Value: true
         kinect_rgb_optical_frame:
           Value: true
@@ -291,6 +291,8 @@ Visualization Manager:
         right_wrist_2_link:
           Value: true
         right_wrist_3_link:
+          Value: true
+        sic_imu_frame:
           Value: true
         tilt_link:
           Value: true
@@ -334,12 +336,14 @@ Visualization Manager:
                   pan_link:
                     tilt_link:
                       kinect_link:
-                        kinect_depth_frame:
-                          kinect_depth_optical_frame:
+                        kinect_ir_link:
+                          kinect_ir_optical_frame:
                             {}
-                        kinect_rgb_frame:
-                          kinect_rgb_optical_frame:
-                            {}
+                          kinect_rgb_link:
+                            kinect_rgb_optical_frame:
+                              {}
+              sic_imu_frame:
+                {}
       Update Interval: 0
       Value: true
     - Class: rviz/Group
@@ -393,9 +397,9 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: Intensity
+          Color Transformer: RGB8
           Decay Time: 0
-          Enabled: false
+          Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Max Intensity: 111
@@ -406,12 +410,12 @@ Visualization Manager:
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
-          Size (m): 0.01
+          Size (m): 0.015
           Style: Flat Squares
-          Topic: /velodyne_points
+          Topic: /kinect/sd/points
           Use Fixed Frame: true
           Use rainbow: true
-          Value: false
+          Value: true
         - Acceleration properties:
             Acc. vector alpha: 1
             Acc. vector color: 255; 0; 0
@@ -542,22 +546,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.61702
+      Distance: 6.48658
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.5505
-        Y: -0.759817
-        Z: 1.78112
+        X: 1.64632
+        Y: -0.473607
+        Z: 1.24956
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.914796
+      Pitch: 0.164797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.28678
+      Yaw: 2.42678
     Saved: ~
 Window Geometry:
   Displays:

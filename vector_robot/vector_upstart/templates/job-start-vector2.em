@@ -99,9 +99,13 @@ while [ $temp -ne 0 ]; do
   fi
 done
 
-echo "Delaying upstart for 10 seconds to allow master to start.................."
+/etc/init.d/chrony stop
+ntpdate $ROS_MASTER_IPADD
+/etc/init.d/chrony start
 
-sleep 10
+echo "Delaying upstart for 3 seconds to allow master to start.................."
+
+sleep 3
 
 # Punch it.
 export ROS_HOME=$(echo ~@(user))/.ros

@@ -1,6 +1,8 @@
 <!-- Launch file for Segway platform startup -->
 <launch>
-         
+    <!--System watchdog-->
+    <node pkg="vector_ros" type="vector_wd" name="vector1_wd" output="screen" if="$(optenv VECTOR_POWERS_PC_ONBOARD false)"/>
+        
     <!-- Vector Base platform ROS Driver -->
     <node pkg="vector_ros" ns="vector" type="vector_driver" name="vector_driver" respawn="true" output="screen">
         <param name="use_platform_odometry" value="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)" />

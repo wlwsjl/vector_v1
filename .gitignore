@@ -12,6 +12,8 @@ msg/.*Goal\.msg$
 msg/.*Result\.msg$
 msg/_.*\.py$
 
+*.pyc
+
 \.pcd$
 .pyc$
 

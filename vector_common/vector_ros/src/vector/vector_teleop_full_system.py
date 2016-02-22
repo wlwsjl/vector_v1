@@ -56,6 +56,7 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool,Float64
 from trajectory_msgs.msg import JointTrajectoryPoint
+from dynamixel_controllers.srv import *  
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 import rospy
 import sys
@@ -139,6 +140,8 @@ class VectorTeleopFullSystem(object):
         self._last_gripper_val = 0.0
         self.run_arm_ctl = False
         self.run_pan_tilt_ctl = False
+        self._init_pan_tilt = True
+        self._last_angles = [0.0,0.0]
             
         self.cfg_cmd = ConfigCmd()
         self.cfg_pub = rospy.Publisher('/vector/gp_command', ConfigCmd, queue_size=10)
@@ -214,7 +217,6 @@ class VectorTeleopFullSystem(object):
                     if (item['invert_axis']):
                         temp *= -1.0
                     self.axis_value[key2] = temp
-                    print temp
                     
                     
 
@@ -224,16 +226,20 @@ class VectorTeleopFullSystem(object):
         if self.button_state['base_ctl']:
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = False
+            self._init_pan_tilt = False
         elif self.button_state['arm_ctl']:
             self.run_arm_ctl = True
             self.run_pan_tilt_ctl = False
+            self._init_pan_tilt = False
         elif self.button_state['pan_tilt_ctl']:
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = True
+            self._init_pan_tilt = True
             
         if self.button_state['estop']:
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = False
+            self._init_pan_tilt = False
             arm_cmd = JacoCartesianVelocityCmd()
             arm_cmd.header.stamp=rospy.get_rostime()
             arm_cmd.header.frame_id=''
@@ -289,13 +295,37 @@ class VectorTeleopFullSystem(object):
     
             self.arm_pub.publish(arm_cmd)
         elif self.run_pan_tilt_ctl:
+            if self._init_pan_tilt:
+                rospy.wait_for_service('/pan_controller/set_speed')
+                rospy.wait_for_service('/tilt_controller/set_speed')
+                
+                try:
+                    set_speed = rospy.ServiceProxy('/pan_controller/set_speed', SetSpeed)
+                    resp1 = set_speed(1.0)
+                except rospy.ServiceException, e:
+                    print "Service call failed: %s"%e
+
+                try:
+                    set_speed = rospy.ServiceProxy('/tilt_controller/set_speed', SetSpeed)
+                    resp1 = set_speed(1.0)
+                except rospy.ServiceException, e:
+                    print "Service call failed: %s"%e
+                self._init_pan_tilt = False
+            
             if self.button_state['dead_man']:
+                pan = self.axis_value['twist'] * 1.05
+                tilt = self.axis_value['for_aft'] * 1.4
                 pan_cmd = Float64()
                 tilt_cmd = Float64()
-                pan_cmd.data = self.axis_value['twist'] * 1.05
-                tilt_cmd.data = self.axis_value['for_aft'] * 1.4
-                self.pan_pub.publish(pan_cmd) 
-                self.tilt_pub.publish(tilt_cmd)
+                pan_cmd.data = pan
+                tilt_cmd.data = tilt
+                
+                if abs(self._last_angles[0] - pan) > 0.05:
+                    self.pan_pub.publish(pan_cmd)
+                    self._last_angles[0] = pan  
+                if abs(self._last_angles[1] - tilt) > 0.05:
+                    self.tilt_pub.publish(tilt_cmd)
+                    self._last_angles[1] = tilt
         else:
             if self.button_state['estop']:
                 self.cfg_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
@@ -355,9 +385,4 @@ class VectorTeleopFullSystem(object):
                         if self.button_state['man_ovvrd'] and self.button_state['man_ovvrd']:
                             self.override_pub.publish(self.motion_cmd)
 
-           
-        
-        
 
-
-    

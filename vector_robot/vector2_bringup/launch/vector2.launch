@@ -1,28 +1,29 @@
 <!-- Launch file for Stanley Innovation enabled Vector2 PC startup -->
 
-<launch>
-    <!-- Pan Tilt Bringup-->
-    <node pkg="vector_pan_tilt" name="pan_tilt_joint_state_publisher" 
-        type="pan_tilt_joint_state_publisher" output="screen"/>
-    
+<launch>    
+    <!-- Vector 2 utilties bringup -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 vector2_bringup utilities_bringup.launch"
+        name="utilities_bringup" output="screen"/>
+            
     <!-- Controller Manager -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="3 vector2_bringup pan_tilt_controller_manager.launch"
+        args="5 vector2_bringup pan_tilt_controller_manager.launch"
         name="pan_tilt_controller_manager" output="screen"/>
 
     <!-- Controller Spawner -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="5 vector2_bringup pan_tilt_controller_spawner.launch"
+        args="7 vector2_bringup pan_tilt_controller_spawner.launch"
         name="pan_tilt_controller_spawner" output="screen"/>
 
     <!-- Controller Manager -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="8 vector2_bringup pan_tilt_home.launch"
+        args="10 vector2_bringup pan_tilt_home.launch"
         name="pan_tilt_homing" output="screen"/>
 
     <!-- Kinect 2 Sensor bringup -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="10 vector2_bringup kinect2_bridge.launch"
+        args="12 vector2_bringup kinect2_bridge.launch"
         name="vision_bringup" output="screen"/>
           
 </launch>
