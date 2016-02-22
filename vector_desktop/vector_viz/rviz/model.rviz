@@ -7,7 +7,6 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
-        - /RobotModel1/Links1
         - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.5
@@ -79,95 +78,11 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        jaco_base_link:
+        kinect_ir_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        jaco_ee_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        jaco_forearm_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_left_finger_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_left_finger_tip_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_left_inner_knuckle_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_left_knuckle_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_right_finger_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_right_finger_tip_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_right_inner_knuckle_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_robotiq_85_right_knuckle_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_shoulder_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_upper_arm_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_wrist_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_wrist_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        jaco_wrist_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        kinect_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        kinect_depth_optical_frame:
+        kinect_ir_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -176,7 +91,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        kinect_rgb_frame:
+        kinect_rgb_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -204,6 +119,90 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        right_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ee_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_left_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_left_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_left_inner_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_left_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_right_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_right_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_right_inner_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_robotiq_85_right_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wrist_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         tilt_link:
           Alpha: 1
           Show Axes: false
@@ -216,19 +215,119 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        base_chassis_link:
+          Value: true
+        base_laser_link:
+          Value: true
+        base_link:
+          Value: true
+        ext_imu_frame:
+          Value: true
+        kinect_ir_link:
+          Value: true
+        kinect_ir_optical_frame:
+          Value: true
+        kinect_link:
+          Value: true
+        kinect_rgb_link:
+          Value: true
+        kinect_rgb_optical_frame:
+          Value: true
+        linear_actuator_fixed_link:
+          Value: true
+        linear_actuator_link:
+          Value: true
+        pan_base_link:
+          Value: true
+        pan_link:
+          Value: true
+        right_base_link:
+          Value: true
+        right_ee_link:
+          Value: true
+        right_forearm_link:
+          Value: true
+        right_robotiq_85_base_link:
+          Value: true
+        right_robotiq_85_left_finger_link:
+          Value: true
+        right_robotiq_85_left_finger_tip_link:
+          Value: true
+        right_robotiq_85_left_inner_knuckle_link:
+          Value: true
+        right_robotiq_85_left_knuckle_link:
+          Value: true
+        right_robotiq_85_right_finger_link:
+          Value: true
+        right_robotiq_85_right_finger_tip_link:
+          Value: true
+        right_robotiq_85_right_inner_knuckle_link:
+          Value: true
+        right_robotiq_85_right_knuckle_link:
+          Value: true
+        right_shoulder_link:
+          Value: true
+        right_upper_arm_link:
+          Value: true
+        right_wrist_1_link:
+          Value: true
+        right_wrist_2_link:
+          Value: true
+        right_wrist_3_link:
+          Value: true
+        tilt_link:
+          Value: true
       Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        base_link:
+          base_chassis_link:
+            base_laser_link:
+              {}
+            ext_imu_frame:
+              {}
+            linear_actuator_fixed_link:
+              linear_actuator_link:
+                right_base_link:
+                  right_shoulder_link:
+                    right_upper_arm_link:
+                      right_forearm_link:
+                        right_wrist_1_link:
+                          right_wrist_2_link:
+                            right_wrist_3_link:
+                              right_ee_link:
+                                right_robotiq_85_base_link:
+                                  right_robotiq_85_left_inner_knuckle_link:
+                                    right_robotiq_85_left_finger_tip_link:
+                                      {}
+                                  right_robotiq_85_left_knuckle_link:
+                                    right_robotiq_85_left_finger_link:
+                                      {}
+                                  right_robotiq_85_right_inner_knuckle_link:
+                                    right_robotiq_85_right_finger_tip_link:
+                                      {}
+                                  right_robotiq_85_right_knuckle_link:
+                                    right_robotiq_85_right_finger_link:
+                                      {}
+              pan_base_link:
+                pan_link:
+                  tilt_link:
+                    kinect_link:
+                      kinect_ir_link:
+                        kinect_ir_optical_frame:
+                          {}
+                        kinect_rgb_link:
+                          kinect_rgb_optical_frame:
+                            {}
       Update Interval: 0
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 108; 108; 108
@@ -244,26 +343,27 @@ Visualization Manager:
       Topic: /initialpose
     - Class: rviz/SetGoal
       Topic: /move_base_simple/goal
+    - Class: rviz/Measure
   Value: true
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.73574
+      Distance: 4.49888
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.384449
-        Y: 0.318496
-        Z: 1.14817
+        X: -0.0323605
+        Y: 0.158967
+        Z: 0.844291
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.0702023
+      Pitch: 0.249796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.23539
+      Yaw: 0.0503128
     Saved: ~
 Window Geometry:
   Displays:

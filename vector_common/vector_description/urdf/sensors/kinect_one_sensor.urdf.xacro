@@ -33,6 +33,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         </joint>
         
 	    <link name="${prefix}_link">
+            <inertial>
+                <mass value="0.1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.01"  ixy="0.0"  ixz="0.0"
+                         iyy="0.01"  iyz="0.0"
+                         izz="0.01" />
+            </inertial>
 			<visual>
 				<geometry>
 					<mesh filename="package://vector_description/meshes/sensors/visual/kinect_one.dae" />
@@ -45,70 +52,134 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 			</collision>
 		</link>
 
-        <link name="${prefix}_depth_frame"/>
-        <joint name="${prefix}_depth_joint" type="fixed">
+        <link name="${prefix}_ir_link">
+
+			<collision>
+				<geometry>
+					<sphere radius="0.0005"/>
+				</geometry>
+			</collision>
+            <inertial>
+                <mass value="0.1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.01"  ixy="0.0"  ixz="0.0"
+                         iyy="0.01"  iyz="0.0"
+                         izz="0.01" />
+            </inertial>
+        </link>
+        <joint name="${prefix}_ir_joint" type="fixed">
             <parent link="${prefix}_link"/>
-            <child link="${prefix}_depth_frame" />
-            <origin xyz="0 -0.02  0" rpy="0 0 0"/>
+            <child link="${prefix}_ir_link" />
+            <origin xyz="0.0245 -0.03325  0.04201" rpy="0 0 0"/>
         </joint>
 
-        <link name="${prefix}_rgb_frame"/>
+        <link name="${prefix}_ir_optical_frame"/>
+        <joint name="${prefix}_ir_optical_frame_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}" />
+            <parent link="${prefix}_ir_link"/>
+            <child link="${prefix}_ir_optical_frame"/>
+        </joint>
+
+        <link name="${prefix}_rgb_link"/>
         <joint name="${prefix}_rgb_joint" type="fixed">
-            <parent link="${prefix}_link"/>
-            <child link="${prefix}_rgb_frame" />
-            <origin xyz="0 -0.045  0" rpy="0 0 0"/>
-        </joint>
-
-        <link name="${prefix}_depth_optical_frame"/>
-        <joint name="${prefix}_depth_optical_joint" type="fixed">
-            <parent link="${prefix}_depth_frame"/>
-            <child link="${prefix}_depth_optical_frame" />
-            <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}"/>
+            <parent link="${prefix}_ir_link"/>
+            <child link="${prefix}_rgb_link" />
+            <origin xyz="0 -0.06175  0" rpy="0 0 0"/>
         </joint>
         
         <link name="${prefix}_rgb_optical_frame"/>
         <joint name="${prefix}_rgb_optical_joint" type="fixed">
-            <parent link="${prefix}_rgb_frame"/>
+            <parent link="${prefix}_rgb_link"/>
             <child link="${prefix}_rgb_optical_frame" />
             <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}"/>
         </joint>
-
-        <gazebo reference="${prefix}_link">
-            <sensor type="depth" name="${prefix}">
+        
+        
+        <gazebo reference="${prefix}_ir_link">
+            <sensor type="depth" name="${prefix}_ir_sensor">
                 <always_on>true</always_on>
-                <update_rate>20.0</update_rate>
+                <update_rate>1.0</update_rate>
                 <camera>
-                    <horizontal_fov>${60.0*M_PI/180.0}</horizontal_fov>
+                    <horizontal_fov>${57.0*M_PI/180.0}</horizontal_fov>
                     <image>
-                        <format>R8G8B8</format>
+                        <format>L8</format>
                         <width>640</width>
                         <height>480</height>
                     </image>
                     <clip>
-                        <near>0.05</near>
-                        <far>8.0</far>
+                        <near>0.01</near>
+                        <far>5</far>
                     </clip>
                 </camera>
-                <plugin name="kinect_${prefix}_controller" filename="libgazebo_ros_openni_kinect.so">
-                    <cameraName>${prefix}</cameraName>
+                <plugin name="${prefix}_ir_link_controller" filename="libgazebo_ros_openni_kinect.so">
+                    <baseline>0.2</baseline>
                     <alwaysOn>true</alwaysOn>
-                    <updateRate>10</updateRate>
-                    <imageTopicName>rgb/image_raw</imageTopicName>
-                    <depthImageTopicName>depth/image_raw</depthImageTopicName>
-                    <pointCloudTopicName>depth/points</pointCloudTopicName>
-                    <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
-                    <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
-                    <frameName>/vector/${prefix}_rgb_optical_frame</frameName>
-                    <baseline>0.1</baseline>
-                    <distortion_k1>0.0</distortion_k1>
-                    <distortion_k2>0.0</distortion_k2>
-                    <distortion_k3>0.0</distortion_k3>
-                    <distortion_t1>0.0</distortion_t1>
-                    <distortion_t2>0.0</distortion_t2>
-                    <pointCloudCutoff>0.4</pointCloudCutoff>
-                    <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
+                    <updateRate>1.0</updateRate>
+                    <cameraName>${prefix}_ir</cameraName>
+                    <imageTopicName>/${prefix}/ir/image_raw</imageTopicName>
+                    <cameraInfoTopicName>/${prefix}/ir/camera_info</cameraInfoTopicName>
+                    <depthImageTopicName>/${prefix}/depth/image_raw</depthImageTopicName>
+                    <depthImageCameraInfoTopicName>/${prefix}/depth/camera_info</depthImageCameraInfoTopicName>
+                    <pointCloudTopicName>/${prefix}/depth/points</pointCloudTopicName>
+                    <frameName>${prefix}_ir_optical_frame</frameName>
+                    <pointCloudCutoff>0.5</pointCloudCutoff>
+                    <pointCloudCutoffMax>12.0</pointCloudCutoffMax>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                    <CxPrime>0</CxPrime>
+                    <Cx>0</Cx>
+                    <Cy>0</Cy>
+                    <focalLength>0</focalLength>
+                    <hackBaseline>0</hackBaseline>
                 </plugin>
             </sensor>
+            <material value="Gazebo/Red" />
+        </gazebo>
+
+        <gazebo reference="${prefix}_rgb_link">
+            <sensor type="depth" name="${prefix}_rgb_sensor">
+                <always_on>true</always_on>
+                <update_rate>1.0</update_rate>
+                <camera>
+                    <horizontal_fov>${57.0*M_PI/180.0}</horizontal_fov>
+                    <image>
+                        <format>B8G8R8</format>
+                        <width>640</width>
+                        <height>480</height>
+                    </image>
+                    <clip>
+                        <near>0.01</near>
+                        <far>5</far>
+                    </clip>
+                </camera>
+                <plugin name="${prefix}_rgb_link_controller" filename="libgazebo_ros_openni_kinect.so">
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>1.0</updateRate>
+                    <cameraName>${prefix}_rgb</cameraName>
+                    <imageTopicName>/${prefix}/rgb/image_raw</imageTopicName>
+                    <cameraInfoTopicName>/${prefix}/rgb/camera_info</cameraInfoTopicName>
+                    <depthImageTopicName>/${prefix}/depth/image_raw</depthImageTopicName>
+                    <depthImageCameraInfoTopicName>/${prefix}/depth/camera_info</depthImageCameraInfoTopicName>
+                    <pointCloudTopicName>/${prefix}/depth_registered/points</pointCloudTopicName>
+                    <frameName>${prefix}_rgb_optical_frame</frameName>
+                    <pointCloudCutoff>0.5</pointCloudCutoff>
+                    <pointCloudCutoffMax>12.0</pointCloudCutoffMax>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                    <CxPrime>0</CxPrime>
+                    <Cx>0</Cx>
+                    <Cy>0</Cy>
+                    <focalLength>0</focalLength>
+                    <hackBaseline>0</hackBaseline>
+                </plugin>
+            </sensor>
+            <material value="Gazebo/Red" />
         </gazebo>
     </xacro:macro>
 </robot>

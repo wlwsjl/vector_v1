@@ -20,8 +20,10 @@
   <include file="$(find vector_gazebo)/launch/controller_utils.launch"/>
 
   <rosparam file="$(find vector_gazebo)/controller/arm_controller.yaml" command="load"/>
-  <rosparam file="$(find vector_gazebo)/controller/gripper_controller_robotiq.yaml" command="load"/> 
-  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" args="arm_controller" />
-  <node name="gripper_controller_spawner" pkg="controller_manager" type="spawner" args="gripper_controller" />
+  <rosparam file="$(find vector_gazebo)/controller/gripper_controller_robotiq.yaml" command="load"/>
+  <rosparam file="$(find vector_gazebo)/controller/pan_tilt_controller.yaml" command="load"/>  
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" args="arm_controller --shutdown-timeout 0.5"/>
+  <node name="gripper_controller_spawner" pkg="controller_manager" type="spawner" args="gripper_controller --shutdown-timeout 0.5" />
+  <node name="pan_tilt_controller_spawner" pkg="controller_manager" type="spawner" args="pan_tilt_controller --shutdown-timeout 0.5" />
 
 </launch>

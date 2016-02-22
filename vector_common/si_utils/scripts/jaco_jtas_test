@@ -1,0 +1,210 @@
+#!/usr/bin/env python
+"""--------------------------------------------------------------------
+COPYRIGHT 2016 Stanley Innovation Inc.
+
+Software License Agreement:
+
+The software supplied herewith by Stanley Innovation Inc. (the "Company") 
+for its licensed SI Vector Platform is intended and supplied to you, 
+the Company's customer, for use solely and exclusively with Stanley Innovation 
+products. The software is owned by the Company and/or its supplier, and is 
+protected under applicable copyright laws.  All rights are reserved. Any use in 
+violation of the foregoing restrictions may subject the user to criminal 
+sanctions under applicable laws, as well as to civil liability for the 
+breach of the terms and conditions of this license. The Company may 
+immediately terminate this Agreement upon your use of the software with 
+any products that are not Stanley Innovation products.
+
+The software was written using Python programming language.  Your use 
+of the software is therefore subject to the terms and conditions of the 
+OSI- approved open source license viewable at http://www.python.org/.  
+You are solely responsible for ensuring your compliance with the Python 
+open source license.
+
+You shall indemnify, defend and hold the Company harmless from any claims, 
+demands, liabilities or expenses, including reasonable attorneys fees, incurred 
+by the Company as a result of any claim or proceeding against the Company 
+arising out of or based upon: 
+
+(i) The combination, operation or use of the software by you with any hardware, 
+    products, programs or data not supplied or approved in writing by the Company, 
+    if such claim or proceeding would have been avoided but for such combination, 
+    operation or use.
+ 
+(ii) The modification of the software by or on behalf of you 
+
+(iii) Your use of the software.
+
+ THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
+ WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
+ TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
+ IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ 
+ \file   jaco_joint_controller
+
+ \brief  ROS Driver for interfacing with the Kinova Jaco integrated 
+         with the Stanley Innovation Vector platform
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+import argparse
+import sys
+
+from copy import copy, deepcopy
+
+import rospy
+
+import actionlib
+
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+)
+from trajectory_msgs.msg import (
+    JointTrajectoryPoint,
+)
+
+from control_msgs.msg import JointTrajectoryControllerState
+
+
+class Trajectory(object):
+    def __init__(self, arm='right'):
+        self._client = actionlib.SimpleActionClient(
+            'vector/%s_arm/follow_joint_trajectory'%arm,
+            FollowJointTrajectoryAction,
+        )
+        self._goal = FollowJointTrajectoryGoal()
+        self._goal_time_tolerance = rospy.Time(0.1)
+        self._goal.goal_time_tolerance = self._goal_time_tolerance
+        server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
+        if not server_up:
+            rospy.logerr("Timed out waiting for Joint Trajectory"
+                         " Action Server to connect. Start the action server"
+                         " before running example.")
+            rospy.signal_shutdown("Timed out waiting for Action Server")
+            sys.exit(1)
+        self.clear(arm)
+        self.traj_pnts = []
+        tmp = rospy.wait_for_message("/vector/%s_arm_controller/state"%arm, JointTrajectoryControllerState)
+        self.initial_pos = [tmp.actual.positions[i] for i in range(len(tmp.actual.positions))]
+        print "initial:  ",self.initial_pos
+
+    def add_point(self, positions, vels, tdsdskd):
+        print tdsdskd
+        self.traj_pnts.append([tdsdskd,positions,vels])
+
+    def start(self):
+        for i in range(len(self.traj_pnts)):
+            data = JointTrajectoryPoint()
+            data.time_from_start = rospy.Duration(self.traj_pnts[i][0])
+            print data.time_from_start.to_sec()
+            data.positions = self.traj_pnts[i][1]
+            data.velocities = self.traj_pnts[i][2]
+            self._goal.trajectory.points.append(data)
+        
+        self._goal.trajectory.header.stamp = rospy.Time.now()
+        self._client.send_goal(self._goal)
+
+    def stop(self):
+        self._client.cancel_goal()
+
+    def wait(self, timeout=15.0):
+        self._client.wait_for_result(timeout=rospy.Duration(timeout))
+
+    def result(self):
+        return self._client.get_result()
+
+    def clear(self, arm='right'):
+        self._goal = FollowJointTrajectoryGoal()
+        self._goal.goal_time_tolerance = self._goal_time_tolerance
+        self._goal.trajectory.joint_names = ['%s_shoulder_pan_joint'%arm,
+                                             '%s_shoulder_lift_joint'%arm,
+                                             '%s_elbow_joint'%arm,
+                                             '%s_wrist_1_joint'%arm,
+                                             '%s_wrist_2_joint'%arm,
+                                             '%s_wrist_3_joint'%arm]
+
+
+def main():
+    """RSDK Joint Trajectory Example: Simple Action Client
+    Creates a client of the Joint Trajectory Action Server
+    to send commands of standard action type,
+    control_msgs/FollowJointTrajectoryAction.
+    Make sure to start the joint_trajectory_action_server.py
+    first. Then run this example on a specified limb to
+    command a short series of trajectory points for the arm
+    to follow.
+    """
+    arg_fmt = argparse.RawDescriptionHelpFormatter
+    parser = argparse.ArgumentParser(formatter_class=arg_fmt,
+                                     description=main.__doc__)
+    required = parser.add_argument_group('required arguments')
+    required.add_argument(
+        '-a', '--arm', required=True, choices=['left', 'right'],
+        help='send joint trajectory to which arm'
+    )
+    args = parser.parse_args(rospy.myargv()[1:])
+    arm = args.arm
+
+    print("Initializing node... ")
+    rospy.init_node("vector_joint_trajectory_client_%s" % (arm,))
+    print("Running. Ctrl-c to quit")
+    positions = {
+        'left':  [-0.11, -0.62, -1.15, 1.32,  0.80, 1.27,  2.39],
+        'right':  [0.11, -0.62,  1.15, 1.32, -0.80, 1.27, -2.39],
+    }
+
+    traj = Trajectory(arm)
+    rospy.on_shutdown(traj.stop)
+    # Command Current Joint Positions first
+    current_angles = deepcopy(traj.initial_pos)
+    traj.add_point(current_angles,[0.0]*6, 1.0)
+
+    pnts = [current_angles[5]-0.5,current_angles[5]+1.0,current_angles[5]-1.5,current_angles[5]-1.0,current_angles[5]-0.5,current_angles[5]-0.25,current_angles[5],current_angles[5]+.25]
+    dts = [abs(pnts[i+1] - pnts[i])/0.3 for i in range(len(pnts)-1)]
+    vels = [(pnts[i] - current_angles[5])/(dts[i-1]) for i in range(len(pnts)-1)]
+    vels.append(-0.1)
+    tsatr = 0.0
+    tmp = []
+    for i in range(len(dts)):
+        tsatr += dts[i]
+        tmp.append(tsatr)
+    dts = tmp
+    dts.append(tsatr+1)
+
+    print dts
+    for i in range(len(pnts)):
+        velpnts = [0.0]*5
+        velpnts.append(vels[i])
+        ppnt = current_angles[:5]
+        ppnt.append(pnts[i])
+        print ppnt
+        traj.add_point(ppnt,velpnts,dts[i])
+
+    
+    traj.start()
+    traj.wait(100.0)
+    print("Exiting - Joint Trajectory Action Test Complete")
+
+if __name__ == "__main__":
+    main()
+
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

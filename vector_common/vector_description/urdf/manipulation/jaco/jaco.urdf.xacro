@@ -67,7 +67,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}shoulder_link" />
             <origin xyz="0 0 0.15675" rpy="${M_PI} 0 ${M_PI}" />
             <axis xyz="0 0 1" />
-            <limit effort="18.0" velocity="0.314"/>
+            <limit effort="1800.0" velocity="0.314"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -96,7 +96,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}upper_arm_link" />
             <origin xyz="0 0 -0.11875" rpy="${M_PI/2} ${M_PI/2} 0" />
             <axis xyz="0 0 1" />
-            <limit lower="-2.238" upper="2.238" effort="30.5" velocity="0.314"/>
+            <limit lower="-2.238" upper="2.238" effort="3000.5" velocity="0.314"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -125,7 +125,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}forearm_link" />
             <origin xyz="0.41 0 0.00975" rpy=" 0 ${M_PI} ${M_PI}" />
             <axis xyz="0 0 1" />
-            <limit lower="-2.809" upper="2.809" effort="18.0" velocity="0.314"/>
+            <limit lower="-2.809" upper="2.809" effort="1800.0" velocity="0.314"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -154,7 +154,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}wrist_1_link" />
             <origin xyz="0.20725 0 0 " rpy="0 -${M_PI/2} 0" />
             <axis xyz="0 0 1" />
-            <limit effort="6.8" velocity="0.785"/>
+            <limit effort="600.8" velocity="0.785"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -183,7 +183,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}wrist_2_link" />
             <origin xyz="0 0 -0.04275704" rpy="0 ${M_PI/3} ${M_PI}" />
             <axis xyz="0 0 1" />
-            <limit effort="6.8" velocity="0.785"/>
+            <limit effort="600.8" velocity="0.785"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -212,7 +212,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <child link = "${prefix}wrist_3_link" />
             <origin xyz="0 0 -0.08551408" rpy="0 -${M_PI/3} 0" />
             <axis xyz="0 0 1" />
-            <limit effort="6.8" velocity="0.785"/>
+            <limit effort="600.8" velocity="0.785"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
         

@@ -8,7 +8,7 @@ import moveit_msgs.msg
 import geometry_msgs.msg
 from std_msgs.msg import String
 
-def move_group_python_interface_tutorial():
+def vector_moveit_test():
     ## BEGIN_TUTORIAL
     ##
     ## Setup
@@ -18,7 +18,7 @@ def move_group_python_interface_tutorial():
     ## First initialize moveit_commander and rospy.
     print "============ Starting tutorial setup"
     moveit_commander.roscpp_initialize(sys.argv)
-    rospy.init_node('move_group_python_interface_tutorial',
+    rospy.init_node('vector_moveit_test',
                   anonymous=True)
 
     ## Instantiate a RobotCommander object.  This object is an interface to
@@ -35,7 +35,7 @@ def move_group_python_interface_tutorial():
     ## to one group of joints.  In this case the group is the joints in the left
     ## arm.  This interface can be used to plan and execute motions on the left
     ## arm.
-    group = moveit_commander.MoveGroupCommander("arm")
+    group = [moveit_commander.MoveGroupCommander("arm"),moveit_commander.MoveGroupCommander("gripper"),moveit_commander.MoveGroupCommander("head")]
 
 
     ## We create this DisplayTrajectory publisher which is used below to publish
@@ -60,10 +60,14 @@ def move_group_python_interface_tutorial():
     ## ^^^^^^^^^^^^^^^^^^^^^^^^^
     ##
     ## We can get the name of the reference frame for this robot
-    print "============ Reference frame: %s" % group.get_planning_frame()
+    print "============ Arm Reference frame: %s" % group[0].get_planning_frame()
+    print "============ Gripper Reference frame: %s" % group[1].get_planning_frame()
+    print "============ Head Reference frame: %s" % group[2].get_planning_frame()
 
     ## We can also print the name of the end-effector link for this group
-    print "============ Reference frame: %s" % group.get_end_effector_link()
+    print "============ Arm Reference frame: %s" % group[0].get_end_effector_link()
+    print "============ Gripper Reference frame: %s" % group[1].get_end_effector_link()
+    print "============ Head Reference frame: %s" % group[2].get_end_effector_link()
 
     ## We can get a list of all the groups in the robot
     print "============ Robot Groups:"
@@ -75,7 +79,9 @@ def move_group_python_interface_tutorial():
     print robot.get_current_state()
     print "============"
     
-    group.set_planner_id("RRTConnectkConfigDefault")
+    group[0].set_planner_id("RRTConnectkConfigDefault")
+    group[1].set_planner_id("RRTConnectkConfigDefault")
+    group[2].set_planner_id("RRTConnectkConfigDefault")
 
 
     ## Planning to a Pose goal
@@ -85,14 +91,17 @@ def move_group_python_interface_tutorial():
     print "============ Generating plan 1"
     x = 0
     while x < 1000 and not rospy.is_shutdown():
-        group.set_random_target()
+        for i in range(3):
+            group[i].set_random_target()
 
-        ## Now, we call the planner to compute the plan
-        ## and visualize it if successful
-        ## Note that we are just planning, not asking move_group 
-        ## to actually move the robot
-        plan1 = group.plan()
-        group.go(wait=True)
+            ## Now, we call the planner to compute the plan
+            ## and visualize it if successful
+            ## Note that we are just planning, not asking move_group 
+            ## to actually move the robot
+            plan1 = group[i].plan()
+            
+        for i in range(3):
+            group[i].go(wait=True)
         x+=1
 
 
@@ -140,7 +149,7 @@ def move_group_python_interface_tutorial():
 
 if __name__=='__main__':
   try:
-    move_group_python_interface_tutorial()
+    vector_moveit_test()
   except rospy.ROSInterruptException:
     pass
 

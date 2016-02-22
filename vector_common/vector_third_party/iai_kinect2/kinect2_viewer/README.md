@@ -4,6 +4,8 @@
 
 - [Thiemo Wiedemeyer](https://ai.uni-bremen.de/team/thiemo_wiedemeyer) <<wiedemeyer@cs.uni-bremen.de>>, [Institute for Artificial Intelligence](http://ai.uni-bremen.de/), University of Bremen
 
+*Note:* ***Please use the GitHub issues*** *for questions and problems regarding the iai_kinect2 package and its components.* ***Do not write emails.***
+
 ## Description
 
 This is a simple viewer for the combined color an depth image provided by Kinect like depth sensors.
@@ -30,7 +32,7 @@ kinect2_viewer [options]
     'approx' use approximate time synchronization
 ```
 
-Example: `rosrun kinect2_viewer kinect2_viewer kinect2 sd cloud`
+Example: `rosrun kinect2_viewer kinect2_viewer sd cloud`
 
 ## Key bindings
 

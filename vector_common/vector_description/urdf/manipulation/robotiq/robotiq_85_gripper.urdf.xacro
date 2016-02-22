@@ -42,23 +42,14 @@
             <limit lower="0.0" upper="0.804" velocity="2.0" effort="1000"/>
         </joint>
 
-        <joint name="${prefix}robotiq_85_right_knuckle_joint" type="revolute">
+        <joint name="${prefix}robotiq_85_right_knuckle_joint" type="continuous">
             <parent link="${prefix}robotiq_85_base_link"/>
             <child link="${prefix}robotiq_85_right_knuckle_link"/>
             <axis xyz="0 0 1"/>
             <origin rpy="0.0 0.0 0.0" xyz="0.05490451627 -0.03060114443 0.0"/>
-            <limit lower="-0.804" upper="0.0" velocity="2.0" effort="1000"/>
-            <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="1"/>
-        </joint>      
-        <gazebo>
-            <plugin name="${prefix}robotiq_85_right_knuckle_joint_mimic" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
-                <joint>${prefix}robotiq_85_left_knuckle_joint</joint>
-                <mimicJoint>${prefix}robotiq_85_right_knuckle_joint</mimicJoint>
-            </plugin>
-            <plugin name="${prefix}robotiq_85_right_knuckle_link" filename="libroboticsgroup_gazebo_disable_link_plugin.so" >
-                <link>${prefix}robotiq_85_right_knuckle_link</link>
-            </plugin>
-        </gazebo>
+            <limit lower="-3.14" upper="3.14" velocity="100.0" effort="1000"/>
+            <mimic joint="${prefix}robotiq_85_left_knuckle_joint"/>
+        </joint>
 
         <link name="${prefix}robotiq_85_left_knuckle_link">
             <visual>
@@ -103,17 +94,13 @@
         <joint name="${prefix}robotiq_85_left_finger_joint" type="fixed">
             <parent link="${prefix}robotiq_85_left_knuckle_link"/>
             <child link="${prefix}robotiq_85_left_finger_link"/>
-            <axis xyz="0 0 1"/>
             <origin xyz="-0.00408552455 -0.03148604435 0.0" rpy="0 0 0" />
-            <limit lower="0" upper="2.617994" velocity="2.0" effort="1000"/>
         </joint>
 
         <joint name="${prefix}robotiq_85_right_finger_joint" type="fixed">
             <parent link="${prefix}robotiq_85_right_knuckle_link"/>
             <child link="${prefix}robotiq_85_right_finger_link"/>
-            <axis xyz="0 0 1"/>
             <origin xyz="-0.00408552455 -0.03148604435 0.0" rpy="0 0 0" />
-            <limit lower="0" upper="2.617994" velocity="2.0" effort="0"/>
         </joint>
 
         <link name="${prefix}robotiq_85_left_finger_link">
@@ -156,41 +143,23 @@
             </inertial>
         </link> 
 
-        <joint name="${prefix}robotiq_85_left_inner_knuckle_joint" type="revolute">
+        <joint name="${prefix}robotiq_85_left_inner_knuckle_joint" type="continuous">
             <parent link="${prefix}robotiq_85_base_link"/>
             <child link="${prefix}robotiq_85_left_inner_knuckle_link"/>
             <axis xyz="0 0 1"/>
             <origin xyz="0.06142 0.0127 0" rpy="${pi} 0.0 0.0" />
-            <limit lower="-0.804" upper="0.0" velocity="2.0" effort="1000"/>
+            <limit lower="-3.14" upper="3.14" velocity="100.0" effort="0.1"/>
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" offset="0"/>
         </joint>
-        <gazebo>
-            <plugin name="${prefix}robotiq_85_left_inner_knuckle_joint_mimic" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
-                <joint>${prefix}robotiq_85_left_knuckle_joint</joint>
-                <mimicJoint>${prefix}robotiq_85_left_inner_knuckle_joint</mimicJoint>
-            </plugin>
-            <plugin name="${prefix}robotiq_85_left_inner_knuckle_link" filename="libroboticsgroup_gazebo_disable_link_plugin.so" >
-                <link>${prefix}robotiq_85_left_inner_knuckle_link</link>
-            </plugin>
-        </gazebo>
 
-        <joint name="${prefix}robotiq_85_right_inner_knuckle_joint" type="revolute">
+        <joint name="${prefix}robotiq_85_right_inner_knuckle_joint" type="continuous">
             <parent link="${prefix}robotiq_85_base_link"/>
             <child link="${prefix}robotiq_85_right_inner_knuckle_link"/>
             <axis xyz="0 0 1"/>
             <origin xyz="0.06142 -0.0127 0" rpy="0 0 0"/>
-            <limit lower="0" upper="0.804" velocity="2.0" effort="1000"/>
+            <limit lower="-3.14" upper="3.14" velocity="100.0" effort="0.1"/>
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" offset="0"/>
         </joint>
-        <gazebo>
-            <plugin name="${prefix}robotiq_85_right_inner_knuckle_joint_mimic" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
-                <joint>${prefix}robotiq_85_left_knuckle_joint</joint>
-                <mimicJoint>${prefix}robotiq_85_right_inner_knuckle_joint</mimicJoint>
-            </plugin>
-            <plugin name="${prefix}robotiq_85_right_inner_knuckle_link" filename="libroboticsgroup_gazebo_disable_link_plugin.so" >
-                <link>${prefix}robotiq_85_right_inner_knuckle_link</link>
-            </plugin>
-        </gazebo>
 
         <link name="${prefix}robotiq_85_left_inner_knuckle_link">
             <visual>
@@ -231,43 +200,24 @@
             </inertial>
         </link>
 
-        <joint name="${prefix}robotiq_85_left_finger_tip_joint" type="revolute">
+        <joint name="${prefix}robotiq_85_left_finger_tip_joint" type="continuous">
             <parent link="${prefix}robotiq_85_left_inner_knuckle_link"/>
             <child link="${prefix}robotiq_85_left_finger_tip_link"/>
             <axis xyz="0 0 1"/>
             <origin xyz="0.04303959807 -0.03759940821 0.0" rpy="0.0 0.0 0.0"/>
-            <limit lower="0" upper="1.5707" velocity="2.0" effort="1000"/>
+            <limit lower="-3.14" upper="3.14" velocity="100.0" effort="0.1"/>
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="-1"/>
         </joint>
-        <gazebo>
-            <plugin name="${prefix}${prefix}robotiq_85_left_finger_tip_joint_mimic" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
-                <joint>${prefix}robotiq_85_left_knuckle_joint</joint>
-                <mimicJoint>${prefix}robotiq_85_left_finger_tip_joint</mimicJoint>
-                <multiplier>-1</multiplier>
-            </plugin>
-            <plugin name="${prefix}robotiq_85_left_finger_tip_link" filename="libroboticsgroup_gazebo_disable_link_plugin.so" >
-                <link>${prefix}robotiq_85_left_finger_tip_link</link>
-            </plugin>
-        </gazebo>
 
-        <joint name="${prefix}robotiq_85_right_finger_tip_joint" type="revolute">
+        <joint name="${prefix}robotiq_85_right_finger_tip_joint" type="continuous">
             <parent link="${prefix}robotiq_85_right_inner_knuckle_link"/>
             <child link="${prefix}robotiq_85_right_finger_tip_link"/>
             <axis xyz="0 0 1"/>
             <origin rpy="0.0 0.0 0.0" xyz="0.04303959807 -0.03759940821  0.0"/>
-            <limit lower="0" upper="1.5707" velocity="2.0" effort="1000"/>
+            <limit lower="-3.14" upper="3.14" velocity="100.0" effort="0.1"/>
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="-1"/>
         </joint>
-        <gazebo>
-            <plugin name="${prefix}${prefix}robotiq_85_right_finger_tip_joint_mimic" filename="libroboticsgroup_gazebo_mimic_joint_plugin.so">
-                <joint>${prefix}robotiq_85_left_knuckle_joint</joint>
-                <mimicJoint>${prefix}robotiq_85_right_finger_tip_joint</mimicJoint>
-                <multiplier>-1</multiplier>
-            </plugin>
-            <plugin name="${prefix}robotiq_85_right_finger_tip_link" filename="libroboticsgroup_gazebo_disable_link_plugin.so" >
-                <link>${prefix}robotiq_85_right_finger_tip_link</link>
-            </plugin>
-        </gazebo>
+
 
         <link name="${prefix}robotiq_85_left_finger_tip_link">
             <visual>

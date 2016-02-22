@@ -32,6 +32,30 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <property name="M_PI" value="3.14159"/>
     
     <xacro:macro name="vector_accessories">
+    
+
+        <link name="sic_imu_frame"/>
+        <joint name="sic_imu_joint" type="fixed">
+            <origin xyz="0.07475 0.07136 0.24556" rpy="${M_PI} 0 0" />
+            <parent link="$(optenv VECTOR_PARENT_LINK base_chassis_link)" />
+            <child link="sic_imu_frame" />
+        </joint>
+        <gazebo>
+            <plugin name="sic_imu_controller" filename="libhector_gazebo_ros_imu.so">
+                <alwaysOn>1</alwaysOn>
+                <updateRate>50.0</updateRate>
+                <bodyName>sic_imu_frame</bodyName>
+                <topicName>/vector/feedback/sic_imu</topicName>
+                <accelDrift>0.005 0.005 0.005</accelDrift>
+                <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+                <rateDrift>0.005 0.005 0.005 </rateDrift>
+                <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
+                <headingDrift>0.005</headingDrift>
+                <headingGaussianNoise>0.005</headingGaussianNoise>
+            </plugin>
+        </gazebo>
+            
+            
         <!-- CH Robotics UM7 Link-->
         <xacro:if value="$(optenv VECTOR_HAS_EXT_IMU false)">
             <link name="ext_imu_frame"/>
@@ -41,7 +65,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                 <child link="ext_imu_frame" />
             </joint>
             <gazebo>
-                <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+                <plugin name="ext_imu_controller" filename="libhector_gazebo_ros_imu.so">
                     <alwaysOn>1</alwaysOn>
                     <updateRate>50.0</updateRate>
                     <bodyName>ext_imu_frame</bodyName>
@@ -64,9 +88,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         </xacro:if>
         
         <!-- SICK LMS1XX Sensor -->
-        <xacro:if value="$(optenv VECTOR_HAS_SICK false)">
+        <xacro:if value="$(optenv VECTOR_HAS_SICK_TIM false)">
             <xacro:sick_lms1xx laser_prefix="base" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
-                <origin xyz="$(optenv SICK_LMS1XX_XYZ 0 0 1.0)" rpy="$(optenv SICK_LMS1XX_RPY 3.14159 0 0)" />
+                <origin xyz="$(optenv SICK_TIM_XYZ 0 0 1.0)" rpy="$(optenv SICK_TIM_RPY 3.14159 0 0)" />
             </xacro:sick_lms1xx>
         </xacro:if>
         

@@ -311,7 +311,6 @@ class SIArmController(object):
         """
         Register the publishers and subscribers
         """
-        JointTrajectoryControllerState
         self._jstpub = rospy.Publisher("/vector/%s_arm_controller/state"%self._arm_name,JointTrajectoryControllerState,queue_size=10)
         self._jstmsg = JointTrajectoryControllerState()
         self._jstmsg.header.seq = 0

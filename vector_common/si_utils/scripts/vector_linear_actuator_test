@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+"""--------------------------------------------------------------------
+COPYRIGHT 2016 Stanley Innovation Inc.
+
+Software License Agreement:
+
+The software supplied herewith by Stanley Innovation Inc. (the "Company") 
+for its licensed SI Vector Platform is intended and supplied to you, 
+the Company's customer, for use solely and exclusively with Stanley Innovation 
+products. The software is owned by the Company and/or its supplier, and is 
+protected under applicable copyright laws.  All rights are reserved. Any use in 
+violation of the foregoing restrictions may subject the user to criminal 
+sanctions under applicable laws, as well as to civil liability for the 
+breach of the terms and conditions of this license. The Company may 
+immediately terminate this Agreement upon your use of the software with 
+any products that are not Stanley Innovation products.
+
+The software was written using Python programming language.  Your use 
+of the software is therefore subject to the terms and conditions of the 
+OSI- approved open source license viewable at http://www.python.org/.  
+You are solely responsible for ensuring your compliance with the Python 
+open source license.
+
+You shall indemnify, defend and hold the Company harmless from any claims, 
+demands, liabilities or expenses, including reasonable attorneys fees, incurred 
+by the Company as a result of any claim or proceeding against the Company 
+arising out of or based upon: 
+
+(i) The combination, operation or use of the software by you with any hardware, 
+    products, programs or data not supplied or approved in writing by the Company, 
+    if such claim or proceeding would have been avoided but for such combination, 
+    operation or use.
+ 
+(ii) The modification of the software by or on behalf of you 
+
+(iii) Your use of the software.
+
+ THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
+ WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
+ TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
+ IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ 
+ \file   vector_linear_actuator_test
+
+ \brief  Node for testing the linear actuator command and feedback
+         interfaces.
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+from vector_msgs.msg import LinearActuatorCmd,Dynamics
+import rospy
+
+class LinearActuatorTest(object):
+    def __init__(self,cmds,rate):
+        self.fb_updated = False
+        self._idx = 0
+        self.cmd = LinearActuatorCmd()
+        self.pub = rospy.Publisher("/vector/linear_actuator_cmd",LinearActuatorCmd,queue_size=1)
+        self.sub = rospy.Subscriber("/vector/feedback/dynamics",Dynamics,self._update_status)
+        self.rate = rate
+        
+        while not self.fb_updated:
+            rospy.sleep(0.1)
+            
+        self.done = False
+        
+        self.cmd.header.stamp = rospy.get_rostime()
+        self.cmd.header.seq = self._idx
+        self.cmd.header.frame_id=''
+        self.cmd.desired_position_m = self._cmds[self._idx]
+        self.pub.publish(self.cmd)
+        rospy.sleep(5)       
+        
+        self._run()
+        
+    def _update_status(self,data):
+        self._lin_pos = data.linear_actuator_position_m
+        self.fb_updated = True
+        
+    def _run(self):
+        r = rospy.Rate(self.rate)
+        
+        while not self.done and not rospy.is_shutdown():
+
+            self.cmd.header.stamp = rospy.get_rostime()
+            self.cmd.header.seq = self._idx
+            self.cmd.header.frame_id=''
+            self.cmd.desired_position_m = self._cmds[self._idx]
+            self.pub.publish(self.cmd)
+                    
+            if (abs(self._cmds[self._idx]-self._lin_pos) < 0.002):
+                self._idx += 1
+                print self._idx
+            if (self._idx >= len(self._cmds)):
+                self.done = True    
+
+            r.sleep()
+
+def main():
+
+    """
+    Initialize the node
+    """
+    rospy.init_node('vector_linear_actuator_test')
+    cmds = [0.427, 0.327, 0.527, 0.227, 0.527, 0.127, 0.627, 0.027, 0.727, 0.427]
+    rate = 50.0
+    test = LinearActuatorTest(cmds,rate)
+        
+    print("\nDone.")        
+        
+
+
+if __name__ == "__main__":
+    main()
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

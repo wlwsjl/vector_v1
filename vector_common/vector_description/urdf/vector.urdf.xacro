@@ -54,14 +54,32 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <origin xyz="0.22806971 0 0.46024800" rpy="0 0 0" />
     </xacro:vector_linear_actuator>
     
-    <xacro:jaco_robot prefix="jaco_" parent="linear_actuator_link">
-        <origin xyz="0.06079866 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
-    </xacro:jaco_robot>
+    <!-- Arms -->
+    <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
+        <xacro:jaco_robot prefix="right_" parent="linear_actuator_link">
+            <origin xyz="0.06079866 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+        </xacro:jaco_robot>
 
-    <xacro:robotiq_85_gripper prefix="jaco_" parent="jaco_ee_link" >
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </xacro:robotiq_85_gripper>
 
+        <xacro:if value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"> 
+            <xacro:jaco_robot prefix="left_" parent="linear_actuator_link">
+                <origin xyz="0.06079866 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+            </xacro:jaco_robot>
+        </xacro:if>
+        
+        <xacro:if value="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
+            <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_link" >
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:robotiq_85_gripper>
+        
+        
+            <xacro:if value="$(optenv VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS false)">
+                <xacro:robotiq_85_gripper prefix="left_" parent="right_ee_link" >
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
+                </xacro:robotiq_85_gripper>
+            </xacro:if>
+        </xacro:if>
+    </xacro:if>
 
     <!-- Setup any accessories defined in the environment -->
     <xacro:vector_accessories />

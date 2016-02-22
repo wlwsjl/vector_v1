@@ -52,7 +52,7 @@ import socket
 import threading
 import os
 
-class IoEthThread:
+class IoEthThread(object):
     def __init__(self,remote_address,tx_queue,rx_queue,max_packet_size=1500):
         self.tx_queue = tx_queue
         self.rx_queue = rx_queue
@@ -70,7 +70,7 @@ class IoEthThread:
             self.conn.connect(self.remote_address)
         except:
             try:
-                self.conn.close()
+                self.conn.Close()
             except:
                 pass
             self.link_up = False

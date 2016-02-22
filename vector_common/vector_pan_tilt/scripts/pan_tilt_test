@@ -15,8 +15,8 @@ class Joint:
     def __init__(self):        
         self.jta = actionlib.SimpleActionClient('/pan_tilt_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
         rospy.loginfo('Waiting for joint trajectory action')
-        self.jta.wait_for_server()
-        rospy.loginfo('Found joint trajectory action!')
+        #self.jta.wait_for_server()
+        #rospy.loginfo('Found joint trajectory action!')
 
         
     def move_joint(self, angles, time_dur):

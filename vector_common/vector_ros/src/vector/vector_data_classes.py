@@ -147,8 +147,8 @@ class Vector_Propulsion:
 class Vector_IMU(object):
     def __init__(self):
         self._MsgData = Imu()
-        self._MsgPub = rospy.Publisher('/vector/feedback/raw_imu', Imu, queue_size=10)
-        self._MsgData.header.frame_id = 'vector/sic_imu_frame'
+        self._MsgPub = rospy.Publisher('/vector/feedback/sic_imu', Imu, queue_size=10)
+        self._MsgData.header.frame_id = 'sic_imu_frame'
         self._seq = 0
         ext_imu_topic = rospy.get_param('~ext_imu_topic',None)
         if (None != ext_imu_topic):
@@ -212,9 +212,9 @@ class Vector_Dynamics:
         self._use_platform_odometry = rospy.get_param('~use_platform_odometry',False)
         self._MsgData = Dynamics()
         self._MsgPub = rospy.Publisher('/vector/feedback/dynamics', Dynamics, queue_size=10)
-        self._jointStatePub = rospy.Publisher('vector_joint_states', JointState, queue_size=10)
+        self._jointStatePub = rospy.Publisher('/vector/joint_states', JointState, queue_size=10)
         self._jointStateMsg = JointState()
-        self._jointStateMsg.name = ['left_front_wheel','right_front_wheel','left_rear_wheel','right_rear_wheel']
+        self._jointStateMsg.name = ['linear_joint']
         self._MsgData.header.frame_id = ''
         self._jointStateMsg.header.frame_id = ''
 
@@ -226,8 +226,8 @@ class Vector_Dynamics:
             self._OdomPub = rospy.Publisher('/vector/odometry/local_filtered', Odometry, queue_size=10)
         
         
-        self._OdomData.header.frame_id = '/odom'
-        self._OdomData.child_frame_id  = 'vector/base_link'
+        self._OdomData.header.frame_id = 'odom'
+        self._OdomData.child_frame_id  = 'base_link'
         
         
         self._OdomData.pose.covariance = [0.00017,0.0,0.0,0.0,0.0,0.0,
@@ -264,48 +264,42 @@ class Vector_Dynamics:
         self._MsgData.x_vel_target_mps = convert_u32_to_float(data[0])
         self._MsgData.y_vel_target_mps = convert_u32_to_float(data[1])
         self._MsgData.yaw_rate_target_rps = convert_u32_to_float(data[2])
-        self._MsgData.x_vel_limit_mps = convert_u32_to_float(data[3])
-        self._MsgData.y_vel_limit_mps = convert_u32_to_float(data[4])
-        self._MsgData.yaw_rate_limit_rps = convert_u32_to_float(data[5])
+        self._MsgData.linear_actuator_target_m = convert_u32_to_float(data[3])
+        self._MsgData.x_vel_limit_mps = convert_u32_to_float(data[4])
+        self._MsgData.y_vel_limit_mps = convert_u32_to_float(data[5])
+        self._MsgData.yaw_rate_limit_rps = convert_u32_to_float(data[6])
+        self._MsgData.linear_actuator_vel_limit_mps = convert_u32_to_float(data[7])
         
         
-        temp = [convert_u32_to_float(data[6]),
-                convert_u32_to_float(data[7]),
-                convert_u32_to_float(data[8]),
-                convert_u32_to_float(data[9])]
+        temp = [convert_u32_to_float(data[8]),
+                convert_u32_to_float(data[9]),
+                convert_u32_to_float(data[10]),
+                convert_u32_to_float(data[11])]
         self._MsgData.wheel_vel_mps = temp
-        joint_vel = [(-1.0*temp[i]) for i in range(len(temp))]
-        temp = [convert_u32_to_float(data[10]),
-                convert_u32_to_float(data[11]),
-                convert_u32_to_float(data[12]),
-                convert_u32_to_float(data[13])]
+        temp = [convert_u32_to_float(data[12]),
+                convert_u32_to_float(data[13]),
+                convert_u32_to_float(data[14]),
+                convert_u32_to_float(data[15])]
         self._MsgData.wheel_pos_m = temp
         
-        self._MsgData.linear_actuator_vel_mps = convert_u32_to_float(data[14])
-        self._MsgData.linear_actuator_position_m = convert_u32_to_float(data[15])
+        joint_vel = [convert_u32_to_float(data[16])]
+        joint_pos = [convert_u32_to_float(data[17])]
+        self._MsgData.linear_actuator_vel_mps = convert_u32_to_float(data[16])
+        self._MsgData.linear_actuator_position_m = convert_u32_to_float(data[17])
         
-        """
-        Prevent divide by zero
-        """
-        if (wheel_circum <= 0):
-            wheel_circum = 0.1524 * math.pi
-            rospy.logerr("wheel diameter was set to be invalid by the feedback, something is wrong....")
-             
-        joint_pos = [(-1.0*((temp[i]/wheel_circum) % 1.0) * (2 * math.pi)) for i in range(len(temp))]
-            
-        self._MsgData.x_accel_mps2 = convert_u32_to_float(data[16])
-        self._MsgData.y_accel_mps2 = convert_u32_to_float(data[17])
-        self._MsgData.yaw_accel_mps2 = convert_u32_to_float(data[18])
-        self._OdomData.twist.twist.linear.x = convert_u32_to_float(data[19])
-        self._OdomData.twist.twist.linear.y = convert_u32_to_float(data[20])
+        self._MsgData.x_accel_mps2 = convert_u32_to_float(data[18])
+        self._MsgData.y_accel_mps2 = convert_u32_to_float(data[19])
+        self._MsgData.yaw_accel_mps2 = convert_u32_to_float(data[20])
+        self._OdomData.twist.twist.linear.x = convert_u32_to_float(data[21])
+        self._OdomData.twist.twist.linear.y = convert_u32_to_float(data[22])
         self._OdomData.twist.twist.linear.z = 0.0
         self._OdomData.twist.twist.angular.x = 0.0
         self._OdomData.twist.twist.angular.y = 0.0
-        self._OdomData.twist.twist.angular.z = convert_u32_to_float(data[21])
-        self._OdomData.pose.pose.position.x = convert_u32_to_float(data[22])
-        self._OdomData.pose.pose.position.y = convert_u32_to_float(data[23])
+        self._OdomData.twist.twist.angular.z = convert_u32_to_float(data[23])
+        self._OdomData.pose.pose.position.x = convert_u32_to_float(data[24])
+        self._OdomData.pose.pose.position.y = convert_u32_to_float(data[25])
         self._OdomData.pose.pose.position.z = 0.0
-        self._MsgData.yaw_angle_rad = convert_u32_to_float(data[24])
+        self._MsgData.yaw_angle_rad = convert_u32_to_float(data[26])
         rot = tf.transformations.quaternion_from_euler(0,0,self._MsgData.yaw_angle_rad)
         self._OdomData.pose.pose.orientation.x = rot[0]
         self._OdomData.pose.pose.orientation.y = rot[1]
@@ -316,6 +310,7 @@ class Vector_Dynamics:
         y = self._OdomData.pose.pose.position.y
         z = self._OdomData.pose.pose.position.z             
 
+        
         self._jointStateMsg.velocity = joint_vel
         self._jointStateMsg.position = joint_pos
 
@@ -328,7 +323,7 @@ class Vector_Dynamics:
                 br.sendTransform((x, y, z),
                                   rot,
                                   header_stamp,
-                                  "vector/base_link",
+                                  "base_link",
                                   "odom")   
             self._seq += 1  
 

@@ -12,7 +12,7 @@ class JointStateMessage():
 
 class JointStatePublisher():
     def __init__(self):
-        rospy.init_node('si_pan_tilt_joint_state_publisher', anonymous=True)
+        rospy.init_node('pan_tilt_joint_state_publisher', anonymous=True)
         
         rate = rospy.get_param('~rate', 20)
         r = rospy.Rate(rate)
@@ -32,7 +32,7 @@ class JointStatePublisher():
                            
         [rospy.Subscriber(c + '/state', JointStateDynamixel, self.controller_state_handler) for c in self.controllers]
      
-        self.joint_states_pub = rospy.Publisher('pan_tilt/joint_states', JointStateSensor, queue_size=10)
+        self.joint_states_pub = rospy.Publisher('vector/pan_tilt/joint_states', JointStateSensor, queue_size=10)
        
         rospy.loginfo("Starting Dynamixel Joint State Publisher at " + str(rate) + "Hz")
        

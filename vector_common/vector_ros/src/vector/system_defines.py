@@ -68,7 +68,7 @@ or 32-bit IEEE754 floating point value depending on the command
 ------------------------------------------------------------------------"""
 
 """
-Defines for the structure of commands sent to the RMP each message
+Defines for the structure of commands sent to Vector each message
 consists of an ID and a number 32-bit words depending on the command.
 The data bytes are big-endian (highest byte in lowest index).
 Command ID: 16-bit ID.
@@ -83,12 +83,18 @@ the checksum and breakout into a byte array is handled
 by the communication driver
 """
 """
-Non-holonomic motion command is used for all platforms except the OMNI
+Platform motion command for the base
 """
 MOTION_CMD_ID                = 0x1800
 MOTION_CMD_VEL_X_INDEX       = 0
 MOTION_CMD_VEL_Y_INDEX       = 1
 MOTION_CMD_YAW_RATE_INDEX    = 2
+
+"""
+Linear actuator commands
+"""
+LINEAR_ACTUATOR_POSITION_CMD_ID       = 0x1900
+LINEAR_ACTUATOR_VELOCITY_LIMIT_CMD_ID = 0x1901
 
 """
 Load machine configuration command is sent to update the NVM configuration
@@ -558,69 +564,71 @@ START_DYNAMICS_DATA_BLOCK           =(51)
 ROS_X_VEL_TARGET_INDEX              =(51)
 ROS_Y_VEL_TARGET_INDEX              =(52)
 ROS_YAW_TARGET_INDEX                =(53)
-ROS_X_VELOCITY_LIMIT_INDEX          =(54)
-ROS_Y_VELOCITY_LIMIT_INDEX          =(55)
-ROS_YAW_RATE_LIMIT_INDEX            =(56)
-ROS_RF_WHEEL_VEL_INDEX              =(57)
-ROS_LF_WHEEL_VEL_INDEX              =(58)
-ROS_RR_WHEEL_VEL_INDEX              =(59)
-ROS_LR_WHEEL_VEL_INDEX              =(60)
-ROS_RF_WHEEL_POS_INDEX              =(61)
-ROS_LF_WHEEL_POS_INDEX              =(62)
-ROS_RR_WHEEL_POS_INDEX              =(63)
-ROS_LR_WHEEL_POS_INDEX              =(64)
-ROS_LIN_ACT_VEL_INDEX               =(65)
-ROS_LIN_ACT_POS_INDEX               =(66)
-ROS_ODOM_X_ACCEL_INDEX              =(67)
-ROS_ODOM_Y_ACCEL_INDEX              =(68)
-ROS_ODOM_YAW_ACCEL_INDEX            =(69)
-ROS_ODOM_X_VELOCITY_INDEX           =(70)
-ROS_ODOM_Y_VELOCITY_INDEX           =(71)
-ROS_ODOM_YAW_VELOCITY_INDEX         =(72)
-ROS_ODOM_X_POSITION_INDEX           =(73)
-ROS_ODOM_Y_POSITION_INDEX           =(74)
-ROS_ODOM_YAW_POSITION_INDEX         =(75)
-END_DYNAMICS_DATA_BLOCK             =(76)
+ROS_LIN_ACT_TARGET_INDEX            =(54)
+ROS_X_VELOCITY_LIMIT_INDEX          =(55)
+ROS_Y_VELOCITY_LIMIT_INDEX          =(56)
+ROS_LIN_ACT_VELOCITY_LIMIT_INDEX    =(57)
+ROS_YAW_RATE_LIMIT_INDEX            =(58)
+ROS_RF_WHEEL_VEL_INDEX              =(59)
+ROS_LF_WHEEL_VEL_INDEX              =(60)
+ROS_RR_WHEEL_VEL_INDEX              =(61)
+ROS_LR_WHEEL_VEL_INDEX              =(62)
+ROS_RF_WHEEL_POS_INDEX              =(63)
+ROS_LF_WHEEL_POS_INDEX              =(64)
+ROS_RR_WHEEL_POS_INDEX              =(65)
+ROS_LR_WHEEL_POS_INDEX              =(66)
+ROS_LIN_ACT_VEL_INDEX               =(67)
+ROS_LIN_ACT_POS_INDEX               =(68)
+ROS_ODOM_X_ACCEL_INDEX              =(69)
+ROS_ODOM_Y_ACCEL_INDEX              =(70)
+ROS_ODOM_YAW_ACCEL_INDEX            =(71)
+ROS_ODOM_X_VELOCITY_INDEX           =(72)
+ROS_ODOM_Y_VELOCITY_INDEX           =(73)
+ROS_ODOM_YAW_VELOCITY_INDEX         =(74)
+ROS_ODOM_X_POSITION_INDEX           =(75)
+ROS_ODOM_Y_POSITION_INDEX           =(76)
+ROS_ODOM_YAW_POSITION_INDEX         =(77)
+END_DYNAMICS_DATA_BLOCK             =(78)
 
-START_APP_CONFIG_BLOCK              =(76)
-ROS_APP_X_VEL_LIMIT_INDEX           =(76)
-ROS_APP_Y_VEL_LIMIT_INDEX           =(77)
-ROS_APP_ACCEL_LIMIT_INDEX           =(78)
-ROS_APP_DECEL_LIMIT_INDEX           =(79)
-ROS_APP_MAX_DTZ_DECEL_INDEX         =(80)
-ROS_APP_YAW_RATE_LIMIT_INDEX        =(81)
-ROS_APP_YAW_ACCEL_LIMIT_INDEX       =(82)
-ROS_APP_WHEEL_DIAMETER_INDEX        =(83)
-ROS_APP_WHEEL_BASE_LENGTH_INDEX     =(84)
-ROS_APP_WHEEL_TRACK_WIDTH_INDEX     =(85)
-ROS_APP_TRANSMISSION_RATIO_INDEX    =(86)
-ROS_APP_CFG_BITMAP_INDEX            =(87)
-ROS_APP_ETH_IP_ADDRESS_INDEX        =(88)
-ROS_APP_ETH_PORT_NUMBER_INDEX       =(89)
-ROS_APP_ETH_SUBNET_MASK_INDEX       =(90)
-ROS_APP_ETH_GATEWAY_INDEX           =(91)
-END_APP_CONFIG_BLOCK                =(92)
+START_APP_CONFIG_BLOCK              =(78)
+ROS_APP_X_VEL_LIMIT_INDEX           =(78)
+ROS_APP_Y_VEL_LIMIT_INDEX           =(79)
+ROS_APP_ACCEL_LIMIT_INDEX           =(80)
+ROS_APP_DECEL_LIMIT_INDEX           =(81)
+ROS_APP_MAX_DTZ_DECEL_INDEX         =(82)
+ROS_APP_YAW_RATE_LIMIT_INDEX        =(83)
+ROS_APP_YAW_ACCEL_LIMIT_INDEX       =(84)
+ROS_APP_WHEEL_DIAMETER_INDEX        =(85)
+ROS_APP_WHEEL_BASE_LENGTH_INDEX     =(86)
+ROS_APP_WHEEL_TRACK_WIDTH_INDEX     =(87)
+ROS_APP_TRANSMISSION_RATIO_INDEX    =(88)
+ROS_APP_CFG_BITMAP_INDEX            =(89)
+ROS_APP_ETH_IP_ADDRESS_INDEX        =(90)
+ROS_APP_ETH_PORT_NUMBER_INDEX       =(91)
+ROS_APP_ETH_SUBNET_MASK_INDEX       =(92)
+ROS_APP_ETH_GATEWAY_INDEX           =(93)
+END_APP_CONFIG_BLOCK                =(94)
 
-START_FRAM_CONFIG_BLOCK             =(92)
-ROS_FRAM_X_VEL_LIMIT_INDEX          =(92)
-ROS_FRAM_Y_VEL_LIMIT_INDEX          =(93)
-ROS_FRAM_ACCEL_LIMIT_INDEX          =(94)
-ROS_FRAM_DECEL_LIMIT_INDEX          =(95)
-ROS_FRAM_MAX_DTZ_DECEL_INDEX        =(96)
-ROS_FRAM_YAW_RATE_LIMIT_INDEX       =(97)
-ROS_FRAM_YAW_ACCEL_LIMIT_INDEX      =(98)
-ROS_FRAM_WHEEL_DIAMETER_INDEX       =(99)
-ROS_FRAM_WHEEL_BASE_LENGTH_INDEX    =(100)
-ROS_FRAM_WHEEL_TRACK_WIDTH_INDEX    =(101)
-ROS_FRAM_TRANSMISSION_RATIO_INDEX   =(102)
-ROS_FRAM_CFG_BITMAP_INDEX           =(103)
-ROS_FRAM_ETH_IP_ADDRESS_INDEX       =(104)
-ROS_FRAM_ETH_PORT_NUMBER_INDEX      =(105)
-ROS_FRAM_ETH_SUBNET_MASK_INDEX      =(106)
-ROS_FRAM_ETH_GATEWAY_INDEX          =(107)
-END_FRAM_CONFIG_BLOCK               =(108)
+START_FRAM_CONFIG_BLOCK             =(94)
+ROS_FRAM_X_VEL_LIMIT_INDEX          =(94)
+ROS_FRAM_Y_VEL_LIMIT_INDEX          =(95)
+ROS_FRAM_ACCEL_LIMIT_INDEX          =(96)
+ROS_FRAM_DECEL_LIMIT_INDEX          =(97)
+ROS_FRAM_MAX_DTZ_DECEL_INDEX        =(98)
+ROS_FRAM_YAW_RATE_LIMIT_INDEX       =(99)
+ROS_FRAM_YAW_ACCEL_LIMIT_INDEX      =(100)
+ROS_FRAM_WHEEL_DIAMETER_INDEX       =(101)
+ROS_FRAM_WHEEL_BASE_LENGTH_INDEX    =(102)
+ROS_FRAM_WHEEL_TRACK_WIDTH_INDEX    =(103)
+ROS_FRAM_TRANSMISSION_RATIO_INDEX   =(104)
+ROS_FRAM_CFG_BITMAP_INDEX           =(105)
+ROS_FRAM_ETH_IP_ADDRESS_INDEX       =(106)
+ROS_FRAM_ETH_PORT_NUMBER_INDEX      =(107)
+ROS_FRAM_ETH_SUBNET_MASK_INDEX      =(108)
+ROS_FRAM_ETH_GATEWAY_INDEX          =(109)
+END_FRAM_CONFIG_BLOCK               =(110)
 
-ROS_CHECKSUM_INDEX                  =(108)
+ROS_CHECKSUM_INDEX                  =(110)
 
 
 NUMBER_OF_CONFIG_PARAM_VARIABLES      =(ROS_FRAM_ETH_IP_ADDRESS_INDEX - START_FRAM_CONFIG_BLOCK)

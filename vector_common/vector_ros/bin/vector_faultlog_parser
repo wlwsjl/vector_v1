@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+"""--------------------------------------------------------------------
+COPYRIGHT 2016 Stanley Innovation Inc.
+
+Software License Agreement:
+
+The software supplied herewith by Stanley Innovation Inc. (the "Company") 
+for its licensed SI Vector Platform is intended and supplied to you, 
+the Company's customer, for use solely and exclusively with Stanley Innovation 
+products. The software is owned by the Company and/or its supplier, and is 
+protected under applicable copyright laws.  All rights are reserved. Any use in 
+violation of the foregoing restrictions may subject the user to criminal 
+sanctions under applicable laws, as well as to civil liability for the 
+breach of the terms and conditions of this license. The Company may 
+immediately terminate this Agreement upon your use of the software with 
+any products that are not Stanley Innovation products.
+
+The software was written using Python programming language.  Your use 
+of the software is therefore subject to the terms and conditions of the 
+OSI- approved open source license viewable at http://www.python.org/.  
+You are solely responsible for ensuring your compliance with the Python 
+open source license.
+
+You shall indemnify, defend and hold the Company harmless from any claims, 
+demands, liabilities or expenses, including reasonable attorneys fees, incurred 
+by the Company as a result of any claim or proceeding against the Company 
+arising out of or based upon: 
+
+(i) The combination, operation or use of the software by you with any hardware, 
+    products, programs or data not supplied or approved in writing by the Company, 
+    if such claim or proceeding would have been avoided but for such combination, 
+    operation or use.
+ 
+(ii) The modification of the software by or on behalf of you 
+
+(iii) Your use of the software.
+
+ THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
+ WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
+ TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
+ IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ 
+ \file   vector_faultlog_parser
+
+ \brief  Parses the faultlog into human readable form via html. Faultlog will
+         provide details to diagnose issues to the component level for rapid service.
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+from vector.faultlog_parser import FaultlogParser
+from vector_msgs.msg import Faultlog
+import rospy
+
+if __name__ == "__main__":
+    """
+    Initialize the node
+    """
+    rospy.init_node('vector_faultlog_parser')
+    
+    """
+    Wait for a faultlog message and then parse it
+    """
+    try:
+        faultlog_array = rospy.wait_for_message("/vector/feedback/faultlog", Faultlog,1.0)
+
+    except:
+        rospy.logerr("Could not subscribe to faultlog topic make sure the driver is running")
+        
+    FaultlogParser(faultlog_array)
+    rospy.loginfo("Faultlog successfully parsed!")
+    
+

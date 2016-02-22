@@ -1,0 +1,15 @@
+<!-- Pan Tilt teleop test launch file -->
+
+<launch>
+    <arg name="dev" default="/dev/input/js0"/>
+
+    <node pkg="joy" type="joy_node" name="joy_node">
+        <param name="dev" type="string" value="$(arg dev)" />
+        <param name="deadzone" type="double" value="0.1" />
+        <param name="autorepeat_rate" type="double" value="50" />
+    </node>
+    
+    <include file="$(find vector_pan_tilt)/launch/pan_tilt_controller.launch"/>
+
+    <node pkg="vector_ros" type="vector_pan_tilt_teleop" name="vector_pan_tilt_teleop"/>
+</launch>

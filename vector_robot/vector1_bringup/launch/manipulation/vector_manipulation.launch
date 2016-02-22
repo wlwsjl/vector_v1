@@ -1,0 +1,30 @@
+<!-- Launch file for jaco platform startup by default we don't use the experimental JTAS, this is just for teleop--> 
+<launch>
+    <arg name="two_arms" default="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"/>
+    <arg name="has_gripper" default="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)"/>
+    <arg name="right_arm_sn" default="$(optenv KINOVA_RIGHT_ARM_SERIAL_NUMBER)"/>
+    <arg name="left_arm_sn" default="$(optenv KINOVA_LEFT_ARM_SERIAL_NUMBER)"/>
+    <arg name="gripper_comport" default="$(optenv ROBOTIQ_GRIPPER_COMM_PORT /dev/ttyUSB0)"/>
+    <arg name="gripper_baud" default="$(optenv ROBOTIQ_GRIPPER_BAUDRATE 115200)"/>
+    
+    <group if="$(optenv VECTOR_HAS_KINOVA_ARM false)">
+        <node pkg="vector_ros" ns="vector" type="jaco_cartesian_vel_ctl" name="right_arm_cartesian_vel_ctl" output="screen">
+            <param name="arm_sn" value="$(optenv KINOVA_RIGHT_ARM_SERIAL_NUMBER)"/>
+            <param name="arm_name" value="right"/>
+        </node>
+        
+        <node pkg="vector_ros" ns="vector" type="jaco_cartesian_vel_ctl" name="left_arm_cartesian_vel_ctl" output="screen" if="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)">
+            <param name="arm_sn" value="$(optenv KINOVA_LEFT_ARM_SERIAL_NUMBER)"/>
+            <param name="arm_name" value="left"/>
+        </node>
+
+        <!-- Gripper node, enumeration should be performed with the robotiq tool using id=0 for right gripper and id=1 for left gripper,
+             if there is only one gripper it will default to id=0 or right gripper-->
+        <node pkg="vector_ros" type="robotiq_85_driver" name="robotiq_85_driver" respawn="true" output="screen" if="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
+            <param name="num_grippers" value="1" unless="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"/>
+            <param name="num_grippers" value="2" if="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"/>
+            <param name="comport" value="$(optenv ROBOTIQ_GRIPPER_COMM_PORT /dev/ttyUSB0)"/>
+            <param name="baud" value="$(optenv ROBOTIQ_GRIPPER_BAUDRATE 115200)"/>
+        </node>
+    </group>
+</launch>

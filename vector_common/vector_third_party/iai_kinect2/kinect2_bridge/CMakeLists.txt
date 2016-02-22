@@ -21,15 +21,10 @@ ENDIF()
 
 find_package(freenect2 REQUIRED)
 
-find_package(catkin REQUIRED COMPONENTS roscpp rostime std_msgs sensor_msgs nodelet cv_bridge compressed_depth_image_transport kinect2_registration)
+find_package(catkin REQUIRED COMPONENTS roscpp rostime tf std_msgs sensor_msgs nodelet cv_bridge compressed_depth_image_transport kinect2_registration)
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
-find_package(OpenMP)
-
-if(OPENMP_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -66,7 +61,7 @@ add_custom_target(additional_files_${PROJECT_NAME}
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
   ${freenect2_INCLUDE_DIRS}
   ${kinect2_registration_INCLUDE_DIRS}
 )

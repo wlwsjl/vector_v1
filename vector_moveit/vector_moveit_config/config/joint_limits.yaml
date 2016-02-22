@@ -2,68 +2,53 @@
 # Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 joint_limits:
-  jaco_elbow_joint:
-    has_velocity_limits: true
-    max_velocity: 0.314
-    has_acceleration_limits: true
-    max_acceleration: 0.523598776
-  jaco_robotiq_85_left_finger_tip_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_robotiq_85_left_inner_knuckle_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_robotiq_85_left_knuckle_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_robotiq_85_right_finger_tip_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_robotiq_85_right_inner_knuckle_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_robotiq_85_right_knuckle_joint:
-    has_velocity_limits: true
-    max_velocity: 2
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_shoulder_lift_joint:
-    has_velocity_limits: true
-    max_velocity: 1
-    has_acceleration_limits: false
-    max_acceleration: 0
-  jaco_shoulder_pan_joint:
-    has_velocity_limits: true
-    max_velocity: 0.314
-    has_acceleration_limits: true
-    max_acceleration: 0.523598776
-  jaco_wrist_1_joint:
-    has_velocity_limits: true
-    max_velocity: 0.785
-    has_acceleration_limits: true
-    max_acceleration: 1.047197551
-  jaco_wrist_2_joint:
-    has_velocity_limits: true
-    max_velocity: 0.785
-    has_acceleration_limits: true
-    max_acceleration: 1.047197551
-  jaco_wrist_3_joint:
-    has_velocity_limits: true
-    max_velocity: 0.785
-    has_acceleration_limits: true
-    max_acceleration: 1.047197551
   linear_joint:
     has_velocity_limits: true
     max_velocity: 0.2
-    has_acceleration_limits: true
-    max_acceleration: 0.981
+    has_acceleration_limits: false
+    max_acceleration: 0
+  pan_joint:
+    has_velocity_limits: true
+    max_velocity: 6.597
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_elbow_joint:
+    has_velocity_limits: true
+    max_velocity: 0.314
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_robotiq_85_left_knuckle_joint:
+    has_velocity_limits: true
+    max_velocity: 2
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_shoulder_lift_joint:
+    has_velocity_limits: true
+    max_velocity: 0.314
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_shoulder_pan_joint:
+    has_velocity_limits: true
+    max_velocity: 0.314
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_wrist_1_joint:
+    has_velocity_limits: true
+    max_velocity: 0.785
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_wrist_2_joint:
+    has_velocity_limits: true
+    max_velocity: 0.785
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_wrist_3_joint:
+    has_velocity_limits: true
+    max_velocity: 0.785
+    has_acceleration_limits: false
+    max_acceleration: 0
+  tilt_joint:
+    has_velocity_limits: true
+    max_velocity: 6.597
+    has_acceleration_limits: false
+    max_acceleration: 0

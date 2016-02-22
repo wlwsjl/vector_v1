@@ -3,6 +3,9 @@
 	<arg name="tf_prefix" default=""/>
 	
     <!-- Standalone launcher to visualize the robot model. -->
+    
+    <!--include file="$(find pr2_description)/robots/upload_pr2.launch"/-->
+    
     <include file="$(find vector_description)/launch/vector_upload.launch"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
@@ -12,7 +15,6 @@
   
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
         <param name="use_gui" value="true" />
-  	    <!--rosparam param="source_list">[pan_tilt/joint_states]</rosparam-->
     </node>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find vector_viz)/rviz/model.rviz" />

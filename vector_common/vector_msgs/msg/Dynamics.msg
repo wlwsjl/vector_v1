@@ -2,9 +2,11 @@ Header header
 float32 x_vel_target_mps
 float32 y_vel_target_mps
 float32 yaw_rate_target_rps
+float32 linear_actuator_target_m
 float32 x_vel_limit_mps
 float32 y_vel_limit_mps
 float32 yaw_rate_limit_rps
+float32 linear_actuator_vel_limit_mps
 float32[] wheel_vel_mps
 float32[] wheel_pos_m
 float32 linear_actuator_vel_mps

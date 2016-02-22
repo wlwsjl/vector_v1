@@ -5,15 +5,24 @@ controller_list:
     default: true
     joints:
       - linear_joint
-      - jaco_shoulder_pan_joint
-      - jaco_shoulder_lift_joint
-      - jaco_elbow_joint
-      - jaco_wrist_1_joint
-      - jaco_wrist_2_joint
-      - jaco_wrist_3_joint
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_elbow_joint
+      - right_wrist_1_joint
+      - right_wrist_2_joint
+      - right_wrist_3_joint
+      
   - name: "gripper_controller"
     action_ns: follow_joint_trajectory
     type: FollowJointTrajectory
     default: true
     joints:
-      - jaco_robotiq_85_left_knuckle_joint
+      - right_robotiq_85_left_knuckle_joint
+
+  - name: "pan_tilt_controller"
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - pan_joint
+      - tilt_joint

@@ -14,7 +14,9 @@ add_message_files(DIRECTORY msg FILES
                                 JacoJointCmd.msg
                                 JacoStatus.msg
                                 GripperCmd.msg
-                                GripperStat.msg)
+                                GripperStat.msg
+                                LinearActuatorCmd.msg
+                                JacoCartesianVelocityCmd.msg)
 
 generate_messages(DEPENDENCIES std_msgs)
 catkin_package(CATKIN_DEPENDS message_runtime std_msgs)

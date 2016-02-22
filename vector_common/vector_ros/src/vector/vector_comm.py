@@ -57,6 +57,7 @@ from dynamic_reconfigure.client import Client
 from dynamic_reconfigure.msg import Config
 from io_eth import IoEthThread
 from vector_data_classes import VECTOR_DATA
+from vector_linear_actuator import LinearActuator
 import multiprocessing
 import rospy
 import select
@@ -92,6 +93,14 @@ class VectorDriver:
         Initialize the publishers for VECTOR
         """
         self.vector_data = VECTOR_DATA()
+        
+        """
+        Start the thread for the linear actuator commands
+        """
+        self._linear = LinearActuator()
+        if (False == self._linear.init_success):
+            rospy.logerr("Could not initialize the linear actuator interface! exiting...")
+            return    
         
         """
         Initialize faultlog related items
@@ -142,7 +151,6 @@ class VectorDriver:
         self.faultlog_pub = rospy.Publisher('/vector/feedback/faultlog', Faultlog, queue_size=10,latch=True)
         rospy.Subscriber("/vector/cmd_vel", Twist, self._add_motion_command_to_queue)
         rospy.Subscriber("/vector/gp_command",ConfigCmd,self._add_config_command_to_queue)
-        rospy.Subscriber("/move_base/TrajectoryPlannerROS/parameter_updates",Config,self._update_move_base_params)
         rospy.Subscriber("/move_base/DWAPlannerROS/parameter_updates",Config,self._update_move_base_params)
 
         """
@@ -159,7 +167,7 @@ class VectorDriver:
         rospy.loginfo("Stopping the data stream")
         if (False == self._continuous_data(False)):
             rospy.logerr("Could not stop VECTOR communication stream")
-            self.__del__()
+            self.Shutdown()
             return
         
         """
@@ -171,7 +179,7 @@ class VectorDriver:
         
         if (False == self._extract_faultlog()):
             rospy.logerr("Could not get retrieve VECTOR faultlog")
-            self.__del__()
+            self.Shutdown()
             return          
         
         """
@@ -180,7 +188,7 @@ class VectorDriver:
         rospy.loginfo("Starting the data stream")
         if (False == self._continuous_data(True)):
             rospy.logerr("Could not start VECTOR communication stream")
-            self.__del__()
+            self.Shutdown()
             return
             
         self.start_frequency_samp = True
@@ -193,36 +201,36 @@ class VectorDriver:
             rospy.logerr("Initial configuration parameteters my not be valid, please check them in the yaml file")
             rospy.logerr("The ethernet address must be set to the present address at startup, to change it:")
             rospy.logerr("start the machine; change the address using rqt_reconfigure; shutdown; update the yaml and restart")
-            self.__del__()
+            self.Shutdown()
             return
+        
+
         
         rospy.loginfo("Vector Driver is up and running")
     
-    def __del__(self):
-        rospy.logerr("Vector Driver has called the __del__ method, terminating")
+    def Shutdown(self):
         with self.terminate_mutex:
             self.need_to_terminate = True
-        
-        assert(self._rcv_thread)
-        self._rcv_thread.join()        
+        rospy.loginfo("Vector Driver has called the Shutdown method, terminating")
+        self._linear.Shutdown()
+        self.comm.Close()
+        self.tx_queue_.close()
+        self.rx_queue_.close()    
     
     def _run(self):
         
-        while not rospy.is_shutdown():
-            with self.terminate_mutex:
-                if (self.need_to_terminate):
-                    break
+        while not self.need_to_terminate:
             """
             Run until signaled to stop
             Perform the actions defined based on the flags passed out
             """
-            result = select.select([self.rx_queue_._reader],[],[],0.5)
+            result = select.select([self.rx_queue_._reader],[],[],0.02)
             if len(result[0]) > 0:
                 data = result[0][0].recv()
-                self._handle_rsp(data)
-        self.comm.Close()
-        self.tx_queue_.close()
-        self.rx_queue_.close()
+                with self.terminate_mutex:
+                    if not self.need_to_terminate:
+                        self._handle_rsp(data)
+
         
     def _add_command_to_queue(self,command):
         
@@ -354,7 +362,12 @@ class VectorDriver:
                                                     config.teleop_y_vel_limit_mps,
                                                     config.teleop_accel_limit_mps2,
                                                     config.teleop_yaw_rate_limit_rps,
-                                                    config.teleop_yaw_accel_limit_rps2]) 
+                                                    config.teleop_yaw_accel_limit_rps2])
+                                                    
+        """
+        Update the linear actuator velocity limit
+        """
+        self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps) 
         
         """
         Check and see if we need to store the parameters in NVM before we try, although the NVM is F-RAM

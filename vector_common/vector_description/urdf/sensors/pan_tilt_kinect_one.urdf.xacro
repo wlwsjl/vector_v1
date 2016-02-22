@@ -44,24 +44,31 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 					<mesh filename="package://vector_description/meshes/sensors/collision/pan_actuator_collision.STL" />
 				</geometry>
 			</collision>
+            <inertial>
+                <mass value="0.1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.01"  ixy="0.0"  ixz="0.0"
+                         iyy="0.01"  iyz="0.0"
+                         izz="0.01" />
+            </inertial>
 		</link>
 		
         <joint name="pan_joint" type="revolute">
             <origin xyz="0 0 0.0985" rpy="0 0 0" />
             <axis xyz="0 0 1"/>
-            <limit effort="6.0" lower="-1.570796326794897" upper="1.570796326794897" velocity="6.597"/>
             <parent link="pan_base_link" />
             <child link="pan_link" />
+            <limit effort="6.0" lower="-1.570796326794897" upper="1.570796326794897" velocity="6.597"/>
         </joint>
         
         <transmission name="pan_trans" type="SimpleTransmission">
 			<type>transmission_interface/SimpleTransmission</type>
-			<actuator name="pan_actuator">
-				<mechanicalReduction>1</mechanicalReduction>
-			</actuator>
 			<joint name="pan_joint">
 				<hardwareInterface>PositionJointInterface</hardwareInterface>
 			</joint>
+			<actuator name="pan_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
 		</transmission>
         
 	    <link name="pan_link">
@@ -76,24 +83,31 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 					<mesh filename="package://vector_description/meshes/sensors/collision/tilt_actuator_collision.STL" />
 				</geometry>
 			</collision>
+            <inertial>
+                <mass value="0.1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.01"  ixy="0.0"  ixz="0.0"
+                         iyy="0.01"  iyz="0.0"
+                         izz="0.01" />
+            </inertial>
 		</link>
 
         <joint name="tilt_joint" type="revolute">
             <origin xyz="0 0 0" rpy="0 0 0" />
             <axis xyz="0 1 0"/>
-            <limit effort="6.0" lower="-1.047197551196598" upper="1.570796326794897" velocity="6.597"/>
             <parent link="pan_link" />
             <child link="tilt_link" />
+            <limit effort="6.0" lower="-1.047197551196598" upper="1.570796326794897" velocity="6.597"/>
         </joint>
 
         <transmission name="tilt_trans" type="SimpleTransmission">
 			<type>transmission_interface/SimpleTransmission</type>
-			<actuator name="tilt_actuator">
-				<mechanicalReduction>1</mechanicalReduction>
-			</actuator>
 			<joint name="tilt_joint">
 				<hardwareInterface>PositionJointInterface</hardwareInterface>
 			</joint>
+			<actuator name="tilt_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
 		</transmission>
         
 	    <link name="tilt_link">
@@ -107,6 +121,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 					<mesh filename="package://vector_description/meshes/sensors/collision/tilt_bracket_collision.STL" />
 				</geometry>
 			</collision>
+            <inertial>
+                <mass value="0.1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.01"  ixy="0.0"  ixz="0.0"
+                         iyy="0.01"  iyz="0.0"
+                         izz="0.01" />
+            </inertial>
 		</link>
 		
 		<xacro:kinect_one_sensor prefix="${rgbd_prefix}" parent="tilt_link">

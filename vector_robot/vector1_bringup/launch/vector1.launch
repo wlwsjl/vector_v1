@@ -1,0 +1,28 @@
+<!-- Launch file for Stanley Innovation enabled Vector1 PC startup -->
+
+<launch>
+    <!-- ROS Driver, Robot State Publisher, and sensors -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="1 vector1_bringup vector.launch"
+        name="platform_bringup" output="screen"/>
+
+    <!-- Sensor bringup for platforms that contain sensors-->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="3 vector1_bringup vector_sensors.launch"
+        name="sensor_bringup" output="screen"/>
+
+    <!-- Platform specific odometry estimate -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 vector1_bringup vector_odometry.launch"
+        name="odometry_bringup" output="screen"/>
+        
+    <!-- Platform Manipulation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="7 vector1_bringup vector_manipulation.launch"
+        name="manipulation_bringup" output="screen"/>    
+        
+    <!-- Platform Teleoperation -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="9 vector1_bringup vector_teleop.launch"
+        name="teleop_bringup" output="screen"/>
+</launch>
