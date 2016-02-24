@@ -84,14 +84,18 @@ class Robotiq85Driver:
         self._driver_state = 0
         self._driver_ready = False
         self._gripper_err = [0]*2
-        
-        success = True
-        for i in range(self._num_grippers):
-            success &= self._gripper.process_stat_cmd(i)
-            if not success:
-                bad_gripper = i
+        self.last_time = [rospy.get_time()] * 2
+        success = False
+        attempts = 0
+        while (attempts < 20) and not success:
+            success = True
+            for i in range(self._num_grippers):
+                good_gripper = self._gripper.process_stat_cmd(i)
+                if False == good_gripper:
+                    bad_gripper = i
+                    success = False
         if not success:
-            rospy.logerr("Failed to contact gripper %d....ABORTING"%bad_gripper)
+            rospy.logerror("Failed to contact gripper %d....ABORTING"%bad_gripper)
             return                
                 
         self._run_driver()
@@ -160,7 +164,7 @@ class Robotiq85Driver:
         
     def _run_driver(self):
         last_time = rospy.get_time()
-        r = rospy.Rate(50)
+        r = rospy.Rate(20)
         while not rospy.is_shutdown():
             dt = rospy.get_time() - last_time
             if (0 == self._driver_state):
@@ -186,7 +190,7 @@ class Robotiq85Driver:
                 if not success:
                     self._gripper_err[i]+=1
                     if self._gripper_err[i]>5:
-                        rospy.logerr("Failed to contact gripper %d"%i)
+                        rospy.logwarn("Failed to contact gripper %d"%i)
                 else:
                     self._gripper_err[i] = 0
                     stat = GripperStat()

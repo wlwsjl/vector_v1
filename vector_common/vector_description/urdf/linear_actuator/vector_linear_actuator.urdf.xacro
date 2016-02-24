@@ -23,6 +23,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="vector_linear_actuator">
 
 	<xacro:macro name="vector_linear_actuator" params="parent *origin">
+        
+        
         <joint name="linear_actuator_joint" type="fixed">
             <xacro:insert_block name="origin" />
             <parent link="${parent}" />
@@ -55,22 +57,43 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
         
-        <link name="linear_actuator_link">
-			<visual>
-				<geometry>
-					<mesh filename="package://vector_description/meshes/linear_actuator/visual/linear_carraige.dae" />
-				</geometry>
-			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="package://vector_description/meshes/linear_actuator/collision/linear_carraige_collision.STL" />
-				</geometry>
-			</collision>
-		    <inertial>
-			    <mass value="2e-06"/>
-			    <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
-		    </inertial>
-		</link>
+        <xacro:unless value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)">
+            <link name="linear_actuator_link">
+			    <visual>
+				    <geometry>
+					    <mesh filename="package://vector_description/meshes/linear_actuator/visual/linear_carraige.dae" />
+				    </geometry>
+			    </visual>
+			    <collision>
+				    <geometry>
+					    <mesh filename="package://vector_description/meshes/linear_actuator/collision/linear_carraige_collision.STL" />
+				    </geometry>
+			    </collision>
+		        <inertial>
+			        <mass value="2e-06"/>
+			        <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
+		        </inertial>
+		    </link>
+		</xacro:unless>
+
+        <xacro:if value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)">
+            <link name="linear_actuator_link">
+			    <visual>
+				    <geometry>
+					    <mesh filename="package://vector_description/meshes/linear_actuator/visual/linear_carraige_dual_front.dae" />
+				    </geometry>
+			    </visual>
+			    <collision>
+				    <geometry>
+					    <mesh filename="package://vector_description/meshes/linear_actuator/collision/linear_carraige_dual_front.STL" />
+				    </geometry>
+			    </collision>
+		        <inertial>
+			        <mass value="2e-06"/>
+			        <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
+		        </inertial>
+		    </link>
+		</xacro:if>
 
         <transmission name="linear_trans">
             <type>transmission_interface/SimpleTransmission</type>

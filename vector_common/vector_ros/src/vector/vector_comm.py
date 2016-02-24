@@ -262,7 +262,6 @@ class VectorDriver:
         if (False == valid_data):
             rospy.logerr("bad vector data packet")
             return
-
         if (self.extracting_faultlog):
             if (len(rsp_data) == NUMBER_OF_FAULTLOG_WORDS):
                 self.extracting_faultlog = False

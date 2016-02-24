@@ -2,12 +2,13 @@ import serial
 from gripper_io import GripperIO
 from modbus_crc import verify_modbus_rtu_crc
 import array
+import rospy
 
 class Robotiq85Gripper:
     def __init__(self,num_grippers=1,comport='/dev/ttyUSB0',baud=115200):
         
         try:
-            self.ser = serial.Serial(comport,baud,timeout = 0.2)
+            self.ser = serial.Serial(comport,baud,timeout=0.0)
         except:
             self.init_success = False
             return
@@ -24,10 +25,12 @@ class Robotiq85Gripper:
         self.ser.close()
     
     def process_act_cmd(self,dev=0):
+        self.ser.read(1000)
         if (dev >= self._num_grippers) or (self._shutdown_driver):
             return False
         try:    
             self.ser.write(self._gripper[dev].act_cmd_bytes)
+            rospy.sleep(0.005)
             rsp = self.ser.read(8)
             rsp = [ord(x) for x in rsp]
             if (len(rsp) != 8):
@@ -37,8 +40,12 @@ class Robotiq85Gripper:
             return False
         
     def process_stat_cmd(self,dev=0):
+        self.ser.read(1000)
+        if (dev >= self._num_grippers) or (self._shutdown_driver):
+            return False
         try:
             self.ser.write(self._gripper[dev].stat_cmd_bytes)
+            rospy.sleep(0.005)
             rsp = self.ser.read(21)
             rsp = [ord(x) for x in rsp]
             if (len(rsp) != 21):

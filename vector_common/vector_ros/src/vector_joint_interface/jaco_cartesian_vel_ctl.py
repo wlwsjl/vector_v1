@@ -119,18 +119,8 @@ class TrajectoryPoint(Structure):
                 ("Limitations",Limitation)]   
 
 NO_ERROR_KINOVA = 1
-DEG_TO_RAD = (math.pi / 180.0)
-RAD_TO_DEG = (180.0 / math.pi)
 CONTROL_MODULE_CARTESIAN_VELOCITY = 7
-LARGE_ACTUATOR_VELOCITY =deg_to_rad(35.0) #maximum velocity of large actuator (joints 1-3) (deg/s)
-SMALL_ACTUATOR_VELOCITY =deg_to_rad(45.0) #maximum velocity of small actuator (joints 4-6) (deg/s)
 
-JOINT_VEL_LIMITS = [LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    LARGE_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY,
-                    SMALL_ACTUATOR_VELOCITY]
 class JacoCartesianVelCtl(object):
     def __init__(self, arm, serial_num="", vel_cmd_timeout=0.1):
         """
@@ -151,8 +141,7 @@ class JacoCartesianVelCtl(object):
             rospy.logerr("Multi arm systems must use serial numbers to identify arms! No left arm serial number set...ABORTING")
             self.init_success = False
             return            
-            
-        
+
         """
         List of joint names
         """
@@ -169,7 +158,6 @@ class JacoCartesianVelCtl(object):
         Setup a lock for accessing data in the control loop
         """
         self._lock = threading.Lock()
-
              
         """
         Create the hooks for the API
@@ -200,29 +188,31 @@ class JacoCartesianVelCtl(object):
         self.SetCartesianControl = self.kinova.SetCartesianControl
         self.MoveHome = self.kinova.MoveHome
         self.InitFingers = self.kinova.InitFingers
-        devinfo = self.DevInfoArrayType()
-        num_dev = c_int(0)
 
         """
         Let the API try a few times to list devices, they take a few seconds to come up and
         sometimes the API can fail if the caller hasn't waited for the hardware to come up
         """
-        r = rospy.Rate(0.2)
         attempts = 0
-        result1 = self.InitAPI()            
-        result2 = self.GetDevices(devinfo,byref(num_dev))
-        while ((NO_ERROR_KINOVA != result1) or (NO_ERROR_KINOVA != result2)) and (attempts < 5):
-            self.CloseAPI()
-            r.sleep()
-            rospy.logwarn("API indicates Kinova devices not ready.....Trying again.....")
+        success = False  
+        while not success and (attempts < 5) and not rospy.is_shutdown():
             result1 = self.InitAPI()
-            result2 = self.GetDevices(devinfo,byref(num_dev))
-            attempts+=1
+            result2 = c_int(0)
+            devinfo = self.DevInfoArrayType()
+            num_arms = self.GetDevices(devinfo,byref(result2))
+            if (NO_ERROR_KINOVA == result1) and (NO_ERROR_KINOVA == result2.value) and (num_arms > 0):
+                success = True
+            else:
+                rospy.logwarn("API failed to initialize.....Trying again.....")
+                self.CloseAPI()
+                attempts+=1
+                rospy.sleep(2)
 
-        if (NO_ERROR_KINOVA != result1) or (NO_ERROR_KINOVA != result2) or (attempts >= 5):
+        if not success:
             self.init_success = False
             rospy.logerr("Init API result:   %d"%result1) 
             rospy.logerr("GetDevices result: %d"%result2)
+            rospy.logerr("Number of arms:    %d"%num_arms)
             rospy.logerr("Initialization failed, could not find Kinova devices \
                           (see Kinova.API.CommLayerUbuntu.h for details)")
             self.CloseAPI()
@@ -232,36 +222,32 @@ class JacoCartesianVelCtl(object):
         Make sure there are devices available and that there is a device with the
         serial number we are looking for
         """
-        if (0 == num_dev.value):
-            self.init_success = False
-            rospy.logerr("No Kinova robotic arms found only found")
-            self.CloseAPI()
-            return
-        else:
-            rospy.loginfo("%d Kinova arms found"%num_dev.value)
-        
         found_arm = False
-        for i in range(num_dev.value):
+        other_arms = []
+        for i in range(num_arms):
             if (devinfo[i].SerialNumber == serial_num):
                 self._arm = devinfo[i]
                 rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
                 found_arm = True
                 break
-            elif (serial_num == ''):
-                """
-                Just pick the first arm found
-                """
-                self._arm = devinfo[i]
-                rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
-                found_arm = True
-                break                
             else:
-                rospy.logwarn("Found an arm with SN: %s but doesn't match %s....skipping"%(str(devinfo[i].SerialNumber),serial_num))
+                other_arms.append(str(self._arm.SerialNumber))
+        if not found_arm and (''==serial_num):
+            rospy.logwarn("No serial number passed, using the first device in the list...")
+            self._arm = devinfo[0]
+            other_arms.pop(0)
+            rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
+            found_arm = True
+                    
+        if (len(other_arms) > 0):
+            rospy.logwarn("Found other arms not matching serial number parameter:")
+        for sn in other_arms:
+            rospy.logwarn(sn)
             
         if not found_arm:
             self.init_success = False
             rospy.logerr("Could not find %s arm with serial number %s"%(self._arm_name,serial_num))
-            rospy.logerr("Initialization failed; did not connect to all arms...stopping driver")
+            rospy.logerr("Initialization failed; did not connect to desired arm...stopping driver")
             self.CloseAPI()
             self.init_failed = True
             return
@@ -281,9 +267,18 @@ class JacoCartesianVelCtl(object):
             self.init_success = False
             return
         
+        """
+        Unfortunately to use cartesian mode we need to call these functions
+        which home the arm. The downside is that it is blind to collisions so this
+        node must be used with caution
+        """
         self.MoveHome()
         self.InitFingers()
 
+        
+        """
+        Initialize signal processing functions
+        """
         self._vel_diff = DifferentiateSignals(self._num_joints, self._get_angular_position())
                     
         self._joint_fb = dict()
@@ -295,8 +290,10 @@ class JacoCartesianVelCtl(object):
         self._joint_fb_filters['position'] = FilterSignals(2.0,self._num_joints,self._get_angular_position())
         self._joint_fb_filters['velocity'] = FilterSignals(2.0,self._num_joints,[0.0]*self._num_joints)
         self._joint_fb_filters['force'] = FilterSignals(2.0,self._num_joints,self._get_angular_force())
-        
 
+        """
+        Initialize the joint state publisher for the arm
+        """
         self._jspub = rospy.Publisher("/vector/%s_arm/joint_states"%self._arm_name,JointState,queue_size=10)
         self._jsmsg = JointState()
         self._jsmsg.header.seq = 0
@@ -304,10 +301,12 @@ class JacoCartesianVelCtl(object):
         self._jsmsg.header.stamp = rospy.get_rostime()
         self._jsmsg.name  = self._joint_names
         
+        """
+        Initialize the cartesian velocity command and subscriber
+        """
         self._cart_cmd = TrajectoryPoint()
         self._cart_cmd.Position.Type = CONTROL_MODULE_CARTESIAN_VELOCITY
         self.last_cmd_update = rospy.get_time()-0.5
-        
         self._cmd_sub = rospy.Subscriber("/vector/%s_arm/cartesian_vel_cmd"%self._arm_name,JacoCartesianVelocityCmd,self._update_arm_cmds)
 
         """

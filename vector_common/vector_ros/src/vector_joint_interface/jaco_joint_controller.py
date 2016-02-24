@@ -187,29 +187,31 @@ class SIArmController(object):
         self.EraseAllTrajectories = self.kinova.EraseAllTrajectories
         self.SetAngularControl = self.kinova.SetAngularControl
         self.DevInfoArrayType = ( KinovaDevice * 20 )
-        devinfo = self.DevInfoArrayType()
-        num_dev = c_int(0)
         
         """
         Let the API try a few times to list devices, they take a few seconds to come up and
         sometimes the API can fail if the caller hasn't waited for the hardware to come up
         """
-        r = rospy.Rate(0.2)
         attempts = 0
-        result1 = self.InitAPI()            
-        result2 = self.GetDevices(devinfo,byref(num_dev))
-        while ((NO_ERROR_KINOVA != result1) or (NO_ERROR_KINOVA != result2)) and (attempts < 5):
-            self.CloseAPI()
-            r.sleep()
-            rospy.logwarn("API indicates Kinova devices not ready.....Trying again.....")
+        success = False  
+        while not success and (attempts < 5) and not rospy.is_shutdown():
             result1 = self.InitAPI()
-            result2 = self.GetDevices(devinfo,byref(num_dev))
-            attempts+=1
+            result2 = c_int(0)
+            devinfo = self.DevInfoArrayType()
+            num_arms = self.GetDevices(devinfo,byref(result2))
+            if (NO_ERROR_KINOVA == result1) and (NO_ERROR_KINOVA == result2.value) and (num_arms > 0):
+                success = True
+            else:
+                rospy.logwarn("API failed to initialize.....Trying again.....")
+                self.CloseAPI()
+                attempts+=1
+                rospy.sleep(2)
 
-        if (NO_ERROR_KINOVA != result1) or (NO_ERROR_KINOVA != result2) or (attempts >= 5):
+        if not success:
             self.init_success = False
             rospy.logerr("Init API result:   %d"%result1) 
             rospy.logerr("GetDevices result: %d"%result2)
+            rospy.logerr("Number of arms:    %d"%num_arms)
             rospy.logerr("Initialization failed, could not find Kinova devices \
                           (see Kinova.API.CommLayerUbuntu.h for details)")
             self.CloseAPI()
@@ -219,28 +221,32 @@ class SIArmController(object):
         Make sure there are devices available and that there is a device with the
         serial number we are looking for
         """
-        if (0 == num_dev.value):
-            self.init_success = False
-            rospy.logerr("No Kinova robotic arms found only found")
-            self.CloseAPI()
-            return
-        else:
-            rospy.loginfo("%d Kinova arms found"%num_dev.value)
-        
         found_arm = False
-        for i in range(num_dev.value):
+        other_arms = []
+        for i in range(num_arms):
             if (devinfo[i].SerialNumber == serial_num):
                 self._arm = devinfo[i]
                 rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
                 found_arm = True
                 break
             else:
-                rospy.logwarn("Found an arm with SN: %s but doesn't match %s....skipping"%(str(devinfo[i].SerialNumber),serial_num))
+                other_arms.append(str(self._arm.SerialNumber))
+        if not found_arm and (''==serial_num):
+            rospy.logwarn("No serial number passed, using the first device in the list...")
+            self._arm = devinfo[0]
+            other_arms.pop(0)
+            rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
+            found_arm = True
+                    
+        if (len(other_arms) > 0):
+            rospy.logwarn("Found other arms not matching serial number parameter:")
+        for sn in other_arms:
+            rospy.logwarn(sn)
             
         if not found_arm:
             self.init_success = False
             rospy.logerr("Could not find %s arm with serial number %s"%(self._arm_name,serial_num))
-            rospy.logerr("Initialization failed; did not connect to all arms...stopping driver")
+            rospy.logerr("Initialization failed; did not connect to desired arm...stopping driver")
             self.CloseAPI()
             self.init_failed = True
             return
