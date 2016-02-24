@@ -16,7 +16,7 @@
     </node>
     
     <node pkg="vector_ros" type="vector_teleop" name="vector_teleop" output="screen" unless="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
-        <rosparam file="$(find vector1_bringup)/launch/teleop/config/$(optenv VECTOR_JOY_MAPPING xbox360).yaml" command="load"/>
+        <rosparam file="$(find vector_bringup)/launch/teleop/config/$(optenv VECTOR_JOY_MAPPING xbox360).yaml" command="load"/>
         <param name="sim" value="$(arg sim)"/>
         <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
         <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
@@ -39,7 +39,7 @@
     <group ns="vector">
         <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
         <node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet nodelet_manager">
-            <param name="yaml_cfg_file" value="$(find vector1_bringup)/launch/teleop/config/cmd_vel_mux.yaml"/>
+            <param name="yaml_cfg_file" value="$(find vector_bringup)/launch/teleop/config/cmd_vel_mux.yaml"/>
         </node>
     </group>
 </launch> 

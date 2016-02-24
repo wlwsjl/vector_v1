@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(vector2_bringup)
+project(vector_bringup)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,7 +12,7 @@ catkin_package()
 roslaunch_add_file_check(launch)
 
 ## Install ## 
-install(PROGRAMS scripts/install_vector2_core scripts/uninstall_vector2_core
+install(PROGRAMS scripts/install_vector1_core scripts/uninstall_vector1_core
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

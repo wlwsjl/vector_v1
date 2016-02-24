@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+import vector_upstart
+import os
+
+
+j = vector_upstart.Job(name="vector-core", user='root', interface=os.environ.get('ROBOT_NETWORK'), master_uri=os.environ.get('ROS_MASTER_URI'), job_start_file='job-start-vector.em')
+
+# Stuff to launch on system startup.
+j.add(package="vector_bringup", filename="launch/vector_system.launch")
+
+j.install()
+
+

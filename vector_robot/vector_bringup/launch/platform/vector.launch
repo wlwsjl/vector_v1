@@ -28,6 +28,6 @@
     
     <!-- Platform specific configuration -->
     <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"
-        args="load /vector/vector_driver $(find vector1_bringup)/launch/platform/config/vector_params.yaml" />
+        args="load /vector/vector_driver $(find vector_bringup)/launch/platform/config/vector_params.yaml" />
         
 </launch>

@@ -1,7 +1,8 @@
 <!-- -*- mode: XML -*- -->
 
 <launch>
-    <node name="dynamixel_manager" pkg="dynamixel_controllers" type="controller_manager.py" respawn="true" output="screen">
+    <arg name="machine" default="localhost"/>
+    <node name="dynamixel_manager" pkg="dynamixel_controllers" type="controller_manager.py" respawn="true" output="screen" machine="$(arg machine)">
         <rosparam>
             namespace: dxl_manager
             serial_ports:

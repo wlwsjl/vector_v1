@@ -1,7 +1,8 @@
 <!-- Launch file for the pan_tilt controller manager -->
 <launch>
+    <arg name="machine" default="localhost"/>
     <!-- Load controller configuration to parameter server -->
-    <rosparam file="$(find vector2_bringup)/launch/pan_tilt/config/pan_tilt_joint_controllers.yaml" command="load"/>
+    <rosparam file="$(find vector_bringup)/launch/vector2/pan_tilt/config/pan_tilt_joint_controllers.yaml" command="load"/>
     
     <!-- start specified joint controllers -->
     <node name="controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py"
@@ -9,10 +10,10 @@
                 --port=pan_tilt_port
                 pan_controller
                 tilt_controller"
-          output="screen"/>
+          output="screen" machine="$(arg machine)"/>
           
     <!-- Load controller configuration to parameter server -->
-    <rosparam file="$(find vector2_bringup)/launch/pan_tilt/config/pan_tilt_joint_trajectory_controller.yaml" command="load"/>
+    <rosparam file="$(find vector_bringup)/launch/vector2/pan_tilt/config/pan_tilt_joint_trajectory_controller.yaml" command="load"/>
     
     <!-- start specified joint controllers -->
     <node name="controller_spawner_meta" pkg="dynamixel_controllers" type="controller_spawner.py"
@@ -21,5 +22,5 @@
                 pan_tilt_controller
                 pan_controller
                 tilt_controller"
-          output="screen"/>
+          output="screen" machine="$(arg machine)"/>
 </launch>

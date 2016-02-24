@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1
         - /TF1/Frames1
         - /Sensing1
         - /Sensing1/LaserScan1
@@ -15,7 +14,7 @@ Panels:
         - /Navigation1/Static Map1
         - /Navigation1/Global Costmap1
       Splitter Ratio: 0.595238
-    Tree Height: 715
+    Tree Height: 843
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -310,181 +309,19 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_chassis_link:
-          Value: true
-        base_laser_link:
-          Value: true
-        base_link:
-          Value: true
-        ext_imu_frame:
-          Value: true
-        kinect_ir_link:
-          Value: true
-        kinect_ir_optical_frame:
-          Value: true
-        kinect_link:
-          Value: true
-        kinect_rgb_link:
-          Value: true
-        kinect_rgb_optical_frame:
-          Value: true
-        left_base_link:
-          Value: true
-        left_ee_link:
-          Value: true
-        left_forearm_link:
-          Value: true
-        left_robotiq_85_base_link:
-          Value: true
-        left_robotiq_85_left_finger_link:
-          Value: true
-        left_robotiq_85_left_finger_tip_link:
-          Value: true
-        left_robotiq_85_left_inner_knuckle_link:
-          Value: true
-        left_robotiq_85_left_knuckle_link:
-          Value: true
-        left_robotiq_85_right_finger_link:
-          Value: true
-        left_robotiq_85_right_finger_tip_link:
-          Value: true
-        left_robotiq_85_right_inner_knuckle_link:
-          Value: true
-        left_robotiq_85_right_knuckle_link:
-          Value: true
-        left_shoulder_link:
-          Value: true
-        left_upper_arm_link:
-          Value: true
-        left_wrist_1_link:
-          Value: true
-        left_wrist_2_link:
-          Value: true
-        left_wrist_3_link:
-          Value: true
-        linear_actuator_fixed_link:
-          Value: true
-        linear_actuator_link:
-          Value: true
-        odom:
-          Value: true
-        pan_base_link:
-          Value: true
-        pan_link:
-          Value: true
-        right_base_link:
-          Value: true
-        right_ee_link:
-          Value: true
-        right_forearm_link:
-          Value: true
-        right_robotiq_85_base_link:
-          Value: true
-        right_robotiq_85_left_finger_link:
-          Value: true
-        right_robotiq_85_left_finger_tip_link:
-          Value: true
-        right_robotiq_85_left_inner_knuckle_link:
-          Value: true
-        right_robotiq_85_left_knuckle_link:
-          Value: true
-        right_robotiq_85_right_finger_link:
-          Value: true
-        right_robotiq_85_right_finger_tip_link:
-          Value: true
-        right_robotiq_85_right_inner_knuckle_link:
-          Value: true
-        right_robotiq_85_right_knuckle_link:
-          Value: true
-        right_shoulder_link:
-          Value: true
-        right_upper_arm_link:
-          Value: true
-        right_wrist_1_link:
-          Value: true
-        right_wrist_2_link:
-          Value: true
-        right_wrist_3_link:
-          Value: true
-        sic_imu_frame:
-          Value: true
-        tilt_link:
-          Value: true
-      Marker Scale: 0.2
+      Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        odom:
-          base_link:
-            base_chassis_link:
-              base_laser_link:
-                {}
-              ext_imu_frame:
-                {}
-              linear_actuator_fixed_link:
-                linear_actuator_link:
-                  left_base_link:
-                    left_shoulder_link:
-                      left_upper_arm_link:
-                        left_forearm_link:
-                          left_wrist_1_link:
-                            left_wrist_2_link:
-                              left_wrist_3_link:
-                                left_ee_link:
-                                  left_robotiq_85_base_link:
-                                    left_robotiq_85_left_inner_knuckle_link:
-                                      left_robotiq_85_left_finger_tip_link:
-                                        {}
-                                    left_robotiq_85_left_knuckle_link:
-                                      left_robotiq_85_left_finger_link:
-                                        {}
-                                    left_robotiq_85_right_inner_knuckle_link:
-                                      left_robotiq_85_right_finger_tip_link:
-                                        {}
-                                    left_robotiq_85_right_knuckle_link:
-                                      left_robotiq_85_right_finger_link:
-                                        {}
-                  right_base_link:
-                    right_shoulder_link:
-                      right_upper_arm_link:
-                        right_forearm_link:
-                          right_wrist_1_link:
-                            right_wrist_2_link:
-                              right_wrist_3_link:
-                                right_ee_link:
-                                  right_robotiq_85_base_link:
-                                    right_robotiq_85_left_inner_knuckle_link:
-                                      right_robotiq_85_left_finger_tip_link:
-                                        {}
-                                    right_robotiq_85_left_knuckle_link:
-                                      right_robotiq_85_left_finger_link:
-                                        {}
-                                    right_robotiq_85_right_inner_knuckle_link:
-                                      right_robotiq_85_right_finger_tip_link:
-                                        {}
-                                    right_robotiq_85_right_knuckle_link:
-                                      right_robotiq_85_right_finger_link:
-                                        {}
-                pan_base_link:
-                  pan_link:
-                    tilt_link:
-                      kinect_link:
-                        kinect_ir_link:
-                          kinect_ir_optical_frame:
-                            {}
-                          kinect_rgb_link:
-                            kinect_rgb_optical_frame:
-                              {}
-              sic_imu_frame:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz/Group
       Displays:
         - Angle Tolerance: 0.1
@@ -549,7 +386,7 @@ Visualization Manager:
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
-          Size (m): 0.015
+          Size (m): 0.01
           Style: Flat Squares
           Topic: /kinect/sd/points
           Use Fixed Frame: true
@@ -685,7 +522,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.734291
+      Distance: 9.06274
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -697,18 +534,18 @@ Visualization Manager:
         Z: 1.16083
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.139796
+      Pitch: 0.174796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.72679
+      Yaw: 3.51178
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 928
+  Height: 1056
   Hide Left Dock: false
-  Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000018c0000035afc0200000005fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000280000035a000000dd00ffffff000000010000010f000002ddfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000002dd000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a0000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000005ad0000035a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Hide Right Dock: true
+  QMainWindow State: 000000ff00000000fd00000004000000000000018c000003dafc0200000005fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000003da000000dd00ffffff000000010000010f000002ddfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000002dd000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a0000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000005ad000003da00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -718,5 +555,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 55
-  Y: 14
+  X: 65
+  Y: 24

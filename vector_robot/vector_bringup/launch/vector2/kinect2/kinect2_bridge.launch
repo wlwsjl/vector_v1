@@ -22,7 +22,7 @@
   <arg name="machine"           default="localhost"/>
   <arg name="nodelet_manager"   default="$(arg base_name)"/>
   <arg name="start_manager"     default="true"/>
-  <arg name="use_machine"       default="true"/>
+  <arg name="use_machine"       default="false"/>
   <arg name="respawn"           default="true"/>
   <arg name="use_nodelet"       default="true"/>
 

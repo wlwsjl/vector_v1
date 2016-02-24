@@ -188,7 +188,9 @@ class JacoCartesianVelCtl(object):
         self.SetCartesianControl = self.kinova.SetCartesianControl
         self.MoveHome = self.kinova.MoveHome
         self.InitFingers = self.kinova.InitFingers
-
+        result2 = c_int(0)
+        devinfo = self.DevInfoArrayType()
+        
         """
         Let the API try a few times to list devices, they take a few seconds to come up and
         sometimes the API can fail if the caller hasn't waited for the hardware to come up
@@ -197,8 +199,6 @@ class JacoCartesianVelCtl(object):
         success = False  
         while not success and (attempts < 5) and not rospy.is_shutdown():
             result1 = self.InitAPI()
-            result2 = c_int(0)
-            devinfo = self.DevInfoArrayType()
             num_arms = self.GetDevices(devinfo,byref(result2))
             if (NO_ERROR_KINOVA == result1) and (NO_ERROR_KINOVA == result2.value) and (num_arms > 0):
                 success = True
@@ -229,9 +229,8 @@ class JacoCartesianVelCtl(object):
                 self._arm = devinfo[i]
                 rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
                 found_arm = True
-                break
             else:
-                other_arms.append(str(self._arm.SerialNumber))
+                other_arms.append(str(devinfo[i].SerialNumber))
         if not found_arm and (''==serial_num):
             rospy.logwarn("No serial number passed, using the first device in the list...")
             self._arm = devinfo[0]

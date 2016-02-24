@@ -106,9 +106,10 @@ class VectorTeleopFullSystem(object):
                                              'standby'      : {'is_button':True,'index':2,'set_val':1},
                                              'tractor'      : {'is_button':True,'index':3,'set_val':1},
                                              'estop'        : {'is_button':True,'index':4,'set_val':1},
-                                             'pan_tilt_ctl' : {'is_button':True,'index':9,'set_val':1},
-                                             'base_ctl'     : {'is_button':True,'index':10,'set_val':1},
-                                             'arm_ctl'      : {'is_button':True,'index':11,'set_val':1}},
+                                             'pan_tilt_ctl' : {'is_button':True,'index':8,'set_val':1},
+                                             'base_ctl'     : {'is_button':True,'index':9,'set_val':1},
+                                             'arm_ctl_right': {'is_button':True,'index':10,'set_val':1},
+                                             'arm_ctl_left' : {'is_button':True,'index':11,'set_val':1}},
                                'axis'     : {'left_right'   : {'index' :0, 'invert_axis':False},
                                              'for_aft'      : {'index' :1, 'invert_axis':False},
                                              'twist'        : {'index' :2, 'invert_axis':False},
@@ -138,7 +139,8 @@ class VectorTeleopFullSystem(object):
         self.last_motion_command_time = 0.0
         self.last_joy = rospy.get_time()
         self._last_gripper_val = 0.0
-        self.run_arm_ctl = False
+        self.run_arm_ctl_right = False
+        self.run_arm_ctl_left = False
         self.run_pan_tilt_ctl = False
         self._init_pan_tilt = True
         self._last_angles = [0.0,0.0]
@@ -152,8 +154,13 @@ class VectorTeleopFullSystem(object):
         self.override_pub = rospy.Publisher("/vector/manual_override/cmd_vel",Twist, queue_size=10)
         self.linpub = rospy.Publisher("/vector/linear_actuator_cmd",LinearActuatorCmd,queue_size=1)
         
-        self.arm_pub = rospy.Publisher('/vector/right_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
-        self.gripper_pub = rospy.Publisher('/vector/right_gripper/cmd', GripperCmd, queue_size=10)
+        self.arm_pub = [0]*2
+        self.gripper_pub = [0]*2
+        self.arm_pub[0] = rospy.Publisher('/vector/right_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        self.gripper_pub[0] = rospy.Publisher('/vector/right_gripper/cmd', GripperCmd, queue_size=10)
+
+        self.arm_pub[1] = rospy.Publisher('/vector/left_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        self.gripper_pub[1] = rospy.Publisher('/vector/left_gripper/cmd', GripperCmd, queue_size=10)
  
         self.pan_pub = rospy.Publisher('/pan_controller/command', Float64, queue_size=1)
         self.tilt_pub = rospy.Publisher('/tilt_controller/command', Float64, queue_size=1)
@@ -224,15 +231,24 @@ class VectorTeleopFullSystem(object):
         self._parse_joy_input(joyMessage)
         
         if self.button_state['base_ctl']:
-            self.run_arm_ctl = False
+            self.run_arm_ctl_right = False
+            self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
-        elif self.button_state['arm_ctl']:
-            self.run_arm_ctl = True
+        elif self.button_state['arm_ctl_right']:
+            self.run_arm_ctl_right = True
+            self.run_arm_ctl_left = False
+            self.run_pan_tilt_ctl = False
+            self._init_pan_tilt = False
+        elif self.button_state['arm_ctl_left']:
+            self.run_arm_ctl_right = False
+            self.run_arm_ctl_left = True
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
         elif self.button_state['pan_tilt_ctl']:
             self.run_arm_ctl = False
+            self.run_arm_ctl_right = False
+            self.run_arm_ctl_left = False
             self.run_pan_tilt_ctl = True
             self._init_pan_tilt = True
             
@@ -243,18 +259,24 @@ class VectorTeleopFullSystem(object):
             arm_cmd = JacoCartesianVelocityCmd()
             arm_cmd.header.stamp=rospy.get_rostime()
             arm_cmd.header.frame_id=''
-            self.arm_pub.publish(arm_cmd)
+            self.arm_pub[0].publish(arm_cmd)
+            self.arm_pub[1].publish(arm_cmd)
             home = Float64()
             home.data = 0.0
             self.pan_pub.publish(home) 
             self.tilt_pub.publish(home) 
    
         
-        if (True == self.run_arm_ctl):
+        if self.run_arm_ctl_right or self.run_arm_ctl_left:
             arm_cmd = JacoCartesianVelocityCmd()
             arm_cmd.header.stamp=rospy.get_rostime()
             arm_cmd.header.frame_id=''
             gripper_cmd = GripperCmd()
+            
+            if self.run_arm_ctl_right:
+                arm_idx = 0
+            else:
+                arm_idx = 1
             
             if self.button_state['dead_man']:
                 arm_cmd.x = self.axis_value['left_right'] * 0.1
@@ -290,10 +312,10 @@ class VectorTeleopFullSystem(object):
                 gripper_cmd.speed = 0.05
                 gripper_cmd.force = 100.0
             
-                self.gripper_pub.publish(gripper_cmd)
+                self.gripper_pub[arm_idx].publish(gripper_cmd)
                 self._last_gripper_val = gripper_val
     
-            self.arm_pub.publish(arm_cmd)
+            self.arm_pub[arm_idx].publish(arm_cmd)
         elif self.run_pan_tilt_ctl:
             if self._init_pan_tilt:
                 rospy.wait_for_service('/pan_controller/set_speed')

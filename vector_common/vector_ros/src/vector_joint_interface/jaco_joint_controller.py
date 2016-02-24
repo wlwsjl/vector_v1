@@ -228,9 +228,8 @@ class SIArmController(object):
                 self._arm = devinfo[i]
                 rospy.loginfo("%s arm has serial number: %s"%(self._arm_name,str(self._arm.SerialNumber)))
                 found_arm = True
-                break
             else:
-                other_arms.append(str(self._arm.SerialNumber))
+                other_arms.append(str(devinfo[i].SerialNumber))
         if not found_arm and (''==serial_num):
             rospy.logwarn("No serial number passed, using the first device in the list...")
             self._arm = devinfo[0]

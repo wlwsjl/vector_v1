@@ -1,5 +1,5 @@
 <package>
-    <name>vector1_bringup</name>
+    <name>vector_bringup</name>
     <version>0.0.1</version>
     <description>System launch file and environment hooks for vector2 PC (vision)</description>
     <maintainer email="dev@stanleyinnovation.com">Patrick Hussey</maintainer>
