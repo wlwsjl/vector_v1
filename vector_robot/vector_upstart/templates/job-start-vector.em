@@ -151,6 +151,9 @@ if [ $VECTOR_HAS_TiM1XX == true ]; then
   fi
 fi
 
+echo Delaying 5 seconds....
+sleep 5
+
 # Punch it.
 export ROS_HOME=$(echo ~@(user))/.ros
 export ROS_LOG_DIR=$log_path
