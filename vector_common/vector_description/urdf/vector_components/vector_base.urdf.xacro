@@ -38,11 +38,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         
         <link name="${name}_chassis_link">
 			<inertial>
-				<mass value="36.914402" />
-				<origin xyz="-0.043407 0.000037 0.060079" />
-				<inertia ixx="1.182744"  ixy="0.017957" ixz="-0.077476"
-                         iyx="0.017957"  iyy="0.538664" iyz="0.000018"
-                         izx="-0.077476" izy="0.000018" izz="1.240229" />
+				<mass value="55.914402" />
+				<origin xyz="0 0 0" />
+				<inertia ixx="3.54"  ixy="0" ixz="0"
+                         iyx="0"  iyy="3.71" iyz="0"
+                         izx="0" izy="0" izz="2.53" />
 			</inertial>
             <collision>
 				<geometry>
@@ -56,6 +56,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 				</geometry>
 			</visual>
 		</link>
+		
+		<gazebo reference="${name}_chassis_link">
+			<mu1 value="100.0"/>
+			<mu2 value="100.0"/>
+			<kp value="10000000.0" />
+			<kd value="10.0" />
+			<fdir1 value="1 0 0"/>
+			<minDepth>0.003</minDepth>
+		</gazebo>
     </xacro:macro>
 
 </robot>
