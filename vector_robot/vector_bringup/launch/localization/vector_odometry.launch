@@ -16,6 +16,14 @@
 
       <param name="odom0" value="vector/feedback/wheel_odometry"/>
       <param name="imu0" value="vector/feedback/ext_imu"/>
+      <param name="imu1" value="vector/feedback/sic_imu"/>
+      
+      <!-- The order of the boolean values are 
+           X, Y, Z, 
+           roll, pitch, yaw, 
+           X velocity, Y velocity, Z velocity, 
+           roll velocity, pitch velocity, yaw velocity, 
+           X acceleration, Y acceleration, Z acceleration--> 
 
       <rosparam param="odom0_config">[false, false, false,
                                       false, false, false,
@@ -28,20 +36,29 @@
       <rosparam param="imu0_config">[false, false, false,
                                      false, false, false,
                                      false, false, false,
-                                     true,  true,  false,
+                                     true,  true,  true,
+                                     true,  true,  true]</rosparam>
+      <rosparam param="imu1_config">[false, false, false,
+                                     false, false, false,
+                                     false, false, false,
+                                     true,  true,  true,
                                      true,  true,  true]</rosparam>
 
-      <param name="odom0_differential" value="true"/>
-      <param name="imu0_differential" value="false" />
+      <param name="odom0_differential" value="false"/>
+      <param name="imu0_differential" value="true" />
+      <param name="imu0_differential" value="true" />
 
       <param name="odom0_relative" value="false"/>
       <param name="imu0_relative" value="false"/>
+      <param name="imu1_relative" value="false"/>
     
       <param name="imu0_remove_gravitational_acceleration" type="bool" value="true"/>
+      <param name="imu1_remove_gravitational_acceleration" type="bool" value="true"/>
       <param name="print_diagnostics" value="false"/>
       
       <param name="odom0_queue_size" value="10"/>
       <param name="imu0_queue_size" value="10"/>
+      <param name="imu1_queue_size" value="10"/>
       
    </node>
 
