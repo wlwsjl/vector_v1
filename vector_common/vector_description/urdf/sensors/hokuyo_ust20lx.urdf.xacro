@@ -55,8 +55,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                         <horizontal>
                         <samples>720</samples>
                         <resolution>1</resolution>
-                        <min_angle>-1.5078</min_angle>
-                        <max_angle>1.5078</max_angle>
+                        <min_angle>-1.9</min_angle>
+                        <max_angle>1.9</max_angle>
                         </horizontal>
                     </scan>
                     <range>
@@ -71,8 +71,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                     </noise>
                 </ray>
                 <plugin name="hokuyo_node" filename="libgazebo_ros_laser.so">
-                    <topicName>/vector/scan</topicName>
-                    <frameName>/vector/${laser_prefix}_laser_link</frameName>
+                    <topicName>/vector/${laser_prefix}_scan</topicName>
+                    <frameName>${laser_prefix}_laser_link</frameName>
                 </plugin>
             </sensor>
         </gazebo>
