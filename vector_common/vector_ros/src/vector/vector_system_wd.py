@@ -80,7 +80,7 @@ class VectorWatchdog:
     def _shutdown_cb(self,msg):
         rospy.logerr("Platform signaled shutdown, need to shutdown the onboard PC")
         self.Close()
-        os.system("shutdown now -h")
+        os.system("sudo shutdown now -h")
         sys.exit(0)
             
     def Receive(self):
