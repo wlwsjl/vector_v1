@@ -68,7 +68,7 @@ class VectorMarkerMenu:
     def __init__(self,server,sim):
     
         self.wp_menu_opt = dict({2:"Add",3:"Start",4:"Stop",5:"Reset",6:"Clear",7:"Reload"})
-        self.mode_menu_opt = dict({9:"Standby",10:"Tractor",11:"Balance"})
+        self.mode_menu_opt = dict({9:"Standby",10:"Tractor"})
         self._server = server
         self.menu_handler = MenuHandler()
         sub_menu_handle = self.menu_handler.insert( "WayPoints" )
@@ -96,7 +96,7 @@ class VectorMarkerMenu:
         
     
         int_marker = InteractiveMarker()
-        int_marker.header.frame_id = "vector/base_link"
+        int_marker.header.frame_id = "base_link"
         int_marker.pose.position.z = 2.0
         int_marker.scale = 1
         int_marker.name = "vector_menu_marker"
@@ -211,7 +211,7 @@ class VectorMarkerControl:
 
         # create an interactive marker for our server
         int_marker = InteractiveMarker()
-        int_marker.header.frame_id = "/vector/base_link"
+        int_marker.header.frame_id = "base_link"
         int_marker.name = "vector_twist_ctrl"
         int_marker.description = "vector Control Marker"
         
@@ -284,12 +284,9 @@ class VectorMarkerControl:
             self.motion_cmd.linear.x = slew_limit(vx,
                                                   self.motion_cmd.linear.x,
                                                   self.accel_lim, dt)
-            if (True == self.include_y):
-                self.motion_cmd.linear.y = slew_limit(vy,
-                                                      self.motion_cmd.linear.y,
-                                                      self.accel_lim, dt)
-            else:
-                self.motion_cmd.linear.y = 0.0
+            self.motion_cmd.linear.y = slew_limit(vy,
+                                                  self.motion_cmd.linear.y,
+                                                  self.accel_lim, dt)
             
             self.motion_cmd.angular.z = slew_limit(wz,
                                                    self.motion_cmd.angular.z,

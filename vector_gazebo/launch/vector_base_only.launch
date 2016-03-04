@@ -19,5 +19,7 @@
 
   <include file="$(find vector_gazebo)/launch/controller_utils.launch"/>
   <include file="$(find vector_bringup)/launch/localization/vector_odometry.launch"/>
-  
+  <include file="$(find vector_bringup)/launch/teleop/vector_teleop.launch">
+  	<arg name="sim" value="true"/>
+  </include>
 </launch>
