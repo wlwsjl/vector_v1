@@ -66,11 +66,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        base_laser_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
@@ -79,6 +74,16 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        front_laser_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_laser_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         sic_imu_frame:
           Alpha: 1
           Show Axes: false
@@ -266,10 +271,7 @@ Visualization Manager:
       Marker Topic: /vector/waypoints
       Name: MarkerArray
       Namespaces:
-        Goal-0: true
-        Goal-1: true
-        Goal-2: true
-        Goal-3: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -294,22 +296,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 22.1372
+      Distance: 46.1798
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.383782
-        Y: -0.596522
-        Z: -2.09388
+        X: -1.63279
+        Y: -0.418623
+        Z: -0.0406372
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.7648
+      Pitch: 1.2098
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.143603
+      Yaw: 6.24679
     Saved: ~
 Window Geometry:
   Displays:

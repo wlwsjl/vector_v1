@@ -6,7 +6,7 @@ robot_base_frame:           base_link
 transform_tolerance:        1.5
 
 # ---Vector footprint (Meters):---
-footprint: [[0.52,0.45],[0.52,-0.45],[-0.52,-0.45],[-0.52,0.45]]
+footprint: [[0.26,0.225],[0.26,-0.225],[-0.26,-0.225],[-0.26,0.225]]
 
 # The following parameter is overwritten if the "footprint" parameter is set
 #robot_radius:               0.325

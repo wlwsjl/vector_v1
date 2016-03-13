@@ -155,10 +155,9 @@ class VectorMoveBase():
             
             my_cmd = Twist()
             my_cmd.angular.z = 1.0
-            time_to_twist = rospy.Duration(5.0)
             start_time = rospy.get_time()
             r = rospy.Rate(10)
-            while (rospy.get_time() - start_time) < time_to_twist:
+            while (rospy.get_time() - start_time) < 5.0:
                 self.cmd_vel_pub.publish(my_cmd)
                 r.sleep()
                 
