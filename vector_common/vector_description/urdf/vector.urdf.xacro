@@ -53,7 +53,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <xacro:vector_base name="base"/>
     
     <!--linear actuator-->
-    <xacro:if value="$(optenv VECTOR_HAS_LINEAR_ACTUATOR false)">
+    <xacro:if value="$(optenv VECTOR_HAS_LINEAR_ACTUATOR true)">
         <xacro:vector_linear_actuator parent="base_chassis_link">
             <origin xyz="0.22806971 0 0.46024800" rpy="0 0 0" />
         </xacro:vector_linear_actuator>
