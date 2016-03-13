@@ -2,9 +2,9 @@
 # http://www.ros.org/wiki/gmapping
 #
 throttle_scans:            1
-base_frame:                /segway/base_link
-map_frame:                 /map
-odom_frame:                /odom
+base_frame:                base_link
+map_frame:                 map
+odom_frame:                odom
 
 # How long (in seconds) between updates to the map. 
 # Lowering this number updates the occupancy grid more often, 

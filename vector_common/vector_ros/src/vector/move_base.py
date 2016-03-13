@@ -73,7 +73,7 @@ class VectorMoveBase():
         self.is_sim = rospy.get_param("~sim", False)
         self.using_amcl = rospy.get_param("~using_amcl", False)
         self.global_frame = rospy.get_param("~global_frame", 'odom')
-        self.base_frame = rospy.get_param("~base_frame", 'vector/base_link')
+        self.base_frame = rospy.get_param("~base_frame", 'base_link')
         self.goal_timeout_sec = rospy.get_param("~goal_timeout_sec", 300)
         self.load_waypoints = rospy.get_param("~load_waypoints", False)
         self.waypoint_dwell_s= rospy.get_param("~waypoints_dwell_time", 5.0)
@@ -124,7 +124,6 @@ class VectorMoveBase():
         """
         rospy.Subscriber("/vector/feedback/battery", Battery, self._handle_low_aux_power)
         rospy.Subscriber("/vector/feedback/status", Status, self._handle_status)
-        rospy.Subscriber("/vector/feedback/propulsion", Propulsion, self._handle_low_propulsion_power)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped,  self._simple_goal_cb)
         rospy.Subscriber('/vector/teleop/abort_navigation',Bool,self._shutdown)
         rospy.Subscriber('/clicked_point',PointStamped,self._add_waypoint)
@@ -157,9 +156,9 @@ class VectorMoveBase():
             my_cmd = Twist()
             my_cmd.angular.z = 1.0
             time_to_twist = rospy.Duration(5.0)
-            start_time = rospy.get_rostime()
+            start_time = rospy.get_time()
             r = rospy.Rate(10)
-            while (rospy.get_rostime() - start_time) < time_to_twist:
+            while (rospy.get_time() - start_time) < time_to_twist:
                 self.cmd_vel_pub.publish(my_cmd)
                 r.sleep()
                 
@@ -345,7 +344,7 @@ class VectorMoveBase():
 
         self.n_goals+=1
         self.goal_timeout = rospy.Duration(self.goal_timeout_sec)
-        self.goal_start_time = rospy.get_rostime()
+        self.goal_start_time = rospy.get_time()
         self.move_base_client.send_goal(goal,done_cb=self._done_moving_cb,feedback_cb=self._feedback_cb)
         delay = rospy.Duration(0.1)
         
@@ -365,7 +364,7 @@ class VectorMoveBase():
                 rospy.loginfo("Cannot navigate when platform is executing dynamic response")
                 return
             
-            if ((rospy.get_rostime() - self.goal_start_time) > self.goal_timeout):
+            if ((rospy.get_time() - self.goal_start_time) > self.goal_timeout.to_sec()):
                 self.move_base_client.cancel_goal()
                 self.move_base_server.set_aborted(None, "Goal has timed out took longer than %f"%self.goal_timeout)
                 rospy.loginfo("Timed out while trying to acheive new goal, cancelling move_base goal.")
@@ -380,7 +379,7 @@ class VectorMoveBase():
         self.move_base_server.publish_feedback(feedback)
         
     def _preempt_cb(self):
-        self.move_base_client.cancel_goals_at_and_before_time(rospy.get_time())
+        self.move_base_client.cancel_goals_at_and_before_time(rospy.get_rostime())
         rospy.logwarn("Current move base goal cancelled")
         if (self.move_base_server.is_active()):
             if not self.move_base_server.is_new_goal_available():
@@ -473,9 +472,9 @@ class VectorMoveBase():
         Send the mode command
         """
         r = rospy.Rate(10)
-        start_time = rospy.get_rostime()
-        while ((rospy.get_rostime() - start_time) < 30.0) and (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
-            config_cmd.header.stamp = rospy.get_time()
+        start_time = rospy.get_time()
+        while ((rospy.get_time() - start_time) < 30.0) and (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
+            config_cmd.header.stamp = rospy.get_rostime()
             config_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             config_cmd.gp_param = requested
             self.cmd_config_cmd_pub.publish(config_cmd)
@@ -513,7 +512,7 @@ class VectorMoveBase():
             pose_parts[6] = rot[3]       
         
             current_pose = PoseWithCovarianceStamped()
-            current_pose.header.stamp = rospy.get_time()
+            current_pose.header.stamp = rospy.get_rostime()
             current_pose.header.frame_id = self.global_frame
             current_pose.pose.pose = Pose(Point(pose_parts[0], pose_parts[1], pose_parts[2]), Quaternion(pose_parts[3],pose_parts[4],pose_parts[5],pose_parts[6])) 
         except:
@@ -531,8 +530,8 @@ class VectorMoveBase():
         
         try:        
             r = rospy.Rate(10)
-            start_time = rospy.get_rostime()
-            while ((rospy.get_rostime() - start_time) < 2.0):
+            start_time = rospy.get_time()
+            while ((rospy.get_time() - start_time) < 2.0):
                 self.cmd_vel_pub.publish(Twist())
                 r.sleep()
         except:

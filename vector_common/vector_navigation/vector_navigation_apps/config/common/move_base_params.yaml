@@ -23,10 +23,4 @@ conservative_clear:
   reset_distance: 3.0
 agressive_clear:
   reset_distance: 1.875
-rotate_recovery1:
-  sim_granularity: 0.017
-  frequency: 20.0
-rotate_recovery2:
-  sim_granularity: 0.017
-  frequency: 20.0
 

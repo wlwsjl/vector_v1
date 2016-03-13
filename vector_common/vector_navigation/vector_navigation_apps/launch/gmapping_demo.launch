@@ -11,7 +11,7 @@
     <!--- Run gmapping -->
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/gmapping.yaml"/>
-        <remap from="scan" to="/vector/filtered_scan" />
+        <remap from="scan" to="/vector/base_scan_filtered" />
     </node>
 
 </launch>

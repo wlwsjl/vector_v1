@@ -1,7 +1,6 @@
 <!-- Assisted teleop demo -->
 
 <launch>
-    <arg name="use_3d" default="$(optenv VECTOR_USE_VOXEL_GRID false)"/>
     
     <node pkg="vector_assisted_teleop" name="vector_assisted_teleop" type="vector_assisted_teleop" clear_params="true" respawn="false">
     
@@ -15,14 +14,9 @@
         
         <rosparam file="$(find vector_navigation_apps)/config/common/base_planner_params.yaml" command="load"/>
         <rosparam file="$(find vector_navigation_apps)/config/common/costmap_common_params.yaml" command="load" ns="local_costmap" />
-        <rosparam file="$(find vector_navigation_apps)/config/costmaps/2d/costmap_local.yaml" command="load" unless="$(arg use_3d)"/>
-        <rosparam file="$(find vector_navigation_apps)/config/costmaps/3d/costmap_local.yaml" command="load" if="$(arg use_3d)"/>
+        <rosparam file="$(find vector_navigation_apps)/config/costmaps/costmap_local.yaml" command="load"/>
         <remap from="teleop_cmd_vel" to="/vector/teleop/cmd_vel" />
         <remap from="cmd_vel" to="/vector/assisted_teleop/cmd_vel" />
-    </node>
-    
-    <node pkg="costmap_2d" type="costmap_2d_markers" name="voxel_visualizer" if="$(arg use_3d)">
-        <remap from="voxel_grid" to="/vector_assisted_teleop/local_costmap/obstacles_voxel_grid/voxel_grid"/>
     </node>
     
 

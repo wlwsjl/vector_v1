@@ -46,7 +46,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         </link>
         
         <gazebo reference="${laser_prefix}_laser_link">
-            <sensor type="ray" name="${laser_prefix}_hokuyo_laser">
+            <sensor type="ray" name="${laser_prefix}_laser">
                 <pose>0 0 0 0 0 0</pose>
                 <visualize>false</visualize>
                 <update_rate>40</update_rate>
@@ -70,8 +70,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                         <stddev>0.01</stddev>
                     </noise>
                 </ray>
-                <plugin name="hokuyo_node" filename="libgazebo_ros_laser.so">
-                    <topicName>/vector/${laser_prefix}_scan</topicName>
+                <plugin name="gazebo_laser_node" filename="libgazebo_ros_laser.so">
+                    <topicName>/vector/${laser_prefix}_scan_filtered</topicName>
                     <frameName>${laser_prefix}_laser_link</frameName>
                 </plugin>
             </sensor>

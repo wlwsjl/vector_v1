@@ -75,7 +75,7 @@ export HOKUYO_MAX_RANGE=25.0
 export HOKUYO_MIN_RANGE=0.01
 
 # Kinect pan-tilt configuration
-export VECTOR_HAS_KINECT_PAN_TILT=true
+export VECTOR_HAS_KINECT_PAN_TILT=false
 export KINECT_PAN_TILT_PARENT_LINK=linear_actuator_fixed_link
 export KINECT_PAN_TILT_XYZ="0.16688476 0 0.96899800"
 export KINECT_PAN_TILT_RPY="0 0 0"
@@ -90,15 +90,18 @@ export FLEA3_XYZ="0.0518 0 0.35508750"
 export FLEA3_RPY="0 0 0"
 
 #Kinova arm configurations (the right arm should be the default if there is only one)
-export VECTOR_HAS_KINOVA_ARM=true
-export VECTOR_HAS_TWO_KINOVA_ARMS=true
+export VECTOR_HAS_KINOVA_ARM=false
+export VECTOR_HAS_TWO_KINOVA_ARMS=false
 export KINOVA_RIGHT_ARM_SERIAL_NUMBER='PJ00900006153340003' #default arm if there is only one
 export KINOVA_LEFT_ARM_SERIAL_NUMBER='PJ00900006152990001' #must specify serial number for 2 arms
 
 #Robotiq gripper configurations
-export VECTOR_HAS_ROBOTIQ_GRIPPER=true
-export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=true
+export VECTOR_HAS_ROBOTIQ_GRIPPER=false
+export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=false
 export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:4:1.0-port0"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200
+
+#Linear actuator
+export VECTOR_HAS_LINEAR_ACTUATOR=false
 
 

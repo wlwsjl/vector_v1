@@ -6,9 +6,9 @@
 #
 # The map file is specified in launch/amcl.launch
 
-odom_frame_id:    /odom
-base_frame_id:    /segway/base_link
-global_frame_id:  /map
+odom_frame_id:    odom
+base_frame_id:    base_link
+global_frame_id:  map
   
 # Overall filter parameters
 min_particles:        500       #default 100

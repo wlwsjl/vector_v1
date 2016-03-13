@@ -43,7 +43,7 @@ arising out of or based upon:
  
  \file   vector_system_wd.py
 
- \brief  This is the segway system watchdod which monitors signals
+ \brief  This is the vector system watchdod which monitors signals
          from the embedded power system to safely shutdown the PC
          upon embedded powerdown
 

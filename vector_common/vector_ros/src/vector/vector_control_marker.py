@@ -62,11 +62,11 @@ from interactive_markers.menu_handler import *
 from visualization_msgs.msg import *
 from geometry_msgs.msg import Pose,Point,Quaternion,PoseStamped
 import os
-
+import threading
 
 class VectorMarkerMenu:
     def __init__(self,server,sim):
-    
+
         self.wp_menu_opt = dict({2:"Add",3:"Start",4:"Stop",5:"Reset",6:"Clear",7:"Reload"})
         self.mode_menu_opt = dict({9:"Standby",10:"Tractor"})
         self._server = server
@@ -121,7 +121,7 @@ class VectorMarkerMenu:
         self._server.applyChanges()
         
         self._msg_pub = rospy.Publisher('/vector/waypoint_cmd',UInt32,queue_size=10)
-        self._cfg_pub = rospy.Publisher('/vector/gp_command', ConfigCmd, queue_size=10)
+        self._cfg_pub = rospy.Publisher('/vector/gp_command', ConfigCmd, queue_size=10)            
         
     def _waypointCb(self,feedback):
         handle = feedback.menu_entry_id
@@ -174,6 +174,7 @@ class VectorMarkerMenu:
         
 class VectorMarkerControl:
     def __init__(self,sim):
+        self.lock=threading.RLock()
     
         """
         Subscribe to the configuration message
@@ -202,6 +203,7 @@ class VectorMarkerControl:
         self.br = tf.TransformBroadcaster()
         self.listener = tf.TransformListener()
         self.last_marker_update = rospy.get_time()
+        self.last_feedback = None
         
         self.linear_scale = rospy.get_param('~linear_scale', 1.0);
         self.angular_scale = rospy.get_param('~angular_scale', 2.2);
@@ -252,7 +254,22 @@ class VectorMarkerControl:
         # 'commit' changes and send to all clients
         self._server.applyChanges()
         
-        VectorMarkerMenu(self._server,sim)       
+        VectorMarkerMenu(self._server,sim)
+        
+        rospy.Timer(rospy.Duration(0.5),self.timeout_check)
+        
+    def timeout_check(self,event):
+    
+        now_time = rospy.get_time()
+        dt = now_time - self.last_marker_update
+        
+        if (dt > 0.4) and (None != self.last_feedback):
+            self.motion_cmd.linear.x = 0.0
+            self.motion_cmd.linear.y = 0.0
+            self.motion_cmd.angular.z = 0.0
+            self.motion_pub.publish(self.motion_cmd)
+            self._server.setPose(self.last_feedback.marker_name, Pose())
+            self._server.applyChanges()       
         
     def _update_configuration_limits(self,config):
         self.x_vel_limit_mps = config.teleop_x_vel_limit_mps
@@ -263,40 +280,42 @@ class VectorMarkerControl:
         self.config_updated = True
 
     def processFeedback(self,feedback):
-        p = feedback.pose.position
-        o = feedback.pose.orientation
+        with self.lock:
         
-        now_time = rospy.get_time()
-        dt = now_time - self.last_marker_update
-        
-        
-                
-        if (dt >= 0.01):
-            self.last_marker_update = now_time
-            (roll, pitch, yaw) = tf.transformations.euler_from_quaternion([o.x, o.y, o.z, o.w])
-            vx = p.x * self.linear_scale
-            vx = limit_f(vx,self.x_vel_limit_mps)
-            vy = p.y * self.linear_scale
-            vy = limit_f(vy,self.y_vel_limit_mps)
-            wz = yaw * self.angular_scale          
-            wz = limit_f(wz,self.yaw_rate_limit_rps)
-
-            self.motion_cmd.linear.x = slew_limit(vx,
-                                                  self.motion_cmd.linear.x,
-                                                  self.accel_lim, dt)
-            self.motion_cmd.linear.y = slew_limit(vy,
-                                                  self.motion_cmd.linear.y,
-                                                  self.accel_lim, dt)
+            p = feedback.pose.position
+            o = feedback.pose.orientation
             
-            self.motion_cmd.angular.z = slew_limit(wz,
-                                                   self.motion_cmd.angular.z,
-                                                   self.yaw_accel_lim, dt)
-        
+            now_time = rospy.get_time()
+            dt = now_time - self.last_marker_update
+            self.last_feedback = feedback
+                    
+            if (dt >= 0.01):
+                self.last_marker_update = now_time
+                (roll, pitch, yaw) = tf.transformations.euler_from_quaternion([o.x, o.y, o.z, o.w])
+                vx = p.x * self.linear_scale
+                vx = limit_f(vx,self.x_vel_limit_mps)
+                vy = p.y * self.linear_scale
+                vy = limit_f(vy,self.y_vel_limit_mps)
+                wz = yaw * self.angular_scale          
+                wz = limit_f(wz,self.yaw_rate_limit_rps)
 
-            self.motion_pub.publish(self.motion_cmd)
-        
-        self._server.setPose(feedback.marker_name, Pose())
-        self._server.applyChanges()
+                self.motion_cmd.linear.x = slew_limit(vx,
+                                                      self.motion_cmd.linear.x,
+                                                      self.accel_lim, dt)
+                self.motion_cmd.linear.y = slew_limit(vy,
+                                                      self.motion_cmd.linear.y,
+                                                      self.accel_lim, dt)
+                
+                self.motion_cmd.angular.z = slew_limit(wz,
+                                                       self.motion_cmd.angular.z,
+                                                       self.yaw_accel_lim, dt)
+            
+
+                self.motion_pub.publish(self.motion_cmd)
+                
+            
+            self._server.setPose(feedback.marker_name, Pose())
+            self._server.applyChanges()
         
 
 

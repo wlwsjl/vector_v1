@@ -7,7 +7,7 @@
     
     <group if="$(optenv VECTOR_HAS_2D_LASER false)">
         <node pkg="urg_node" type="urg_node" name="hokuyo_node" clear_params="true" respawn="true" if="$(optenv VECTOR_HAS_HOKUYO false)">
-            <remap from="scan" to="/vector/scan" />
+            <remap from="scan" to="/vector/base_scan" />
             <param name="ip_address" value="$(optenv VECTOR_HOKUYO_IP 10.66.171.6)" />
             <param name="ip_port" value="$(optenv VECTOR_HOKUYO_PORT 10940)" />
             <param name="frame_id" value="base_laser_link"/>
@@ -16,7 +16,7 @@
         </node>
         
         <node pkg="sick_tim" type="sick_tim551_2050001" name="sick_tim571_2050101" respawn="false" if="$(optenv VECTOR_HAS_SICK_TIM false)">
-            <remap from="scan" to="/vector/scan" />
+            <remap from="scan" to="/vector/base_scan" />
             <param name="min_ang" type="double" value="-2.35619449019" />
             <param name="max_ang" type="double" value="2.35619449019" />
             <param name="intensity" type="bool" value="True" />
@@ -37,8 +37,8 @@
         </node>
     
         <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="vector_laser_filter" clear_params="true" respawn="true">
-            <remap from="scan" to="/vector/scan" />
-            <remap from="scan_filtered" to="/vector/filtered_scan" />
+            <remap from="scan" to="/vector/base_scan" />
+            <remap from="scan_filtered" to="/vector/base_scan_filtered" />
             <param name="target_frame" value="base_laser_link" />
             <param name="high_fidelity" value="true" />
             <rosparam command="load" 

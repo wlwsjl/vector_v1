@@ -36,23 +36,28 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"> 
           <robotNamespace>/</robotNamespace>
         </plugin> 
-        <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+        <plugin name="object_controller" filename="libgazebo_ros_force_based_move.so">
             <commandTopic>/vector/cmd_vel</commandTopic>
             <odometryTopic>/vector/feedback/wheel_odometry</odometryTopic>
             <odometryFrame>odom</odometryFrame>
-            <odometryRate>100</odometryRate>
+            <odometryRate>30.0</odometryRate>
             <robotBaseFrame>base_link</robotBaseFrame>
+            <publishOdometryTf>0</publishOdometryTf>
+            <yaw_velocity_p_gain>10000.0</yaw_velocity_p_gain>
+            <x_velocity_p_gain>10000.0</x_velocity_p_gain>
+            <y_velocity_p_gain>10000.0</y_velocity_p_gain>
         </plugin>
     </gazebo> 
 
 
     <xacro:vector_base name="base"/>
     
-
     <!--linear actuator-->
-    <xacro:vector_linear_actuator parent="base_chassis_link">
-        <origin xyz="0.22806971 0 0.46024800" rpy="0 0 0" />
-    </xacro:vector_linear_actuator>
+    <xacro:if value="$(optenv VECTOR_HAS_LINEAR_ACTUATOR false)">
+        <xacro:vector_linear_actuator parent="base_chassis_link">
+            <origin xyz="0.22806971 0 0.46024800" rpy="0 0 0" />
+        </xacro:vector_linear_actuator>
+    </xacro:if>
     
     <!-- Arms -->
     <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 

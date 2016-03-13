@@ -1,11 +1,11 @@
 <package>
     <name>range_sensor_filters</name>
     <version>1.0.0</version>
-    <description>Segway perception filters for range sensors</description>
+    <description>Vector perception filters for range sensors</description>
 
-    <maintainer email="RMP@stanleyinnovation.com">Stanley Innovation, Inc.</maintainer>
+    <maintainer email="dev@stanleyinnovation.com">Stanley Innovation, Inc.</maintainer>
     <license>BSD</license>
-    <url type="website">http://ros.org/wiki/segway_rmp_v3</url>
+    <url type="website">http://githhub.com/StanleyInnovation</url>
     <author>Patrick Hussey</author>
 
     <buildtool_depend>catkin</buildtool_depend>

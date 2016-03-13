@@ -98,7 +98,7 @@ namespace range_sensor_filters
 
             // Get ready to publish footprint
             ros::NodeHandle n("~");
-            footprint_publisher_ = n.advertise<geometry_msgs::PolygonStamped>("/segway/laser_footprint", 1);
+            footprint_publisher_ = n.advertise<geometry_msgs::PolygonStamped>("/laser_footprint", 1);
 
             return true;
         }

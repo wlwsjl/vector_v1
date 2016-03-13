@@ -47,7 +47,7 @@ class Generic(object):
             commands with.
         :type root: str
         :param job: The job definition to transform to a set of system files.
-        :type job: :py:class:segway_upstart.Job
+        :type job: :py:class:vector_upstart.Job
         """
         self.root = root
         self.job = job

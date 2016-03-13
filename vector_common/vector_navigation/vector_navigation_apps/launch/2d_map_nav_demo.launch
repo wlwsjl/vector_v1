@@ -1,7 +1,7 @@
 <!-- 2D Map navigation Demo -->
 
 <launch>
-    <arg name="map_file" default="garage_map"/>
+    <arg name="map_file" default="playpen_map"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
 
@@ -20,13 +20,12 @@
     <!--- Run amcl -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/amcl.yaml"/>
-        <remap from="scan" to="/vector/filtered_scan" />
+        <remap from="scan" to="/vector/base_scan_filtered" />
     </node>
 
     <!--- Run Move Base -->
     <include file="$(find vector_navigation_apps)/launch/move_base.launch">
         <arg name="no_static_map" value="false"/>
-        <arg name="use_dwa" value="true"/>
     </include>
 
 </launch>
