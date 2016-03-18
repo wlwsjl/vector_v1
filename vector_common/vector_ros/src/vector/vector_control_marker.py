@@ -67,8 +67,8 @@ import threading
 class VectorMarkerMenu:
     def __init__(self,server,sim):
 
-        self.wp_menu_opt = dict({2:"Add",3:"Start",4:"Stop",5:"Reset",6:"Clear",7:"Reload"})
-        self.mode_menu_opt = dict({9:"Standby",10:"Tractor"})
+        self.wp_menu_opt = dict({2:"Add",3:"Start",4:"Stop",5:"Reset",6:"Clear",7:"Reload",8:"Save"})
+        self.mode_menu_opt = dict({10:"Standby",11:"Tractor"})
         self._server = server
         self.menu_handler = MenuHandler()
         sub_menu_handle = self.menu_handler.insert( "WayPoints" )
@@ -90,7 +90,7 @@ class VectorMarkerMenu:
         
         sub_menu_handle = self.menu_handler.insert( "Mode" )
         self.h_mode_last = self.menu_handler.insert( "Standby", parent=sub_menu_handle, callback=self._modeCb )
-        self.menu_handler.setCheckState( self.h_mode_last, MenuHandler.CHECKED)
+        self.menu_handler.setCheckState( self.h_mode_last, MenuHandler.UNCHECKED)
         self.h_mode_last = self.menu_handler.insert( "Tractor", parent=sub_menu_handle, callback=self._modeCb )
         self.menu_handler.setCheckState( self.h_mode_last, MenuHandler.UNCHECKED)
         
@@ -142,7 +142,7 @@ class VectorMarkerMenu:
         elif ("Reload" == self.wp_menu_opt[handle]):
             msg = 1<<6                  
         self._msg_pub.publish(msg)
-        for key in self.wp_menu_opt:
+        for key,value in self.wp_menu_opt.iteritems():
             if (key != handle):
                 self.menu_handler.setCheckState( key, MenuHandler.UNCHECKED )
 
@@ -154,7 +154,6 @@ class VectorMarkerMenu:
         self.menu_handler.setCheckState( handle, MenuHandler.CHECKED )
         msg = ConfigCmd()
         msg.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
-
         if ("Standby" == self.mode_menu_opt[handle]):
             msg.gp_param = STANDBY_REQUEST
         elif ("Tractor" == self.mode_menu_opt[handle]):
@@ -162,7 +161,7 @@ class VectorMarkerMenu:
         
         self._cfg_pub.publish(msg)
         
-        for key in self.mode_menu_opt:
+        for key,value in self.mode_menu_opt.iteritems():
             if (key != handle):
                 self.menu_handler.setCheckState( key, MenuHandler.UNCHECKED )
 
