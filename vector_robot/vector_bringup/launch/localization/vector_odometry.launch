@@ -2,7 +2,7 @@
 <launch>  
 
      <!-- ekf_loc1 fuses only continuous data (imu and odometry). Publish the tf from odom_frame to base_footprint -->
-   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" clear_params="true" output="screen">      
+   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" clear_params="true" output="screen" unless="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)">      
       <remap from="odometry/filtered" to="/vector/odometry/local_filtered" />
 
       <param name="frequency" value="30.0"/>
@@ -25,10 +25,10 @@
            roll velocity, pitch velocity, yaw velocity, 
            X acceleration, Y acceleration, Z acceleration--> 
 
-      <rosparam param="odom0_config">[false, false, false,
-                                      false, false, false,
-                                      true,  true,  true,
+      <rosparam param="odom0_config">[true, true, false,
                                       false, false, true,
+                                      false, false, true,
+                                      false, false, false,
                                       false, false, false]</rosparam>
 
       <!-- Be careful when setting the z-orientation value to true because you are going to fuse orientation data 
@@ -36,7 +36,7 @@
       <rosparam param="imu0_config">[false, false, false,
                                      false, false, false,
                                      false, false, false,
-                                     true,  true,  true,
+                                     false,  false,  true,
                                      true,  true,  true]</rosparam>
       <rosparam param="imu1_config">[false, false, false,
                                      false, false, false,
@@ -46,7 +46,7 @@
 
       <param name="odom0_differential" value="false"/>
       <param name="imu0_differential" value="true" />
-      <param name="imu0_differential" value="true" />
+      <param name="imu1_differential" value="true" />
 
       <param name="odom0_relative" value="false"/>
       <param name="imu0_relative" value="false"/>

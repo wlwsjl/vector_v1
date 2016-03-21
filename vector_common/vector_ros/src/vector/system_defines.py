@@ -299,7 +299,7 @@ DTZ_REQUEST       = 3
 STANDBY_REQUEST   = 4
 TRACTOR_REQUEST   = 5
 
-VECTOR_MODES_DICT = dict({TRACTOR_REQUEST:4,STANDBY_REQUEST:3,POWERDOWN_REQUEST:6})
+VECTOR_MODES_DICT = dict({TRACTOR_REQUEST:5,STANDBY_REQUEST:4,POWERDOWN_REQUEST:6})
 
 """------------------------------------------------------------------------
 This command requests the faultlog from the machine. The general purpose parameter 

@@ -1,12 +1,8 @@
 <!-- 2D Map navigation Demo -->
 
 <launch>
-    <arg name="map_file" default="playpen_map"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
-
-    <!-- Run the map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg map_file).yaml" />
 
     <!-- Run vector_move_base action client for tracking status -->
     <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true"> 
@@ -18,7 +14,7 @@
     </node>
        
     <!--- Run gmapping -->
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" clear_params="true">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/gmapping.yaml"/>
         <remap from="scan" to="/vector/base_scan_filtered" />
     </node>

@@ -39,7 +39,7 @@
         <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="vector_laser_filter" clear_params="true" respawn="true">
             <remap from="scan" to="/vector/base_scan" />
             <remap from="scan_filtered" to="/vector/base_scan_filtered" />
-            <param name="target_frame" value="base_laser_link" />
+            <param name="target_frame" value="base_link" />
             <param name="high_fidelity" value="true" />
             <rosparam command="load" 
                 file="$(find vector_bringup)/launch/sensors/config/laser_scan_filter.yaml" />
