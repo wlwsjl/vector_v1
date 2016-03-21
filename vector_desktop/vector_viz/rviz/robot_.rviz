@@ -7,9 +7,12 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
+        - /Sensing1
+        - /Sensing1/LaserScan1
         - /Navigation1
-        - /Navigation1/Local Costmap1
         - /Navigation1/Global Plan1
+        - /InteractiveMarkers1
+        - /Polygon1
       Splitter Ratio: 0.595238
     Tree Height: 843
   - Class: rviz/Selection
@@ -30,7 +33,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -114,7 +117,7 @@ Visualization Manager:
           Length: 0.1
           Name: Odometry
           Position Tolerance: 0.1
-          Topic: /vector/feedback/wheel_odometry
+          Topic: /vector/odometry/local_filtered
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -141,7 +144,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.03
           Style: Flat Squares
-          Topic: /vector/filtered_scan
+          Topic: /vector/base_scan_filtered
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
@@ -203,10 +206,10 @@ Visualization Manager:
           Class: rviz/Map
           Color Scheme: map
           Draw Behind: true
-          Enabled: false
+          Enabled: true
           Name: Static Map
           Topic: /map
-          Value: false
+          Value: true
         - Alpha: 0.7
           Class: rviz/Map
           Color Scheme: costmap
@@ -262,10 +265,17 @@ Visualization Manager:
       Show Visual Aids: false
       Update Topic: /vector_marker_ctrl/update
       Value: true
+    - Alpha: 1
+      Class: rviz/Polygon
+      Color: 25; 255; 0
+      Enabled: true
+      Name: Polygon
+      Topic: /laser_footprint
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 125; 125; 125
-    Fixed Frame: odom
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -284,22 +294,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 15.1268
+      Distance: 18.069
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.383782
-        Y: -0.596522
-        Z: -2.09388
+        X: 0.643572
+        Y: 0.476686
+        Z: -0.273593
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.7648
+      Pitch: 1.5698
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.153603
+      Yaw: 6.02678
     Saved: ~
 Window Geometry:
   Displays:

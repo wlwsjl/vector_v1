@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /Sensing1/LaserScan1
+        - /Navigation1
         - /Navigation1/Global Plan1
       Splitter Ratio: 0.595238
     Tree Height: 843
@@ -66,6 +67,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        base_laser_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
@@ -74,16 +80,6 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        front_laser_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rear_laser_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         sic_imu_frame:
           Alpha: 1
           Show Axes: false
@@ -207,10 +203,10 @@ Visualization Manager:
           Class: rviz/Map
           Color Scheme: map
           Draw Behind: true
-          Enabled: false
+          Enabled: true
           Name: Static Map
           Topic: /map
-          Value: false
+          Value: true
         - Alpha: 0.7
           Class: rviz/Map
           Color Scheme: costmap
@@ -296,22 +292,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 46.1798
+      Distance: 12.4934
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.63279
-        Y: -0.418623
-        Z: -0.0406372
+        X: 0.288384
+        Y: -0.755876
+        Z: -0.0387377
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.2098
+      Pitch: 1.5698
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.24679
+      Yaw: 2.8136
     Saved: ~
 Window Geometry:
   Displays:

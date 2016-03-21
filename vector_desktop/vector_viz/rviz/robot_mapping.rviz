@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
+        - /Sensing1
+        - /Sensing1/LaserScan1
         - /Navigation1
       Splitter Ratio: 0.595238
     Tree Height: 843
@@ -28,7 +30,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -139,7 +141,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.03
           Style: Flat Squares
-          Topic: /vector/filtered_scan
+          Topic: /vector/base_scan_filtered
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
@@ -282,22 +284,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 40.5991
+      Distance: 7.48501
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.65084
-        Y: -0.237976
-        Z: 1.16083
+        X: 1.98366
+        Y: -0.0807457
+        Z: 1.63535
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.604796
+      Pitch: 1.5648
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.11178
+      Yaw: 2.64178
     Saved: ~
 Window Geometry:
   Displays:
