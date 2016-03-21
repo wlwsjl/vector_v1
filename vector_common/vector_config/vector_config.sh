@@ -24,7 +24,7 @@ export VECTOR_USE_2D_ODOMETRY=true
 # laser scan matching and landmarking information sources. If this is set to false we use robot
 # localization to fuse the wheel odometry, SIC IMU, external IMU, etc.
 #
-export VECTOR_USE_PLATFORM_ODOMETRY=false
+export VECTOR_USE_PLATFORM_ODOMETRY=true
 
 # This will run the full system tele-op node (ie can control all the joints in the system) it is not
 # collision aware and is really only meant for demonstration purposes. If set false, teleop just controls
