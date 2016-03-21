@@ -6,7 +6,7 @@
     <!-- Vector Base platform ROS Driver -->
     <node pkg="vector_ros" ns="vector" type="vector_driver" name="vector_driver" respawn="true" output="screen">
         <param name="use_platform_odometry" value="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)" />
-        <param name="ext_imu_src" value="um7_imu" if="$(optenv VECTOR_HAS_UM7_IMU false)"/>
+        <param name="ext_imu_topic" value="/um7/data" if="$(optenv VECTOR_HAS_UM7_IMU false)"/>
     </node>
 
     <!-- Platform specific robot state publisher and parameters -->

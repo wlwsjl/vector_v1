@@ -7,7 +7,6 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
-        - /Sensing1/Odometry1
       Splitter Ratio: 0.595238
     Tree Height: 715
   - Class: rviz/Selection
@@ -191,32 +190,12 @@ Visualization Manager:
           Class: rviz_imu_plugin/Imu
           Enabled: true
           Name: Imu
-          Topic: /segway/feedback/um7_imu
+          Topic: /vector/feedback/ext_imu
           Value: true
       Enabled: true
       Name: Sensing
     - Class: rviz/Group
       Displays:
-        - Class: rviz/Group
-          Displays:
-            - Class: rviz/Marker
-              Enabled: false
-              Marker Topic: /exploration_polygon_marker
-              Name: Exploration Marker
-              Namespaces:
-                {}
-              Queue Size: 100
-              Value: false
-            - Alpha: 0.7
-              Class: rviz/Map
-              Color Scheme: costmap
-              Draw Behind: true
-              Enabled: false
-              Name: Exploration Costmap
-              Topic: /explore_server/explore_costmap/costmap
-              Value: false
-          Enabled: false
-          Name: Exploration
         - Alpha: 0.7
           Class: rviz/Map
           Color Scheme: map
@@ -231,7 +210,7 @@ Visualization Manager:
           Draw Behind: true
           Enabled: false
           Name: Global Costmap
-          Topic: /move_base/global_costmap/costmap
+          Topic: /vector_assisted_teleop/local_costmap/costmap
           Value: false
         - Alpha: 0.7
           Class: rviz/Map
@@ -245,7 +224,7 @@ Visualization Manager:
           Buffer Length: 1
           Class: rviz/Path
           Color: 25; 255; 0
-          Enabled: true
+          Enabled: false
           Line Style: Lines
           Line Width: 0.03
           Name: Global Plan
@@ -254,12 +233,12 @@ Visualization Manager:
             Y: 0
             Z: 0
           Topic: /vector_assisted_teleop/TrajectoryPlannerROS/global_plan
-          Value: true
+          Value: false
         - Alpha: 1
           Buffer Length: 1
           Class: rviz/Path
           Color: 255; 0; 0
-          Enabled: true
+          Enabled: false
           Line Style: Lines
           Line Width: 0.03
           Name: Local Plan
@@ -268,7 +247,7 @@ Visualization Manager:
             Y: 0
             Z: 0
           Topic: /vector_assisted_teleop/TrajectoryPlannerROS/local_plan
-          Value: true
+          Value: false
       Enabled: true
       Name: Navigation
   Enabled: true
@@ -293,7 +272,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.6597
+      Distance: 16.862
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -305,10 +284,10 @@ Visualization Manager:
         Z: -0.182837
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.754797
+      Pitch: 1.0098
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.63178
+      Yaw: 3.60678
     Saved: ~
 Window Geometry:
   Displays:
@@ -326,5 +305,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 55
+  X: 53
   Y: 14
