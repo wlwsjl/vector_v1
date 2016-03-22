@@ -7,10 +7,10 @@ scan_filter_chain:
     neighbors: 5
     window: 1
 - type: laser_filters/LaserScanAngularBoundsFilter
-	name: angle
-	params:
-		lower_angle: -2.0
-		upper_angle: 2.0
+  name: angle
+  params:
+    lower_angle: -2.0
+    upper_angle: 2.0
 - type: laser_filters/LaserScanRangeFilter
   name: range
   params: 
