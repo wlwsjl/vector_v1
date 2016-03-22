@@ -205,7 +205,7 @@ class Vector_IMU(object):
         self._ext_imu_data.angular_velocity_covariance[8] = 0.012 * 0.012
              
         if not rospy.is_shutdown():
-            self._ext_imu_data.publish(self._ext_imu_data)
+            self._ext_imu_pub.publish(self._ext_imu_data)
 
 class Vector_Dynamics:
     def __init__(self):
