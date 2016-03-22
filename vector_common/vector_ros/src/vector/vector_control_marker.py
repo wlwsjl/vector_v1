@@ -262,13 +262,14 @@ class VectorMarkerControl:
         now_time = rospy.get_time()
         dt = now_time - self.last_marker_update
         
-        if (dt > 0.4) and (None != self.last_feedback):
+        if (dt > 0.4) and (None != self.last_feedback) and (True == self.stop_on_timeout):
             self.motion_cmd.linear.x = 0.0
             self.motion_cmd.linear.y = 0.0
             self.motion_cmd.angular.z = 0.0
             self.motion_pub.publish(self.motion_cmd)
             self._server.setPose(self.last_feedback.marker_name, Pose())
-            self._server.applyChanges()       
+            self._server.applyChanges()
+            self.stop_on_timeout = False       
         
     def _update_configuration_limits(self,config):
         self.x_vel_limit_mps = config.teleop_x_vel_limit_mps
@@ -287,6 +288,7 @@ class VectorMarkerControl:
             now_time = rospy.get_time()
             dt = now_time - self.last_marker_update
             self.last_feedback = feedback
+            
                     
             if (dt >= 0.01):
                 self.last_marker_update = now_time
@@ -311,6 +313,7 @@ class VectorMarkerControl:
             
 
                 self.motion_pub.publish(self.motion_cmd)
+                self.stop_on_timeout = True
                 
             
             self._server.setPose(feedback.marker_name, Pose())
