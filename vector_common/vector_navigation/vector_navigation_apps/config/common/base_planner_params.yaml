@@ -23,8 +23,8 @@ DWAPlannerROS:
   trans_stopped_vel:            0.01
 
   # Goal Tolerance Parameters
-  yaw_goal_tolerance:           0.1     #default 0.05
-  xy_goal_tolerance:            0.1     #default 0.1
+  yaw_goal_tolerance:           0.05     #default 0.05
+  xy_goal_tolerance:            0.15    #default 0.1
   latch_xy_goal_tolerance:      true    #default false
 
   # Forward Simulation Parameters
@@ -40,9 +40,9 @@ DWAPlannerROS:
 
   # Trajectory scoring parameters
   # The weighting for how much the controller should stay close to the path it was given
-  path_distance_bias:             55.0    #default 32.0
+  path_distance_bias:             32.0    #default 32.0
   # The weighting for how much the controller should attempt to reach its local goal, also controls speed
-  goal_distance_bias:             28.0    #default 24.0
+  goal_distance_bias:             24.0    #default 24.0
   # The weighting for how much the controller should attempt to avoid obstacles
   occdist_scale:                  0.01     #default 0.01
   # The distance from the center point of the robot to place an additional scoring point, in meters
