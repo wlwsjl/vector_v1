@@ -13,10 +13,13 @@ oscillation_timeout:        5.0     # default: 0.0
 oscillation_distance:       0.05     # default: 0.5
 
 recovery_behaviors: [
-  {name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+  {name: straf_recovery1, type: straf_recovery/StrafRecovery},
+  #{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
   {name: rotate_recovery1, type: rotate_recovery/RotateRecovery},
-  {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
-  {name: rotate_recovery2, type: rotate_recovery/RotateRecovery}
+  #{name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+  {name: rotate_recovery2, type: rotate_recovery/RotateRecovery},
+  {name: straf_recovery2, type: straf_recovery/StrafRecovery}
+
 ]
 
 conservative_clear:

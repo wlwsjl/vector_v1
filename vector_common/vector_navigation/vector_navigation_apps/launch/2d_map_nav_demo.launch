@@ -5,18 +5,20 @@
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
 
+    <env name="ROS_CONOLE_CONFIG_FILE" value="$(find vector_navigation_apps)/config/rosconsole.conf"/>
+
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg map_file).yaml" />
 
     <!-- Run vector_move_base action client for tracking status -->
-    <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true"> 
+    <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true">
         <param name="using_amcl" value="true"/>
         <param name="global_frame" value="/map"/>
         <param name="goal_timeout_sec" value="300"/>
         <param name="load_waypoints" value="$(arg use_waypoints)"/>
         <param name="sim" value="$(arg sim)"/>
     </node>
-       
+
     <!--- Run amcl -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/amcl.yaml"/>
