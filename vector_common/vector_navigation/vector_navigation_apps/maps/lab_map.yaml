@@ -1,4 +1,4 @@
-image: lab_map.pgm
+image: /home/peter/catkin_ws/src/vector_v1/vector_common/vector_navigation/vector_navigation_apps/maps/lab_map.pgm
 resolution: 0.050000
 origin: [-100.000000, -100.000000, 0.000000]
 negate: 0
