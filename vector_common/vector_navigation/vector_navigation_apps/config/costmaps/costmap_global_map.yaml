@@ -4,10 +4,16 @@ global_costmap:
     track_unknown_space: true
 
     plugins:
-        - {name: static,                  type: "costmap_2d::StaticLayer"}
-        - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}
-        - {name: inflation,               type: "costmap_2d::InflationLayer"}
+        - {name: localization_map, type: "costmap_2d::StaticLayer"}
+        - {name: preferences_map, type: "costmap_2d::StaticLayer"}
+        - {name: obstacles_costmap2d, type: "costmap_2d::ObstacleLayer"}
+        - {name: inflation, type: "costmap_2d::InflationLayer"}
 
-    static:
+    localization_map:
+      map_topic: "/map"
+      first_map_only: true
+
+    preferences_map:
+      map_topic: "/preferences_map"
       first_map_only: true
 

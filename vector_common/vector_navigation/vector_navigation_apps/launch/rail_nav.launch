@@ -1,0 +1,39 @@
+<!-- 2D Map navigation Demo -->
+
+<launch>
+    <arg name="localization_map_file" default="localization_map"/>
+    <arg name="preferences_map_file" default="preferences_map"/>
+    <arg name="use_waypoints" default="false"/>
+    <arg name="sim" default="false"/>
+
+    <env name="ROS_CONOLE_CONFIG_FILE" value="$(find vector_navigation_apps)/config/rosconsole.conf"/>
+
+    <!-- Run the map server for localization map -->
+    <node name="localization_map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg localization_map_file).yaml" />
+
+    <!-- Run the map server for preferences map -->
+    <node name="preferences_map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg preferences_map_file).yaml">
+      <remap from="map" to="preferences_map"/>
+    </node>
+
+    <!-- Run vector_move_base action client for tracking status -->
+    <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true">
+        <param name="using_amcl" value="true"/>
+        <param name="global_frame" value="/map"/>
+        <param name="goal_timeout_sec" value="300"/>
+        <param name="load_waypoints" value="$(arg use_waypoints)"/>
+        <param name="sim" value="$(arg sim)"/>
+    </node>
+
+    <!--- Run amcl -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find vector_navigation_apps)/config/common/amcl.yaml"/>
+        <remap from="scan" to="/vector/base_scan_filtered" />
+    </node>
+
+    <!--- Run Move Base -->
+    <include file="$(find vector_navigation_apps)/launch/move_base.launch">
+        <arg name="no_static_map" value="false"/>
+    </include>
+
+</launch>

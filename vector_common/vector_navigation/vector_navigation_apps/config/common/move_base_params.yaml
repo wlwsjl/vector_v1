@@ -16,9 +16,9 @@ recovery_behaviors: [
   {name: straf_recovery, type: straf_recovery/StrafRecovery},
   {name: conservative_clear, type: clear_costmap_recovery/ClearCostmapRecovery},
   {name: rotate_recovery1, type: rotate_recovery/RotateRecovery},
+  {name: aggressive_straf_recovery, type: straf_recovery/StrafRecovery},
   {name: aggressive_clear, type: clear_costmap_recovery/ClearCostmapRecovery},
-  {name: rotate_recovery2, type: rotate_recovery/RotateRecovery},
-  {name: aggressive_straf_recovery, type: straf_recovery/StrafRecovery}
+  {name: rotate_recovery2, type: rotate_recovery/RotateRecovery}
 
 ]
 
