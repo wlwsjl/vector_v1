@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-
-<robot name="vector" xmlns:xacro="http://ros.org/wiki/xacro">
-    <xacro:include filename="$(find vector_description)/urdf/vector.urdf.xacro" />
-    <xacro:vector_robot/>
-</robot>
