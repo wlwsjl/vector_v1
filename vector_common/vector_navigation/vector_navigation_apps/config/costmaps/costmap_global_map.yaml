@@ -5,4 +5,9 @@ global_costmap:
 
     plugins:
         - {name: static,                  type: "costmap_2d::StaticLayer"}
+        - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}
         - {name: inflation,               type: "costmap_2d::InflationLayer"}
+
+    static:
+      first_map_only: true
+
