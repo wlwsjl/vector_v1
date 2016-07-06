@@ -19,6 +19,9 @@
         <remap from="move_base_simple/goal" to="move_base_navi_simple/goal"/>
         <remap from="/odom" to="/vector/odometry/local_filtered" />
 
+        <!-- for demonstration layer onlt-->
+        <remap from="demo_path" to="points_to_path/path"/>
+
         <!-- Load common configuration files -->
         <rosparam file="$(find vector_navigation_apps)/config/common/base_planner_params.yaml" command="load" />
         <rosparam file="$(find vector_navigation_apps)/config/common/move_base_params.yaml" command="load" />

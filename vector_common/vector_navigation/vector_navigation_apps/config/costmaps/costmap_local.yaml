@@ -9,6 +9,12 @@ local_costmap:
 
 
     plugins:
+        - {name: local_preferences_map,     type: "costmap_2d::StaticLayer"}
         - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}
         - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+
+    local_preferences_map:
+      map_topic: "/preferences_map"
+      first_map_only: true
+
 
