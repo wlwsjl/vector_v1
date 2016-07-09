@@ -17,4 +17,8 @@ local_costmap:
       map_topic: "/preferences_map"
       first_map_only: true
 
+    inflation:
+      inflation_radius: 1.0
+      cost_scaling_factor: 20
+
 

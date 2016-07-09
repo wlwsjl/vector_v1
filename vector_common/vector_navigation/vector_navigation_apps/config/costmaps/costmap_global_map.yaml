@@ -7,7 +7,6 @@ global_costmap:
         - {name: localization_map, type: "costmap_2d::StaticLayer"}
         - {name: preferences_map, type: "costmap_2d::StaticLayer"}
         - {name: obstacles_costmap2d, type: "costmap_2d::ObstacleLayer"}
-        - {name: demonstration, type: "demonstration_layer::DemonstrationLayer"}
         - {name: inflation, type: "costmap_2d::InflationLayer"}
 
     localization_map:
@@ -17,4 +16,8 @@ global_costmap:
     preferences_map:
       map_topic: "/preferences_map"
       first_map_only: true
+
+    inflation:
+      inflation_radius: 1.0
+      cost_scaling_factor: 5
 
