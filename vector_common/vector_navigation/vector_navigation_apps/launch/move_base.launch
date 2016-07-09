@@ -9,6 +9,7 @@
 
         <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+        <param name="DWAPlannerROS/publish_traj_pc" value="true"/>
 
         <!-- Change the name of the move_base; it is first checked and handled by the client that we're using -->
         <remap from="move_base/goal" to="move_base_navi/goal" />
