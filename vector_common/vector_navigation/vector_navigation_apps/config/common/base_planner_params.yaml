@@ -10,7 +10,7 @@ EBandPlannerROS:
   Ctrl_Rate:                    20.0 #default 20.0
   differential_drive:           False #default True
   max_acceleration:             2.5 #default 0.5
-  max_vel_lin:                  0.3 #default 0.75
+  max_vel_lin:                  0.5 #default 0.75
   max_vel_th:                   0.5 #default 1.0
   min_vel_lin:                  0.02 #default 0.01
   min_vel_th:                   0.07 #default 0.0
