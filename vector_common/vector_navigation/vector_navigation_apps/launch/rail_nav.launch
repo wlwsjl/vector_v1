@@ -36,4 +36,6 @@
         <arg name="no_static_map" value="false"/>
     </include>
 
+    <include file="$(find nav_points)/launch/rail.launch"/>
+
 </launch>
