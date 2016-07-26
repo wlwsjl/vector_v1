@@ -43,7 +43,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <odometryRate>30.0</odometryRate>
             <robotBaseFrame>base_link</robotBaseFrame>
             <publishOdometryTf>0</publishOdometryTf>
-            <yaw_velocity_p_gain>10000.0</yaw_velocity_p_gain>
+            <yaw_velocity_p_gain>100.0</yaw_velocity_p_gain>
             <x_velocity_p_gain>10000.0</x_velocity_p_gain>
             <y_velocity_p_gain>10000.0</y_velocity_p_gain>
         </plugin>
@@ -78,13 +78,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         </xacro:if>
         
         <xacro:if value="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
-            <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_link" >
+            <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_base" >
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </xacro:robotiq_85_gripper>
         
         
             <xacro:if value="$(optenv VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS false)">
-                <xacro:robotiq_85_gripper prefix="left_" parent="left_ee_link" >
+                <xacro:robotiq_85_gripper prefix="left_" parent="left_ee_base" >
                     <origin xyz="0 0 0" rpy="0 0 0"/>
                 </xacro:robotiq_85_gripper>
             </xacro:if>

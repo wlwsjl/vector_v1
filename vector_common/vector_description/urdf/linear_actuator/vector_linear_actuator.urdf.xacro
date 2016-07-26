@@ -43,8 +43,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 				</geometry>
 			</collision>
 		    <inertial>
-			    <mass value="2e-06"/>
-			    <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
+                <!--mass value="2e-06"/>
+                <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/-->
+                <mass value="5.098044" />
+                <origin xyz="0.0 0.0 0.5" rpy="0 0 0"/>
+                <inertia ixx="0.02"  ixy="0.0"  ixz="1.0" iyy="-0.03"  iyz="-0.02" izz="0.0" />
 		    </inertial>			    
 		</link>
 		
@@ -70,8 +73,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 				    </geometry>
 			    </collision>
 		        <inertial>
-			        <mass value="2e-06"/>
-			        <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
+                    <!--mass value="2e-06"/>
+                    <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/-->
+                    <mass value="0.217" />
+                    <origin xyz="0 -0.001 0" rpy="0 0 0"/>
+                    <inertia ixx="0.0" ixy="0.0"  ixz="1.0"
+                             iyy="0.0" iyz="0.0"
+                             izz="0.0" />
 		        </inertial>
 		    </link>
 		</xacro:unless>
