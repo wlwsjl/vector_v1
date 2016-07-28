@@ -35,35 +35,122 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Geometry>
 #include <ros/ros.h>
 #include <limits>
+#include <kdl_parser/kdl_parser.hpp>
+#include <urdf/model.h>
 
 namespace TRAC_IK {
 
-  TRAC_IK::TRAC_IK(const KDL::Chain& _chain, const KDL::JntArray& _q_min, const KDL::JntArray& _q_max, double _maxtime, double _eps, SolveType _type):
-    chain(_chain),
-    jacsolver(_chain),
+  TRAC_IK::TRAC_IK(const std::string& base_link, const std::string& tip_link, const std::string& URDF_param, double _maxtime, double _eps, SolveType _type ) :
+    initialized(false),
     eps(_eps),
     maxtime(_maxtime),
     solvetype(_type),
-    nl_solver(chain,_q_min,_q_max,maxtime,eps, NLOPT_IK::SumSq),
-    iksolver(chain,_q_min,_q_max,maxtime,eps,true,true),
     work(io_service)
   {
 
+    ros::NodeHandle node_handle("~");
 
-    assert(chain.getNrOfJoints()==_q_min.data.size());
-    assert(chain.getNrOfJoints()==_q_max.data.size());
+    urdf::Model robot_model;
+    std::string xml_string;
 
-    for (uint i=0; i<chain.getNrOfJoints(); i++) {
-      lb.push_back(_q_min(i));
-      ub.push_back(_q_max(i));
+    std::string urdf_xml,full_urdf_xml;
+    node_handle.param("urdf_xml",urdf_xml,URDF_param);
+    node_handle.searchParam(urdf_xml,full_urdf_xml);
+    
+    ROS_DEBUG_NAMED("trac_ik","Reading xml file from parameter server");
+    if (!node_handle.getParam(full_urdf_xml, xml_string))
+      {
+        ROS_FATAL_NAMED("trac_ik","Could not load the xml from parameter server: %s", urdf_xml.c_str());
+        return;
+      }
+    
+    node_handle.param(full_urdf_xml,xml_string,std::string());
+    robot_model.initString(xml_string);
+    
+    ROS_DEBUG_STREAM_NAMED("trac_ik","Reading joints and links from URDF");
+
+    KDL::Tree tree;
+    
+    if (!kdl_parser::treeFromUrdfModel(robot_model, tree))
+      ROS_FATAL("Failed to extract kdl tree from xml robot description");
+
+    if(!tree.getChain(base_link, tip_link, chain))
+      ROS_FATAL("Couldn't find chain %s to %s",base_link.c_str(),tip_link.c_str());
+
+    std::vector<KDL::Segment> chain_segs = chain.segments;
+
+    boost::shared_ptr<const urdf::Joint> joint;
+
+    std::vector<double> l_bounds, u_bounds;
+
+    lb.resize(chain.getNrOfJoints());
+    ub.resize(chain.getNrOfJoints());
+
+    uint joint_num=0;
+    for(unsigned int i = 0; i < chain_segs.size(); ++i) {
+      joint = robot_model.getJoint(chain_segs[i].getJoint().getName());
+      if (joint->type != urdf::Joint::UNKNOWN && joint->type != urdf::Joint::FIXED) {
+        joint_num++;
+        float lower, upper;
+        int hasLimits;
+        if ( joint->type != urdf::Joint::CONTINUOUS ) {
+          if(joint->safety) {
+            lower = std::max(joint->limits->lower, joint->safety->soft_lower_limit);
+            upper = std::min(joint->limits->upper, joint->safety->soft_upper_limit);
+          } else {
+            lower = joint->limits->lower;
+            upper = joint->limits->upper;
+          }
+          hasLimits = 1;
+        }
+        else {
+          hasLimits = 0;
+        }
+        if(hasLimits) {
+          lb(joint_num-1)=lower;
+          ub(joint_num-1)=upper;
+        }
+        else {
+          lb(joint_num-1)=std::numeric_limits<float>::lowest();
+          ub(joint_num-1)=std::numeric_limits<float>::max();
+        }
+        ROS_INFO_STREAM("IK Using joint "<<joint->name<<" "<<lb(joint_num-1)<<" "<<ub(joint_num-1));
+      }
     }
+    
+    initialize();
+  }
+
+
+  TRAC_IK::TRAC_IK(const KDL::Chain& _chain, const KDL::JntArray& _q_min, const KDL::JntArray& _q_max, double _maxtime, double _eps, SolveType _type):
+    initialized(false),
+    chain(_chain),
+    lb(_q_min),
+    ub(_q_max),
+    eps(_eps),
+    maxtime(_maxtime),
+    solvetype(_type),
+    work(io_service)
+  {
+
+    initialize();
+  }
+
+  void TRAC_IK::initialize() {
+
+    assert(chain.getNrOfJoints()==lb.data.size());
+    assert(chain.getNrOfJoints()==ub.data.size());
+
+    jacsolver.reset(new KDL::ChainJntToJacSolver(chain));
+    nl_solver.reset(new NLOPT_IK::NLOPT_IK(chain,lb,ub,maxtime,eps,NLOPT_IK::SumSq));
+    iksolver.reset(new KDL::ChainIkSolverPos_TL(chain,lb,ub,maxtime,eps,true,true));
+
 
     for (uint i=0; i<chain.segments.size(); i++) {
       std::string type = chain.segments[i].getJoint().getTypeName();
       if (type.find("Rot")!=std::string::npos) {
-        if ((_q_max(types.size())==0 && _q_min(types.size())==0) ||
-            (_q_max(types.size())>=std::numeric_limits<float>::max() && 
-             _q_min(types.size())<=-std::numeric_limits<float>::max()))
+        if (ub(types.size())>=std::numeric_limits<float>::max() && 
+            lb(types.size())<=std::numeric_limits<float>::lowest())
           types.push_back(KDL::BasicJointType::Continuous);
         else
           types.push_back(KDL::BasicJointType::RotJoint);
@@ -72,7 +159,7 @@ namespace TRAC_IK {
         types.push_back(KDL::BasicJointType::TransJoint);
     }
     
-    assert(types.size()==lb.size());
+    assert(types.size()==lb.data.size());
 
 
     threads.create_thread(boost::bind(&boost::asio::io_service::run,
@@ -80,6 +167,7 @@ namespace TRAC_IK {
     threads.create_thread(boost::bind(&boost::asio::io_service::run,
                                       &io_service));
 
+    initialized = true;
   }
 
   bool TRAC_IK::unique_solution(const KDL::JntArray& sol) {
@@ -108,9 +196,9 @@ namespace TRAC_IK {
       if (time_left <= 0)
         break;
 
-      iksolver.setMaxtime(time_left);
+      iksolver->setMaxtime(time_left);
 
-      int kdlRC = iksolver.CartToJnt(seed,p_in,q_out,bounds);
+      int kdlRC = iksolver->CartToJnt(seed,p_in,q_out,bounds);
       if (kdlRC >=0) {
         switch (solvetype) {
         case Manip1:
@@ -154,11 +242,11 @@ namespace TRAC_IK {
         if (types[j]==KDL::BasicJointType::Continuous)
           seed(j)=fRand(q_init(j)-2*M_PI, q_init(j)+2*M_PI);
         else
-          seed(j)=fRand(lb[j], ub[j]);
+          seed(j)=fRand(lb(j), ub(j));
     }
-    nl_solver.abort();
+    nl_solver->abort();
 
-    iksolver.setMaxtime(fulltime);
+    iksolver->setMaxtime(fulltime);
 
     return true;
   }
@@ -180,9 +268,9 @@ namespace TRAC_IK {
       if (time_left <= 0)
         break;
 
-      nl_solver.setMaxtime(time_left);
+      nl_solver->setMaxtime(time_left);
 
-      int nloptRC = nl_solver.CartToJnt(seed,p_in,q_out,bounds);
+      int nloptRC = nl_solver->CartToJnt(seed,p_in,q_out,bounds);
       if (nloptRC >=0) {
         switch (solvetype) {
         case Manip1:
@@ -226,12 +314,12 @@ namespace TRAC_IK {
         if (types[j]==KDL::BasicJointType::Continuous)
           seed(j)=fRand(q_init(j)-2*M_PI, q_init(j)+2*M_PI);
         else
-          seed(j)=fRand(lb[j], ub[j]);
+          seed(j)=fRand(lb(j), ub(j));
     }
 
-    iksolver.abort();
+    iksolver->abort();
 
-    nl_solver.setMaxtime(fulltime);
+    nl_solver->setMaxtime(fulltime);
 
     return true;
   }
@@ -242,7 +330,7 @@ namespace TRAC_IK {
 
     bool improved = false;
 
-    for (uint i=0; i<lb.size(); i++) {
+    for (uint i=0; i<lb.data.size(); i++) {
 
       if (types[i]==KDL::BasicJointType::TransJoint)
         continue;
@@ -269,18 +357,18 @@ namespace TRAC_IK {
         continue;
       }
 
-      if (val > ub[i]) {
+      if (val > ub(i)) {
         //Find actual angle offset
-        double diffangle = fmod(val-ub[i],2*M_PI);
+        double diffangle = fmod(val-ub(i),2*M_PI);
         // Add that to upper bound and go back a full rotation
-        val = ub[i] + diffangle - 2*M_PI;
+        val = ub(i) + diffangle - 2*M_PI;
       }
 
-      if (val < lb[i]) {
+      if (val < lb(i)) {
         //Find actual angle offset
-        double diffangle = fmod(lb[i]-val,2*M_PI);
+        double diffangle = fmod(lb(i)-val,2*M_PI);
         // Add that to upper bound and go back a full rotation
-        val = lb[i] - diffangle + 2*M_PI;
+        val = lb(i) - diffangle + 2*M_PI;
       }
 
       solution(i) = val;
@@ -293,15 +381,15 @@ namespace TRAC_IK {
 
     bool improved = false;
 
-    for (uint i=0; i<lb.size(); i++) {
+    for (uint i=0; i<lb.data.size(); i++) {
 
       if (types[i] == KDL::BasicJointType::TransJoint)
         continue;
 
       double target = seed(i);
 
-      if (types[i] == KDL::BasicJointType::RotJoint)
-        target = (ub[i]+lb[i])/2.0;
+      if (types[i] == KDL::BasicJointType::RotJoint && types[i]!=KDL::BasicJointType::Continuous)
+        target = (ub(i)+lb(i))/2.0;
 
       double val = solution(i);
 
@@ -324,18 +412,18 @@ namespace TRAC_IK {
         continue;
       }
 
-      if (val > ub[i]) {
+      if (val > ub(i)) {
         //Find actual angle offset
-        double diffangle = fmod(val-ub[i],2*M_PI);
+        double diffangle = fmod(val-ub(i),2*M_PI);
         // Add that to upper bound and go back a full rotation
-        val = ub[i] + diffangle - 2*M_PI;
+        val = ub(i) + diffangle - 2*M_PI;
       }
 
-      if (val < lb[i]) {
+      if (val < lb(i)) {
         //Find actual angle offset
-        double diffangle = fmod(lb[i]-val,2*M_PI);
+        double diffangle = fmod(lb(i)-val,2*M_PI);
         // Add that to upper bound and go back a full rotation
-        val = lb[i] - diffangle + 2*M_PI;
+        val = lb(i) - diffangle + 2*M_PI;
       }
 
       solution(i) = val;
@@ -349,17 +437,17 @@ namespace TRAC_IK {
     for (uint i=0; i< arr.data.size(); i++) {
       if (types[i] == KDL::BasicJointType::Continuous)
         continue;
-      double range = ub[i]-lb[i];
-      penalty *= ((arr(i)-lb[i])*(ub[i]-arr(i))/(range*range));
+      double range = ub(i)-lb(i);
+      penalty *= ((arr(i)-lb(i))*(ub(i)-arr(i))/(range*range));
     }
-    return (1.0 - exp(-1*penalty));
+    return std::max(0.0,1.0 - exp(-1*penalty));
   }
 
 
   double TRAC_IK::ManipValue1(const KDL::JntArray& arr) {
     KDL::Jacobian jac(arr.data.size());
 
-    jacsolver.JntToJac(arr,jac);
+    jacsolver->JntToJac(arr,jac);
 
     Eigen::JacobiSVD<Eigen::MatrixXd> svdsolver(jac.data);
     Eigen::MatrixXd singular_values = svdsolver.singularValues();
@@ -373,7 +461,7 @@ namespace TRAC_IK {
   double TRAC_IK::ManipValue2(const KDL::JntArray& arr) {
     KDL::Jacobian jac(arr.data.size());
 
-    jacsolver.JntToJac(arr,jac);
+    jacsolver->JntToJac(arr,jac);
 
     Eigen::JacobiSVD<Eigen::MatrixXd> svdsolver(jac.data);
     Eigen::MatrixXd singular_values = svdsolver.singularValues();
@@ -384,13 +472,16 @@ namespace TRAC_IK {
 
   int TRAC_IK::CartToJnt(const KDL::JntArray &q_init, const KDL::Frame &p_in, KDL::JntArray &q_out, const KDL::Twist& _bounds) {
 
-    static uint calls =0;
-    static uint inconsistent =0;
+    if (!initialized) {
+      ROS_ERROR("TRAC-IK was not properly initialized with a valid chain or limits.  IK cannot proceed");
+      return -1;
+    }
+
 
     start_time = boost::posix_time::microsec_clock::local_time();
 
-    nl_solver.reset();
-    iksolver.reset();
+    nl_solver->reset();
+    iksolver->reset();
 
     solutions.clear();
     errors.clear();

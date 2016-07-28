@@ -35,11 +35,12 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <limits>
 #include <boost/date_time.hpp>
 #include <trac_ik/dual_quaternion.h>
+#include <cmath>
 
 
 
 namespace NLOPT_IK {
-  
+
   dual_quaternion targetDQ;
 
   double minfunc(const std::vector<double>& x, std::vector<double>& grad, void* data) {
@@ -220,9 +221,8 @@ namespace NLOPT_IK {
     for (uint i=0; i<chain.segments.size(); i++) {
       std::string type = chain.segments[i].getJoint().getTypeName();
       if (type.find("Rot")!=std::string::npos) {
-        if ((_q_max(types.size())==0 && _q_min(types.size())==0) ||
-            (_q_max(types.size())>=std::numeric_limits<float>::max() && 
-             _q_min(types.size())<=-std::numeric_limits<float>::max()))
+        if (_q_max(types.size())>=std::numeric_limits<float>::max() && 
+            _q_min(types.size())<=std::numeric_limits<float>::lowest())
           types.push_back(KDL::BasicJointType::Continuous);
         else
           types.push_back(KDL::BasicJointType::RotJoint);
@@ -298,7 +298,7 @@ namespace NLOPT_IK {
     if (rc < 0)
       ROS_FATAL_STREAM("KDL FKSolver is failing: "<<q.data);
 
-    if (isnan(currentPose.p.x())) {
+    if (std::isnan(currentPose.p.x())) {
       ROS_ERROR("NaNs from NLOpt!!");
       error[0] = std::numeric_limits<float>::max();
       progress = -1;
@@ -360,7 +360,7 @@ namespace NLOPT_IK {
       ROS_FATAL_STREAM("KDL FKSolver is failing: "<<q.data);
 
 
-    if (isnan(currentPose.p.x())) {
+    if (std::isnan(currentPose.p.x())) {
       ROS_ERROR("NaNs from NLOpt!!");
       error[0] = std::numeric_limits<float>::max();
       progress = -1;
@@ -423,7 +423,7 @@ namespace NLOPT_IK {
       ROS_FATAL_STREAM("KDL FKSolver is failing: "<<q.data);
 
 
-    if (isnan(currentPose.p.x())) {
+    if (std::isnan(currentPose.p.x())) {
       ROS_ERROR("NaNs from NLOpt!!");
       error[0] = std::numeric_limits<float>::max();
       progress = -1;
