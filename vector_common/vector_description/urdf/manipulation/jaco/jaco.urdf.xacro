@@ -94,9 +94,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <joint name="${prefix}shoulder_lift_joint" type="revolute">
             <parent link="${prefix}shoulder_link" />
             <child link = "${prefix}upper_arm_link" />
-            <origin xyz="0 0 -0.11875" rpy="${M_PI/2} ${M_PI/2} 0" />
+            <!--ZERO CONFIG:<origin xyz="0 0 -0.11875" rpy="${M_PI/2} ${M_PI/2} 0" />-->
+            <origin xyz="0 0 -0.11875" rpy="${M_PI/2} ${-M_PI/2} 0" />
             <axis xyz="0 0 1" />
-            <limit lower="-2.238" upper="2.238" effort="3000.5" velocity="0.314"/>
+            <!--ZERO CONFIG:<limit lower="-2.238" upper="2.238" effort="3000.5" velocity="0.314"/>-->
+            <limit lower="${M_PI-2.238}" upper="${M_PI+2.238}" effort="3000.5" velocity="0.314"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -123,9 +125,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <joint name="${prefix}elbow_joint" type="revolute">
             <parent link="${prefix}upper_arm_link" />
             <child link = "${prefix}forearm_link" />
-            <origin xyz="0.41 0 0.00975" rpy=" 0 ${M_PI} ${M_PI}" />
+            <!--ZERO CONFIG:<origin xyz="0.41 0 0.00975" rpy=" 0 ${M_PI} ${M_PI}" />-->
+            <origin xyz="0.41 0 0.00975" rpy="0 ${M_PI} 0" />
             <axis xyz="0 0 1" />
-            <limit lower="-2.809" upper="2.809" effort="1800.0" velocity="0.314"/>
+            <!--ZERO CONFIG:<limit lower="-2.809" upper="2.809" effort="1800.0" velocity="0.314"/>-->
+            <limit lower="${M_PI-2.809}" upper="${M_PI+2.809}" effort="1800.0" velocity="0.314"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
 
@@ -239,10 +243,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
         <joint name="${prefix}ee_fixed_joint" type="fixed">
             <parent link="${prefix}wrist_3_link" />
-            <child link = "${prefix}ee_link" />
+            <child link = "${prefix}ee_base" />
             <origin xyz="0 0 -0.09380704" rpy="${M_PI} ${M_PI/2} 0" /> <!--0.09380704156-->
         </joint>
-        
+
+        <link name="${prefix}ee_base"/>
+ 
+        <!-- Add in an EEF link for the center of the gripper -->
+        <joint name="${prefix}ee_gripper" type="fixed">
+            <parent link="${prefix}ee_base" />
+            <child link ="${prefix}ee_link" />
+            <origin xyz="0.13 0 0" />
+        </joint>
+
         <link name="${prefix}ee_link"/>
         
         <xacro:jaco_arm_transmission prefix="${prefix}" />

@@ -48,6 +48,9 @@ arising out of or based upon:
          extreme 3d
 
  \Platform: Linux/ROS Indigo
+
+Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
+
 --------------------------------------------------------------------"""
 from utils import *
 from system_defines import *
@@ -57,7 +60,7 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool,Float64
 from trajectory_msgs.msg import JointTrajectoryPoint
 from dynamixel_controllers.srv import *  
-from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal
+from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTrajectoryControllerState
 import rospy
 import sys
 import math
@@ -97,6 +100,12 @@ class VectorTeleopFullSystem(object):
             self.yaw_rate_limit_rps = rospy.get_param('~sim_teleop_yaw_rate_limit_rps',0.5)
             self.accel_lim = rospy.get_param('~sim_teleop_accel_lim',0.5)
             self.yaw_accel_lim = rospy.get_param('~sim_teleop_yaw_accel_lim',1.0) 
+
+            # Simulation flags for linear actuator 
+            self.linact_sub = rospy.Subscriber('/linear_actuator_controller/state', JointTrajectoryControllerState, self._update_simulation_linear_actuator, queue_size=1)
+            self.sim_lin_actuator_position = 0.0 # init to 0 for now
+            self.sim_lin_init = False
+            self.last_arm_update = rospy.get_time()
     
         """
         Set the mapping for the various commands
@@ -166,7 +175,10 @@ class VectorTeleopFullSystem(object):
         self.tilt_pub = rospy.Publisher('/tilt_controller/command', Float64, queue_size=1)
 
         rospy.Subscriber('/joy', Joy, self._vector_teleop)
-        
+       
+    def _update_simulation_linear_actuator(self, msg):
+        self.sim_lin_actuator_position = msg.actual.positions[0] 
+ 
     def _update_configuration_limits(self,config):
         
         self.x_vel_limit_mps = config.teleop_x_vel_limit_mps
@@ -284,6 +296,12 @@ class VectorTeleopFullSystem(object):
                 if not self.button_state['man_ovvrd']:
                     arm_cmd.y = self.axis_value['twist'] * 0.1
                 else:
+                    # Check if we're in simulation - if so set the last known position
+                    if self.is_sim == True:
+                        if self.sim_lin_init == False:
+                            self.lincmd.desired_position_m = self.sim_lin_actuator_position
+                            self.sim_lin_init = True
+                        
                     dt = rospy.get_time() - self.last_arm_update
                     self.lincmd.desired_position_m += (self.axis_value['twist'] * 0.05) * dt
                     
@@ -318,20 +336,23 @@ class VectorTeleopFullSystem(object):
             self.arm_pub[arm_idx].publish(arm_cmd)
         elif self.run_pan_tilt_ctl:
             if self._init_pan_tilt:
-                rospy.wait_for_service('/pan_controller/set_speed')
-                rospy.wait_for_service('/tilt_controller/set_speed')
-                
-                try:
-                    set_speed = rospy.ServiceProxy('/pan_controller/set_speed', SetSpeed)
-                    resp1 = set_speed(1.0)
-                except rospy.ServiceException, e:
-                    print "Service call failed: %s"%e
+               
+                # Check if we're in sim - if so use default speed
+                if self.is_sim == False:
+                    rospy.wait_for_service('/pan_controller/set_speed')
+                    rospy.wait_for_service('/tilt_controller/set_speed')
+ 
+                    try:
+                        set_speed = rospy.ServiceProxy('/pan_controller/set_speed', SetSpeed)
+                        resp1 = set_speed(1.0)
+                    except rospy.ServiceException, e:
+                        print "Service call failed: %s"%e
 
-                try:
-                    set_speed = rospy.ServiceProxy('/tilt_controller/set_speed', SetSpeed)
-                    resp1 = set_speed(1.0)
-                except rospy.ServiceException, e:
-                    print "Service call failed: %s"%e
+                    try:
+                        set_speed = rospy.ServiceProxy('/tilt_controller/set_speed', SetSpeed)
+                        resp1 = set_speed(1.0)
+                    except rospy.ServiceException, e:
+                        print "Service call failed: %s"%e
                 self._init_pan_tilt = False
             
             if self.button_state['dead_man']:
