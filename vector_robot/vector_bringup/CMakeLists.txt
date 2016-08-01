@@ -12,7 +12,7 @@ catkin_package()
 roslaunch_add_file_check(launch)
 
 ## Install ## 
-install(PROGRAMS scripts/install_vector1_core scripts/uninstall_vector1_core
+install(PROGRAMS scripts/install_vector_core scripts/uninstall_vector_core
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
