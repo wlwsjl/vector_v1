@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="VectorDashboard" type="vector_dashboard.dashboard.VectorDashboard" base_class_type="rqt_gui_py::Plugin">
+  <class name="dashboard" type="vector_dashboard.dashboard.VectorDashboard" base_class_type="rqt_gui_py::Plugin">
     <description>
       Dashboard for the Stanley Innovation Vector
     </description>
