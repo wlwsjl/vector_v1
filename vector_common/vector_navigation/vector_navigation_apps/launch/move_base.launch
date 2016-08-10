@@ -9,7 +9,7 @@
 
         <param unless="$(optenv MHA 1)" name="base_global_planner" value="global_planner/GlobalPlanner"/>
         <param if="$(optenv MHA 1)" name="base_global_planner" value="mha_global_planner/MhaGlobalPlanner"/>
-        <param name="MhaGlobalPlanner/primitive_filename" value="$(find mha_global_planner)/primitives/vector.mprim"/>
+        <param if="$(optenv MHA 1)" name="MhaGlobalPlanner/primitive_filename" value="$(find mha_global_planner)/primitives/vector.mprim"/>
 
         <param name="base_local_planner" value="eband_local_planner/EBandPlannerROS"/>
         <param name="DWAPlannerROS/publish_traj_pc" value="true"/>
