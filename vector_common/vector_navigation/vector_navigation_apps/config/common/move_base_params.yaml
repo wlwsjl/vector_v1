@@ -24,7 +24,7 @@ recovery_behaviors: [
 
 conservative_clear:
   reset_distance: 3.0
-agressive_clear:
+aggressive_clear:
   reset_distance: 0.0
 
 
