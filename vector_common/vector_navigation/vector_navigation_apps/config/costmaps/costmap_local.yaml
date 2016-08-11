@@ -13,10 +13,16 @@ local_costmap:
         - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}
         - {name: inflation,                 type: "costmap_2d::InflationLayer"}
 
+    # we need this map duplicated here so the local planner
+    # also respects these limits
     local_preferences_map:
       map_topic: "/preferences_map"
       first_map_only: true
 
+    # having high inflation with high cost scaling is better
+    # then low inflation and low cost scaling because then it
+    # the robot drives further from things normally unless it needs
+    # to go closer
     inflation:
       inflation_radius: 1.0
       cost_scaling_factor: 50

@@ -9,6 +9,9 @@ global_costmap:
         - {name: obstacles_costmap2d, type: "costmap_2d::ObstacleLayer"}
         - {name: inflation, type: "costmap_2d::InflationLayer"}
 
+    # using the map topic means that amcl will use it
+    # for localization. This map should be the raw output
+    # of running gmapping
     localization_map:
       map_topic: "/map"
       first_map_only: true
@@ -17,6 +20,10 @@ global_costmap:
       map_topic: "/preferences_map"
       first_map_only: true
 
+    # having high inflation with high cost scaling is better
+    # then low inflation and low cost scaling because then it
+    # the robot drives further from things normally unless it needs
+    # to go closer
     inflation:
       inflation_radius: 1.0
       cost_scaling_factor: 15
