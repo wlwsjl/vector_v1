@@ -285,12 +285,15 @@ class VectorMoveBase():
             self.present_waypoint = 0
 
             fullpath = self.goals_path + cmd_in.data[1:]
-            goalfile = open(fullpath,'r')
-            for line in goalfile:
-                goal = [float(i) for i in line.strip('\n').split(',')]
-                pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
-                self._append_waypoint_pose(pose)
-            goalfile.close()
+            try:
+                goalfile = open(fullpath,'r')
+                for line in goalfile:
+                    goal = [float(i) for i in line.strip('\n').split(',')]
+                    pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
+                    self._append_waypoint_pose(pose)
+                goalfile.close()
+            except (OSError, IOError) as e:
+                rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
 
 
     def _add_waypoint(self,point):
