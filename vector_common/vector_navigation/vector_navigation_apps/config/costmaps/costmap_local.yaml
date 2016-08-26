@@ -2,10 +2,11 @@ local_costmap:
     global_frame:               odom
     rolling_window:             true
     track_unknown_space:        false
-    width:                      6.0
-    height:                     6.0
-    origin_x:                   -3.0
-    origin_y:                   -3.0
+    static_map:                 false
+    width:                      10.0
+    height:                     10.0
+    #origin_x:                   -3.0
+    #origin_y:                   -3.0
 
 
     plugins:

@@ -1,10 +1,26 @@
 # http://wiki.ros.org/navfn
 GlobalPlanner:
-  lethal_cost:                  100   #default: 253
+  lethal_cost:                  253   #default: 253
   neutral_cost:                 50    #default: 50
   cost_factor:                  3.0   #default: 3.0
   orientation_mode:             1     #default: 1-Forward
   publish_potential:            false #default: false
+
+EBandPlannerROS:
+  Ctrl_Rate:                    20.0 #default 20.0
+  differential_drive:           False #default True
+  max_acceleration:             2.5 #default 0.5
+  max_vel_lin:                  0.5 #default 0.75
+  max_vel_th:                   0.4 #default 1.0
+  min_vel_lin:                  0.02 #default 0.01
+  min_vel_th:                   0.07 #default 0.0
+  xy_goal_tolerance:            0.10 #default 0.02
+  yaw_goal_tolerance:           0.018 #default 1.5
+
+  # these control the PID for actual plan following
+  k_prop:                       4.0 #default: 4.0
+  k_damp:                       3.5 #default: 3.5
+
 
 DWAPlannerROS:
   # Robot Configuration Parameters
@@ -15,8 +31,8 @@ DWAPlannerROS:
   min_trans_vel:                0.01    #default 0.1
   max_vel_x:                    0.5     #default 0.55
   min_vel_x:                    0.0     #default 0.0
-  max_vel_y:                    0.1     #default 0.1
-  min_vel_y:                   -0.1     #default -0.1
+  max_vel_y:                    0.5     #default 0.1
+  min_vel_y:                   -0.5     #default -0.1
   max_rot_vel:                  0.5     #default 1.0
   min_rot_vel:                  0.01    #default 0.4
   rot_stopped_vel:              0.01
@@ -46,7 +62,7 @@ DWAPlannerROS:
   # The weighting for how much the controller should attempt to avoid obstacles
   occdist_scale:                  0.01     #default 0.01
   # The distance from the center point of the robot to place an additional scoring point, in meters
-  forward_point_distance:         0.0     #default 0.325
+  forward_point_distance:         0.00     #default 0.325
   # The amount of time that the robot must stThe absolute value of the veolicty at which to start scaling the robot's footprint,
   # in m/sop before a collision in order for a trajectory to be considered valid in seconds
   stop_time_buffer:               0.2     #default 0.2
