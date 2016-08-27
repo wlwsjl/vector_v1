@@ -65,7 +65,7 @@ export LASER1_XYZ="0.35 0 0.2"
 export LASER1_RPY="3.1415 0 0"
 export LASER1_MAX_RANGE=10.0
 export LASER1_MIN_RANGE=0.01
-export LASER1_PREFIX="front"
+export LASER1_PREFIX="base"
 
 export VECTOR_LASER2_IS_HOKUYO=false
 export VECTOR_LASER2_IS_SICK_TIM=false

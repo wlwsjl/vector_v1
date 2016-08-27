@@ -49,7 +49,7 @@
      </group>
 	
 	<group if="$(optenv VECTOR_HAS_ONE_2D_LASER false)">
-        <node pkg="topic_tools" type="relay" name="vector_laser_filter" args="/vector/$(optenv LASER1_PREFIX front)_scan /vector/filtered_scan" unless="$(optenv VECTOR_HAS_SECOND_2D_LASER false)"/>
+        <node pkg="topic_tools" type="relay" name="vector_laser_filter" args="/vector/$(optenv LASER1_PREFIX front)_scan /vector/base_scan_filtered" unless="$(optenv VECTOR_HAS_SECOND_2D_LASER false)"/>
     </group>
 
 </launch>
