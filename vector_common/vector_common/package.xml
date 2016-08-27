@@ -17,6 +17,7 @@
     <run_depend>vector_config</run_depend>
     <run_depend>vector_pan_tilt</run_depend>
     <run_depend>vector_third_party</run_depend>
+    <run_depend>vector_gazebo_plugins</run_depend>
     <run_depend>si_utils</run_depend>
 
     <export>

@@ -13,7 +13,7 @@
 
     <!-- Kinematics test -->
     <node pkg="si_utils" type="timed_roslaunch"
-        args="10 vector_gazebo test_kinematics.launch"
+        args="10 vector_gazebo test_jaco_kinematics.launch"
         name="jaco_kintest_bringup" output="screen"/>
 
 </launch>
