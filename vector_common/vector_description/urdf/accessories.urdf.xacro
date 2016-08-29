@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <robot name="vector_accessories" xmlns:xacro="http://ros.org/wiki/xacro">
-    <xacro:include filename="$(find vector_description)/urdf/sensors/sick_lms1xx.urdf.xacro"/>
+    <xacro:include filename="$(find vector_description)/urdf/sensors/sick_tim.urdf.xacro"/>
     <xacro:include filename="$(find vector_description)/urdf/sensors/hokuyo_ust20lx.urdf.xacro"/>
     <xacro:include filename="$(find vector_description)/urdf/sensors/pgr_flea3.urdf.xacro"/>
     <xacro:include filename="$(find vector_description)/urdf/sensors/pan_tilt_kinect_one.urdf.xacro" />
@@ -87,19 +87,37 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             </xacro:pan_tilt_kinect_one>
         </xacro:if>
         
-        <!-- SICK LMS1XX Sensor -->
-        <xacro:if value="$(optenv VECTOR_HAS_SICK_TIM false)">
-            <xacro:hokuyo_ust20lx laser_prefix="base" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
-                <origin xyz="$(optenv SICK_TIM_XYZ 0 0 1.0)" rpy="$(optenv SICK_TIM_RPY 3.14159 0 0)" />
-            </xacro:hokuyo_ust20lx>
+        <!-- First laser Sensor -->
+        <xacro:if value="$(optenv VECTOR_HAS_ONE_2D_LASER false)">
+            <!-- SICK TIM Sensor -->
+            <xacro:if value="$(optenv VECTOR_LASER1_IS_SICK_TIM false)">
+                <xacro:sick_tim laser_prefix="$(optenv LASER1_PREFIX base)" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
+                    <origin xyz="$(optenv LASER1_XYZ 0.35 0 0.2)" rpy="$(optenv LASER1_RPY 3.14159 0 0)" />
+                </xacro:sick_tim>
+            </xacro:if>
+            
+            <xacro:if value="$(optenv VECTOR_LASER1_IS_HOKUYO false)">
+                <xacro:hokuyo_ust20lx laser_prefix="$(optenv LASER1_PREFIX base)" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
+                    <origin xyz="$(optenv LASER1_XYZ 0.35 0 0.2)" rpy="$(optenv LASER1_RPY 3.14159 0 0)" />
+                </xacro:hokuyo_ust20lx>
+            </xacro:if>
         </xacro:if>
         
-        <!-- Hokuyo UST-20LX Sensor -->
-        <xacro:if value="$(optenv VECTOR_HAS_HOKUYO false)">
-            <xacro:hokuyo_ust20lx laser_prefix="base" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
-                <origin xyz="$(optenv HOKUYO_XYZ 0.35 0 0.2)" rpy="$(optenv HOKUYO_RPY 3.14159 0 0)" />
-            </xacro:hokuyo_ust20lx>
+        
+        <!-- Second laser Sensor -->
+        <xacro:if value="$(optenv VECTOR_HAS_SECOND_2D_LASER false)">
+            <!-- SICK TIM Sensor -->
+            <xacro:if value="$(optenv VECTOR_LASER2_IS_SICK_TIM false)">
+                <xacro:sick_tim laser_prefix="$(optenv LASER2_PREFIX base)" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
+                    <origin xyz="$(optenv LASER2_XYZ 0.35 0 0.2)" rpy="$(optenv LASER2_RPY 3.14159 0 0)" />
+                </xacro:sick_tim>
+            </xacro:if>
             
+            <xacro:if value="$(optenv VECTOR_LASER2_IS_HOKUYO false)">
+                <xacro:hokuyo_ust20lx laser_prefix="$(optenv LASER2_PREFIX base)" parent="$(optenv VECTOR_PARENT_LINK base_chassis_link)">
+                    <origin xyz="$(optenv LASER2_XYZ 0.35 0 0.2)" rpy="$(optenv LASER2_RPY 3.14159 0 0)" />
+                </xacro:hokuyo_ust20lx>
+            </xacro:if>
         </xacro:if>
 
         <!-- PGR FLEA3 Sensor -->

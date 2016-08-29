@@ -77,6 +77,7 @@ class VectorMoveBase():
         self.goal_timeout_sec = rospy.get_param("~goal_timeout_sec", 300)
         self.load_waypoints = rospy.get_param("~load_waypoints", False)
         self.waypoint_dwell_s= rospy.get_param("~waypoints_dwell_time", 5.0)
+        self.run_waypoints = rospy.get_param("~run_waypoints", False)
 
         self.marker_array_msg = MarkerArray()
         self.max_markers = 100
@@ -88,6 +89,7 @@ class VectorMoveBase():
         rospack = rospkg.RosPack()
         self.goals_path = rospack.get_path('vector_navigation_apps') + "/goals/"
         self.goals_filename = self.goals_path + rospy.get_param("~goalfile", "vector_goals")  + ".txt"
+        self.goals_filename = rospack.get_path('vector_navigation_apps') + "/goals/" + rospy.get_param("~goalfile", "vector_goals")  + ".txt"
 
         """
         Goal state return values
@@ -116,7 +118,6 @@ class VectorMoveBase():
         self.start_time = rospy.get_time()
         self.running_time = 0
         self.vector_operational_state = 0
-        self.run_waypoints = False
         initial_mode_req = TRACTOR_REQUEST
 
 

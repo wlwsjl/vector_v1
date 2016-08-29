@@ -50,29 +50,34 @@ export EXT_IMU_RPY="0 0 0"
 
 # 2D scanner configuration for launch files; should change hokuyo
 # to sick if using a SICK LMS1XX
-export VECTOR_HAS_2D_LASER=true
-export VECTOR_2D_LASER_NS=hokuyo
-export VECTOR_2D_LASER_TOPIC=/hokuyo/scan
+export VECTOR_HAS_ONE_2D_LASER=true
+export VECTOR_HAS_SECOND_2D_LASER=false
 
-# Hokuyo configuration (only supports one by default) watch 
+# Hokuyo configuration (only supports two by default) watch 
 # wavelength on multi-laser systems
-export VECTOR_HAS_HOKUYO=true
-export VECTOR_HOKUYO_IP=10.66.171.6
-export VECTOR_HOKUYO_PORT=10940
-export HOKUYO_XYZ="0.35 0 0.2"
-export HOKUYO_RPY="3.1415 0 0"
-export HOKUYO_MAX_RANGE=10.0
-export HOKUYO_MIN_RANGE=0.01
+export VECTOR_LASER1_IS_HOKUYO=true
+export VECTOR_LASER1_IS_SICK_TIM=false
+export VECTOR_LASER1_IP=10.66.171.6
+#export VECTOR_LASER1_PORT=2112
+#Uncomment below and comment line above for hokuyo
+export VECTOR_LASER1_PORT=10940 
+export LASER1_XYZ="0.35 0 0.2"
+export LASER1_RPY="3.1415 0 0"
+export LASER1_MAX_RANGE=10.0
+export LASER1_MIN_RANGE=0.01
+export LASER1_PREFIX="base"
 
-# SICK LIDAR configuration (only supports one by default) watch 
-# wavelength on multi-laser systems
-export VECTOR_HAS_SICK_TIM=false
-export VECTOR_SICK_TIM_IP=10.66.171.8
-export VECTOR_SICK_TIM_PORT=2112
-export SICK_TIM_XYZ="0.35 0 0.2"
-export SICK_TIM_RPY="3.1415 0 0"
-export HOKUYO_MAX_RANGE=25.0
-export HOKUYO_MIN_RANGE=0.01
+export VECTOR_LASER2_IS_HOKUYO=false
+export VECTOR_LASER2_IS_SICK_TIM=false
+export VECTOR_LASER2_IP=10.66.171.8
+export VECTOR_LASER2_PORT=2112
+#Uncomment below and comment line above for hokuyo
+#export VECTOR_LASER1_PORT=10940 
+export LASER2_XYZ="-0.35 0 0.2"
+export LASER2_RPY="3.1415 0 3.1415"
+export LASER2_MAX_RANGE=20.0
+export LASER2_MIN_RANGE=0.01
+export LASER2_PREFIX="rear"
 
 # Kinect pan-tilt configuration
 export VECTOR_HAS_KINECT_PAN_TILT=true
