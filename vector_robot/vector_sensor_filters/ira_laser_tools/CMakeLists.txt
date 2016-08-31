@@ -55,7 +55,7 @@ generate_dynamic_reconfigure_options(cfg/laserscan_multi_merger.cfg cfg/lasersca
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS
+   INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS}
 #  LIBRARIES laser_merger
 #  CATKIN_DEPENDS laser_geometry roscpp sensor_msgs std_msgs tf
 #  DEPENDS system_lib
@@ -69,7 +69,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 
