@@ -47,6 +47,7 @@ arising out of or based upon:
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
+import random
 import rospy
 import tf
 import actionlib
@@ -268,6 +269,7 @@ class VectorMoveBase():
         elif ('5' == cmd):
             fullpath = self.goals_path + cmd_in.data[1:] + ".txt"
             goalfile = open(fullpath,'w')
+
             for pose in self.waypoints:
                 goal  = "%.3f,"%pose.position.x
                 goal += "%.3f,"%pose.position.y
@@ -285,7 +287,8 @@ class VectorMoveBase():
             self._init_markers()
             self.present_waypoint = 0
 
-            fullpath = self.goals_path + cmd_in.data[1:]
+            randomize = cmd_in.data[1]
+            fullpath = self.goals_path + cmd_in.data[2:]
             try:
                 goalfile = open(fullpath,'r')
                 for line in goalfile:
@@ -293,6 +296,9 @@ class VectorMoveBase():
                     pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
                     self._append_waypoint_pose(pose)
                 goalfile.close()
+                if randomize == '1':
+                    random.shuffle(self.waypoints)
+
             except (OSError, IOError) as e:
                 rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
 
