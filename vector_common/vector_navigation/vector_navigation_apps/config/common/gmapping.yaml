@@ -38,25 +38,25 @@ ogain:                     3.0     #default 3.0
 lskip:                     0       #default 0
 
 # Minimum score for considering the outcome of the scan matching good
-minimumScore:              20.0    #default 0.0
+minimumScore:              5000.0    #default 0.0
 
 # Odometry error in translation as a function of translation (rho/rho)
-srr:                       0.075     #default 0.1
+srr:                       0.0     #default 0.1
 
 # Odometry error in translation as a function of rotation (rho/theta)
-srt:                       0.15     #default 0.2
+srt:                       0.0     #default 0.2
 
 # Odometry error in rotation as a function of translation (theta/rho)
-str:                       0.075     #default 0.1
+str:                       0.0     #default 0.1
 
 # Odometry error in rotation as a function of rotation (theta/theta)
-stt:                       0.15     #default 0.2
+stt:                       0.0     #default 0.2
 
 # Process a scan each time the robot translates this far
-linearUpdate:              0.05     #default 1.0
+linearUpdate:              1.0     #default 1.0
 
 # Process a scan each time the robot rotates this far      
-angularUpdate:             0.05     #default 0.5
+angularUpdate:             0.5      #default 0.5
 
 # Process a scan if the last scan proccessed is older than the update time in seconds. 
 # A value less than zero will turn time based updates off 
@@ -66,7 +66,7 @@ temporalUpdate:            -1.0     #default -1.0
 resampleThreshold:         0.5     #default 0.5
 
 # Number of particles in the filter    
-particles:                 100     #default 30
+particles:                 1     #default 30
 
 # Translational sampling range for the likelihood
 llsamplerange:             0.01    #default 0.01
