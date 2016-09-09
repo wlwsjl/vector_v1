@@ -165,7 +165,12 @@ class VectorMarkerMenu:
             path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/"
             choices = [f for f in listdir(path) if isfile(join(path, f))]
             choice = easygui.choicebox(user_msg, title, choices)
-            msg = '6'+str(map_name + "/" + choice)
+            rospy.loginfo("Choice: %s", choice)
+            if choice == 'stress_test.txt':
+                msg = '61'+str(map_name + "/" + choice)
+                rospy.loginfo("Randomizing waypoints for stress test...")
+            else:
+                msg = '6'+str(map_name + "/" + choice)
         self._msg_pub.publish(msg)
         for key,value in self.wp_menu_opt.iteritems():
             if (key != handle):
