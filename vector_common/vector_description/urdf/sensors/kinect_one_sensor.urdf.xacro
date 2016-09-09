@@ -108,7 +108,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                     </image>
                     <clip>
                         <near>0.01</near>
-                        <far>5</far>
+                        <far>100</far>
                     </clip>
                 </camera>
                 <plugin name="${prefix}_ir_link_controller" filename="libgazebo_ros_openni_kinect.so">
@@ -123,7 +123,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                     <pointCloudTopicName>/${prefix}/depth/points</pointCloudTopicName>
                     <frameName>${prefix}_ir_optical_frame</frameName>
                     <pointCloudCutoff>0.5</pointCloudCutoff>
-                    <pointCloudCutoffMax>12.0</pointCloudCutoffMax>
+                    <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
                     <distortionK1>0.0</distortionK1>
                     <distortionK2>0.0</distortionK2>
                     <distortionK3>0.0</distortionK3>
@@ -152,7 +152,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                     </image>
                     <clip>
                         <near>0.01</near>
-                        <far>5</far>
+                        <far>100</far>
                     </clip>
                 </camera>
                 <plugin name="${prefix}_rgb_link_controller" filename="libgazebo_ros_openni_kinect.so">
@@ -166,7 +166,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                     <pointCloudTopicName>/${prefix}/depth_registered/points</pointCloudTopicName>
                     <frameName>${prefix}_rgb_optical_frame</frameName>
                     <pointCloudCutoff>0.5</pointCloudCutoff>
-                    <pointCloudCutoffMax>12.0</pointCloudCutoffMax>
+                    <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
                     <distortionK1>0.0</distortionK1>
                     <distortionK2>0.0</distortionK2>
                     <distortionK3>0.0</distortionK3>
