@@ -94,34 +94,77 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <origin xyz="0 0 0" rpy="${-M_PI / 2.0} 0 ${-M_PI / 2.0}"/>
         </joint>
         
-        
-        <gazebo reference="${prefix}_ir_link">
-            <sensor type="depth" name="${prefix}_ir_sensor">
+        <gazebo reference="${prefix}_rgb_link">
+            <sensor type="depth" name="${prefix}_rgb_sensor">
                 <always_on>true</always_on>
                 <update_rate>1.0</update_rate>
                 <camera>
                     <horizontal_fov>${57.0*M_PI/180.0}</horizontal_fov>
                     <image>
-                        <format>L8</format>
-                        <width>640</width>
-                        <height>480</height>
+                        <format>B8G8R8</format>
+                        <width>1920</width>
+                        <height>1080</height>
                     </image>
                     <clip>
                         <near>0.01</near>
                         <far>100</far>
                     </clip>
                 </camera>
-                <plugin name="${prefix}_ir_link_controller" filename="libgazebo_ros_openni_kinect.so">
+                <plugin name="${prefix}_rgb_hd_controller" filename="libgazebo_ros_openni_kinect.so">
                     <baseline>0.2</baseline>
                     <alwaysOn>true</alwaysOn>
                     <updateRate>1.0</updateRate>
-                    <cameraName>${prefix}_ir</cameraName>
-                    <imageTopicName>/${prefix}/ir/image_raw</imageTopicName>
-                    <cameraInfoTopicName>/${prefix}/ir/camera_info</cameraInfoTopicName>
-                    <depthImageTopicName>/${prefix}/depth/image_raw</depthImageTopicName>
-                    <depthImageCameraInfoTopicName>/${prefix}/depth/camera_info</depthImageCameraInfoTopicName>
-                    <pointCloudTopicName>/${prefix}/depth/points</pointCloudTopicName>
-                    <frameName>${prefix}_ir_optical_frame</frameName>
+                    <cameraName>${prefix}/hd</cameraName>
+                    <imageTopicName>/${prefix}/hd/image_color</imageTopicName>
+                    <cameraInfoTopicName>/${prefix}/hd/camera_info</cameraInfoTopicName>
+                    <depthImageTopicName>/${prefix}/hd/image_depth_rect</depthImageTopicName>
+                    <depthImageCameraInfoTopicName>/${prefix}/hd/depth/camera_info</depthImageCameraInfoTopicName>
+                    <pointCloudTopicName>/${prefix}/hd/points</pointCloudTopicName>
+                    <frameName>${prefix}_rgb_optical_frame</frameName>
+                    <pointCloudCutoff>0.5</pointCloudCutoff>
+                    <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                    <CxPrime>0</CxPrime>
+                    <Cx>0</Cx>
+                    <Cy>0</Cy>
+                    <focalLength>0</focalLength>
+                    <hackBaseline>0</hackBaseline>
+                </plugin>
+            </sensor>
+            <material value="Gazebo/Red" />
+        </gazebo>
+        
+        <gazebo reference="${prefix}_rgb_link">
+            <sensor type="depth" name="${prefix}_rgb_sensor">
+                <always_on>true</always_on>
+                <update_rate>1.0</update_rate>
+                <camera>
+                    <horizontal_fov>${57.0*M_PI/180.0}</horizontal_fov>
+                    <image>
+                        <format>B8G8R8</format>
+                        <width>960</width>
+                        <height>540</height>
+                    </image>
+                    <clip>
+                        <near>0.01</near>
+                        <far>100</far>
+                    </clip>
+                </camera>
+                <plugin name="${prefix}_rgb_qhd_controller" filename="libgazebo_ros_openni_kinect.so">
+                    <baseline>0.2</baseline>
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>1.0</updateRate>
+                    <cameraName>${prefix}/qhd</cameraName>
+                    <imageTopicName>/${prefix}/qhd/image_color</imageTopicName>
+                    <cameraInfoTopicName>/${prefix}/qhd/camera_info</cameraInfoTopicName>
+                    <depthImageTopicName>/${prefix}/qhd/image_depth_rect</depthImageTopicName>
+                    <depthImageCameraInfoTopicName>/${prefix}/qhd/depth/camera_info</depthImageCameraInfoTopicName>
+                    <pointCloudTopicName>/${prefix}/qhd/points</pointCloudTopicName>
+                    <frameName>${prefix}_rgb_optical_frame</frameName>
                     <pointCloudCutoff>0.5</pointCloudCutoff>
                     <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
                     <distortionK1>0.0</distortionK1>
@@ -139,32 +182,33 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <material value="Gazebo/Red" />
         </gazebo>
 
-        <gazebo reference="${prefix}_rgb_link">
-            <sensor type="depth" name="${prefix}_rgb_sensor">
+        <gazebo reference="${prefix}_ir_link">
+            <sensor type="depth" name="${prefix}_ir_sensor">
                 <always_on>true</always_on>
                 <update_rate>1.0</update_rate>
                 <camera>
                     <horizontal_fov>${57.0*M_PI/180.0}</horizontal_fov>
                     <image>
-                        <format>B8G8R8</format>
-                        <width>640</width>
-                        <height>480</height>
+                        <format>L8</format>
+                        <width>512</width>
+                        <height>424</height>
                     </image>
                     <clip>
                         <near>0.01</near>
                         <far>100</far>
                     </clip>
                 </camera>
-                <plugin name="${prefix}_rgb_link_controller" filename="libgazebo_ros_openni_kinect.so">
+                <plugin name="${prefix}_ir_link_controller" filename="libgazebo_ros_openni_kinect.so">
+                    <baseline>0.2</baseline>
                     <alwaysOn>true</alwaysOn>
                     <updateRate>1.0</updateRate>
-                    <cameraName>${prefix}_rgb</cameraName>
-                    <imageTopicName>/${prefix}/rgb/image_raw</imageTopicName>
-                    <cameraInfoTopicName>/${prefix}/rgb/camera_info</cameraInfoTopicName>
-                    <depthImageTopicName>/${prefix}/depth/image_raw</depthImageTopicName>
-                    <depthImageCameraInfoTopicName>/${prefix}/depth/camera_info</depthImageCameraInfoTopicName>
-                    <pointCloudTopicName>/${prefix}/depth_registered/points</pointCloudTopicName>
-                    <frameName>${prefix}_rgb_optical_frame</frameName>
+                    <cameraName>${prefix}/sd/image_ir</cameraName>
+                    <imageTopicName>/${prefix}/sd/image_ir</imageTopicName>
+                    <cameraInfoTopicName>/${prefix}/sd/camera_info</cameraInfoTopicName>
+                    <depthImageTopicName>/${prefix}/sd/image_depth</depthImageTopicName>
+                    <depthImageCameraInfoTopicName>/${prefix}/sd/depth/camera_info</depthImageCameraInfoTopicName>
+                    <pointCloudTopicName>/${prefix}/sd/points</pointCloudTopicName>
+                    <frameName>${prefix}_ir_optical_frame</frameName>
                     <pointCloudCutoff>0.5</pointCloudCutoff>
                     <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
                     <distortionK1>0.0</distortionK1>
