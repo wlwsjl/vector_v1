@@ -2,7 +2,6 @@
 GlobalPlanner:
   lethal_cost:                  253   #default: 253
   neutral_cost:                 50    #default: 50
-  cost_factor:                  3.0   #default: 3.0
   orientation_mode:             1     #default: 1-Forward
   publish_potential:            false #default: false
 
@@ -11,11 +10,11 @@ EBandPlannerROS:
   differential_drive:           False #default True
   max_acceleration:             2.5 #default 0.5
   max_vel_lin:                  0.75 #default 0.75
-  max_vel_th:                   0.4 #default 1.0
-  min_vel_lin:                  0.02 #default 0.01
-  min_vel_th:                   0.07 #default 0.0
+  max_vel_th:                   0.5 #default 1.0
+  min_vel_lin:                  0.01 #default 0.01
+  min_vel_th:                   0.00 #default 0.0
   xy_goal_tolerance:            0.10 #default 0.02
-  yaw_goal_tolerance:           0.018 #default 1.5
+  yaw_goal_tolerance:           0.5 #default 1.5
 
   # these control the PID for actual plan following
   k_prop:                       4.0 #default: 4.0
