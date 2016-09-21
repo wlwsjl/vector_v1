@@ -244,6 +244,7 @@ class VectorMoveBase():
         if ('0' == cmd):
             self._add_waypoint_pose()
         elif ('1' == cmd):
+            rospy.loginfo("run_waypoints = true!")
             self.run_waypoints = True
         elif ('2' == cmd):
             self.run_waypoints = False
@@ -287,8 +288,7 @@ class VectorMoveBase():
             self._init_markers()
             self.present_waypoint = 0
 
-            randomize = cmd_in.data[1]
-            fullpath = self.goals_path + cmd_in.data[2:]
+            fullpath = self.goals_path + cmd_in.data[1:]
             try:
                 goalfile = open(fullpath,'r')
                 for line in goalfile:
@@ -296,8 +296,6 @@ class VectorMoveBase():
                     pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
                     self._append_waypoint_pose(pose)
                 goalfile.close()
-                if randomize == '1':
-                    random.shuffle(self.waypoints)
 
             except (OSError, IOError) as e:
                 rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
