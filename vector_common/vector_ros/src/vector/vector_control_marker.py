@@ -130,7 +130,6 @@ class VectorMarkerMenu:
     def _waypointCb(self,feedback):
         handle = feedback.menu_entry_id
         self.menu_handler.setCheckState( handle, MenuHandler.CHECKED )
-
         if ("Add" == self.wp_menu_opt[handle]):
             msg = '0'
         elif ("Start" == self.wp_menu_opt[handle]):
@@ -165,17 +164,13 @@ class VectorMarkerMenu:
             path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/"
             choices = [f for f in listdir(path) if isfile(join(path, f))]
             choice = easygui.choicebox(user_msg, title, choices)
-            rospy.loginfo("Choice: %s", choice)
-            if choice == 'stress_test.txt':
-                msg = '61'+str(map_name + "/" + choice)
-                rospy.loginfo("Randomizing waypoints for stress test...")
-            else:
-                msg = '6'+str(map_name + "/" + choice)
-        self._msg_pub.publish(msg)
+            msg = '6'+str(map_name + "/" + choice)
+
         for key,value in self.wp_menu_opt.iteritems():
             if (key != handle):
                 self.menu_handler.setCheckState( key, MenuHandler.UNCHECKED )
 
+        self._msg_pub.publish(msg)
         self.menu_handler.reApply( self._server )
         self._server.applyChanges()
 
