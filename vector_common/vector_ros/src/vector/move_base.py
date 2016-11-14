@@ -61,6 +61,7 @@ from math import pow, sqrt
 from system_defines import *
 from visualization_msgs.msg import MarkerArray,Marker
 import rospkg
+import easygui
 
 class VectorMoveBase():
     def __init__(self):
@@ -86,6 +87,7 @@ class VectorMoveBase():
         self.marker_array_pub = rospy.Publisher('/vector/waypoints',MarkerArray,queue_size=10)
 
 
+        self.waypoint_is_executing = False
 
         rospack = rospkg.RosPack()
         self.goals_path = rospack.get_path('vector_navigation_apps') + "/goals/"
@@ -200,7 +202,6 @@ class VectorMoveBase():
         self.move_base_server.start()
 
         rospy.loginfo("Vector move base server started")
-        self.waypoint_is_executing = False
         self._run_waypoints()
 
     def _run_waypoints(self):
@@ -266,9 +267,21 @@ class VectorMoveBase():
             self.waypoints = []
             self._init_markers()
             self.present_waypoint = 0
-
         elif ('5' == cmd):
-            fullpath = self.goals_path + cmd_in.data[1:] + ".txt"
+            # Query user for loading map file
+            rospack = rospkg.RosPack()
+            map_name = rospy.get_param("map_file")
+            directory = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name
+
+            if not os.path.exists(directory):
+                rospy.loginfo("Waypoint directory not extant for current map.")
+                rospy.loginfo("Creating directory %s", directory)
+                os.makedirs(directory)
+
+            #User presents filename for the waypoints given
+            filename = easygui.enterbox(msg='Name these waypoints:', title='Waypoint Filename')
+
+            fullpath = self.goals_path + map_name + "/" + filename + ".txt"
             goalfile = open(fullpath,'w')
 
             for pose in self.waypoints:
@@ -287,8 +300,20 @@ class VectorMoveBase():
             self.waypoints = []
             self._init_markers()
             self.present_waypoint = 0
+            
+            #Query user for desired waypoint file
+            user_msg ="Which Waypoints file would you like to load?"
+            title = "Load Waypoints"
 
-            fullpath = self.goals_path + cmd_in.data[1:]
+            #User is presented with a populated list of saved waypoint files
+            rospack = rospkg.RosPack()
+            map_name = rospy.get_param("map_file")
+            path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/" 
+            choices = [f for f in listdir(path) if isfile(join(path, f))]
+            choice = easygui.choicebox(user_msg, title, choices)
+
+            
+            fullpath = self.goals_path + map_name + '/' + choice
             try:
                 goalfile = open(fullpath,'r')
                 for line in goalfile:

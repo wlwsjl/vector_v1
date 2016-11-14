@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """--------------------------------------------------------------------
 COPYRIGHT 2016 Stanley Innovation Inc.
 
@@ -49,11 +50,11 @@ arising out of or based upon:
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 
+
 import rospy
 import tf
 import rospkg
 import sys
-import easygui
 from utils import *
 from system_defines import *
 from vector_msgs.msg import *
@@ -63,10 +64,11 @@ from interactive_markers.interactive_marker_server import *
 from interactive_markers.menu_handler import *
 from visualization_msgs.msg import *
 from geometry_msgs.msg import Pose,Point,Quaternion,PoseStamped
-import os
 from os import listdir
 from os.path import isfile, join
 import threading
+import easygui
+
 
 class VectorMarkerMenu:
     def __init__(self,server,sim):
@@ -141,30 +143,9 @@ class VectorMarkerMenu:
         elif ("Clear" == self.wp_menu_opt[handle]):
             msg = '4'
         elif ("Save" == self.wp_menu_opt[handle]):
-            #Check if folder exists for waypoints of the mapname. If not, create it
-            rospack = rospkg.RosPack()
-            map_name = rospy.get_param("map_file")
-            directory = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name
-
-            if not os.path.exists(directory):
-                rospy.loginfo("Waypoint directory not extant for current map.")
-                rospy.loginfo("Creating directory %s", directory)
-                os.makedirs(directory)
-
-            #User presents filename for the waypoints given
-            filename = easygui.enterbox(msg='Name these waypoints:', title='Waypoint Filename')
-            msg = '5'+str(map_name +'/' + filename)
+            msg = '5'
         elif ("Reload" == self.wp_menu_opt[handle]):
-            user_msg ="Which Waypoints file would you like to load?"
-            title = "Load Waypoints"
-
-            #User is presented with a populated list of saved waypoint files
-            rospack = rospkg.RosPack()
-            map_name = rospy.get_param("map_file")
-            path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/"
-            choices = [f for f in listdir(path) if isfile(join(path, f))]
-            choice = easygui.choicebox(user_msg, title, choices)
-            msg = '6'+str(map_name + "/" + choice)
+            msg = '6'
 
         for key,value in self.wp_menu_opt.iteritems():
             if (key != handle):
