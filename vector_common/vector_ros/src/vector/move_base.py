@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """--------------------------------------------------------------------
 COPYRIGHT 2016 Stanley Innovation Inc.
 
@@ -51,6 +52,8 @@ import random
 import rospy
 import tf
 import actionlib
+import rospkg
+import easygui
 from system_defines import *
 from actionlib_msgs.msg import *
 from vector_msgs.msg import *
@@ -60,8 +63,10 @@ from std_msgs.msg import Bool, String, UInt32
 from math import pow, sqrt
 from system_defines import *
 from visualization_msgs.msg import MarkerArray,Marker
-import rospkg
-import easygui
+import os
+from os import listdir
+from os.path import isfile, join
+
 
 class VectorMoveBase():
     def __init__(self):
