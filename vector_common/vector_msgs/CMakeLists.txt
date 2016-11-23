@@ -9,7 +9,8 @@ add_message_files(DIRECTORY msg FILES
                                 Status.msg 
                                 Propulsion.msg 
                                 Dynamics.msg 
-                                Configuration.msg 
+                                Configuration.msg
+                                CtlParams.msg 
                                 Faultlog.msg
                                 JacoJointCmd.msg
                                 JacoStatus.msg

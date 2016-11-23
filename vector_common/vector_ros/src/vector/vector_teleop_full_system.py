@@ -50,6 +50,7 @@ arising out of or based upon:
  \Platform: Linux/ROS Indigo
 
 Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
+Edited 11/07/2016: David Kent, dekent@gatech - integrated arm commands with wpi_jaco
 
 --------------------------------------------------------------------"""
 from utils import *
@@ -61,6 +62,7 @@ from std_msgs.msg import Bool,Float64
 from trajectory_msgs.msg import JointTrajectoryPoint
 from dynamixel_controllers.srv import *  
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTrajectoryControllerState
+from wpi_jaco_msgs.msg import CartesianCommand
 import rospy
 import sys
 import math
@@ -165,10 +167,16 @@ class VectorTeleopFullSystem(object):
         
         self.arm_pub = [0]*2
         self.gripper_pub = [0]*2
-        self.arm_pub[0] = rospy.Publisher('/vector/right_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        if self.is_sim:
+            self.arm_pub[0] = rospy.Publisher('/vector/right_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        else:
+            self.arm_pub[0] = rospy.Publisher('/jaco_arm/cartesian_cmd', CartesianCommand, queue_size=10)
         self.gripper_pub[0] = rospy.Publisher('/vector/right_gripper/cmd', GripperCmd, queue_size=10)
 
-        self.arm_pub[1] = rospy.Publisher('/vector/left_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        if self.is_sim:
+            self.arm_pub[1] = rospy.Publisher('/vector/left_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
+        else:
+            self.arm_pub[1] = rospy.Publisher('/left_arm/jaco_arm/cartesian_cmd', JacoCartesianVelocityCmd, queue_size=10)
         self.gripper_pub[1] = rospy.Publisher('/vector/left_gripper/cmd', GripperCmd, queue_size=10)
  
         self.pan_pub = rospy.Publisher('/pan_controller/command', Float64, queue_size=1)
@@ -268,9 +276,22 @@ class VectorTeleopFullSystem(object):
             self.run_arm_ctl = False
             self.run_pan_tilt_ctl = False
             self._init_pan_tilt = False
-            arm_cmd = JacoCartesianVelocityCmd()
-            arm_cmd.header.stamp=rospy.get_rostime()
-            arm_cmd.header.frame_id=''
+            if self.is_sim:
+                arm_cmd = JacoCartesianVelocityCmd()
+                arm_cmd.header.stamp=rospy.get_rostime()
+                arm_cmd.header.frame_id=''
+            else:
+                arm_cmd = CartesianCommand()
+                arm_cmd.position = False
+                arm_cmd.armCommand = True
+                arm_cmd.fingerCommand = False
+                arm_cmd.repeat = False
+                arm_cmd.arm.linear.x = 0
+                arm_cmd.arm.linear.y = 0
+                arm_cmd.arm.linear.z = 0
+                arm_cmd.arm.angular.x = 0
+                arm_cmd.arm.angular.y = 0
+                arm_cmd.arm.angular.z = 0
             self.arm_pub[0].publish(arm_cmd)
             self.arm_pub[1].publish(arm_cmd)
             home = Float64()
@@ -280,9 +301,17 @@ class VectorTeleopFullSystem(object):
    
         
         if self.run_arm_ctl_right or self.run_arm_ctl_left:
-            arm_cmd = JacoCartesianVelocityCmd()
-            arm_cmd.header.stamp=rospy.get_rostime()
-            arm_cmd.header.frame_id=''
+            if self.is_sim:
+                arm_cmd = JacoCartesianVelocityCmd()
+                arm_cmd.header.stamp=rospy.get_rostime()
+                arm_cmd.header.frame_id=''
+            else:
+                arm_cmd = CartesianCommand()
+                arm_cmd.position = False
+                arm_cmd.armCommand = True
+                arm_cmd.fingerCommand = False
+                arm_cmd.repeat = True
+            
             gripper_cmd = GripperCmd()
             
             if self.run_arm_ctl_right:
@@ -291,10 +320,17 @@ class VectorTeleopFullSystem(object):
                 arm_idx = 1
             
             if self.button_state['dead_man']:
-                arm_cmd.x = self.axis_value['left_right'] * 0.1
-                arm_cmd.z = self.axis_value['for_aft'] * 0.1
+                if self.is_sim:
+                    arm_cmd.x = self.axis_value['left_right'] * 0.1
+                    arm_cmd.z = self.axis_value['for_aft'] * 0.1
+                else:
+                    arm_cmd.arm.linear.x = self.axis_value['left_right'] * 0.1
+                    arm_cmd.arm.linear.z = self.axis_value['for_aft'] * 0.1
                 if not self.button_state['man_ovvrd']:
-                    arm_cmd.y = self.axis_value['twist'] * 0.1
+                    if self.is_sim:
+                        arm_cmd.y = self.axis_value['twist'] * 0.1
+                    else:
+                        arm_cmd.arm.linear.y = self.axis_value['twist'] * 0.1
                 else:
                     # Check if we're in simulation - if so set the last known position
                     if self.is_sim == True:
@@ -315,13 +351,23 @@ class VectorTeleopFullSystem(object):
                     self.linpub.publish(self.lincmd)
                     self.lincmd.header.seq+=1
                 self.last_arm_update = rospy.get_time()
-                arm_cmd.theta_y = self.axis_value['dpad_ud'] * 100.0
-                arm_cmd.theta_x = self.axis_value['dpad_lr'] * 100.0
+                if self.is_sim:
+                    arm_cmd.theta_y = self.axis_value['dpad_ud'] * 100.0
+                    arm_cmd.theta_x = self.axis_value['dpad_lr'] * 100.0
+                else:
+                    arm_cmd.arm.angular.y = self.axis_value['dpad_ud'] * 100.0
+                    arm_cmd.arm.angular.x = self.axis_value['dpad_lr'] * 100.0
 
-                if self.button_state['standby']:
-                    arm_cmd.theta_z = 100.0                
-                elif self.button_state['tractor']:
-                    arm_cmd.theta_z = -100.0                 
+                if self.is_sim:
+                    if self.button_state['standby']:
+                        arm_cmd.theta_z = 100.0
+                    elif self.button_state['tractor']:
+                        arm_cmd.theta_z = -100.0
+                else:
+                    if self.button_state['standby']:
+                        arm_cmd.arm.angular.z = 100.0
+                    elif self.button_state['tractor']:
+                        arm_cmd.arm.angular.z = -100.0
             
             gripper_val =  (self.axis_value['flipper'] + 1.0)/2.0
             

@@ -72,7 +72,8 @@ command_ids = dict({"GENERAL_PURPOSE_CMD_NONE":                   0,
                     "GENERAL_PURPOSE_CMD_SEND_FAULTLOG":          2,
                     "GENERAL_PURPOSE_CMD_RESET_ODOMETRY":         3,
                     "GENERAL_PURPOSE_CMD_RESET_PARAMS_TO_DEFAULT":4,
-                    "SIC_CMD_RESET_IN_DIAGNOSTIC_MODE":1001})
+                    "SIC_CMD_RESET_IN_DIAGNOSTIC_MODE":1001,
+                    "VECTOR_CMD_UNLOCK_PID_GAINS": 2001})
 
 class VectorDriver:
     def __init__(self):
@@ -87,6 +88,7 @@ class VectorDriver:
         self.need_to_terminate = False
         self.flush_rcvd_data=True
         self.update_base_local_planner = False
+        self.parameter_server_is_updating = False
         self.last_move_base_update = rospy.Time.now().to_sec()
 
         """
@@ -197,14 +199,48 @@ class VectorDriver:
         Force the configuration to update the first time to ensure that the variables are set to
         the correct values on the machine
         """
-        if (False == self._initial_param_force_update()):
+        if (False == self._force_machine_configuration(True)):
             rospy.logerr("Initial configuration parameteters my not be valid, please check them in the yaml file")
             rospy.logerr("The ethernet address must be set to the present address at startup, to change it:")
             rospy.logerr("start the machine; change the address using rqt_reconfigure; shutdown; update the yaml and restart")
             self.Shutdown()
             return
+            
+            
+        """
+        Uncomment the line below to always unlock gain tuning and force the upload based on the parameters in the yaml file
+        you must have the key to do this because it can be dangerous if one sets unstable gains. 0x00000000 needs to be replaced
+        by the key
+        """
+        #self._unlock_gain_tuning(0x00000000)
+        #self._force_pid_configuration(True)
         
+        """
+        Finally update the values for dynamic reconfigure with the ones reported by the machine
+        """
+        new_config = dict({"x_vel_limit_mps" : self.vector_data.config_param.machcfg.x_vel_limit_mps,
+                           "y_vel_limit_mps" : self.vector_data.config_param.machcfg.y_vel_limit_mps,
+                           "accel_limit_mps2" : self.vector_data.config_param.machcfg.accel_limit_mps2,
+                           "dtz_decel_limit_mps2": self.vector_data.config_param.machcfg.dtz_decel_limit_mps2,
+                           "yaw_rate_limit_rps" : self.vector_data.config_param.machcfg.yaw_rate_limit_rps,
+                           "wheel_diameter_m": self.vector_data.config_param.machcfg.wheel_diameter_m,
+                           "wheel_base_length_m": self.vector_data.config_param.machcfg.wheelbase_length_m,
+                           "wheel_track_width_m": self.vector_data.config_param.machcfg.wheel_track_width_m,
+                           "gear_ratio" : self.vector_data.config_param.machcfg.gear_ratio,
+                           "motion_while_charging" : ((self.vector_data.config_param.machcfg.config_bitmap >> DISABLE_AC_PRESENT_CSI_SHIFT) & 1) ^ 1,
+                           "motion_ctl_input_filter" : (self.vector_data.config_param.machcfg.config_bitmap >> MOTION_MAPPING_FILTER_SHIFT) & VALID_MOTION_MAPPING_FILTER_MASK,
+                           
+                           "p_gain_rps_per_rps" : self.vector_data.config_param.ctlconfig.p_gain_rps_per_rps,
+                           "i_gain_rps_per_rad" : self.vector_data.config_param.ctlconfig.i_gain_rps_per_rad,
+                           "d_gain_rps_per_rps2" : self.vector_data.config_param.ctlconfig.d_gain_rps_per_rps2,
+                           "fdfwd_gain_rps_per_motor_rps" : self.vector_data.config_param.ctlconfig.fdfwd_gain_rps_per_motor_rps,
+                           "p_error_limit_rps" : self.vector_data.config_param.ctlconfig.p_error_limit_rps,
+                           "i_error_limit_rad" : self.vector_data.config_param.ctlconfig.i_error_limit_rad,
+                           "i_error_drain_rate_rad_per_frame" : self.vector_data.config_param.ctlconfig.i_error_drain_rate_rad_per_frame,
+                           "input_target_limit_rps" : self.vector_data.config_param.ctlconfig.input_target_limit_rps,
+                           "output_limit_rps" : self.vector_data.config_param.ctlconfig.input_target_limit_rps})
 
+        self.dyn_reconfigure_srv.update_configuration(new_config)
         
         rospy.loginfo("Vector Driver is up and running")
     
@@ -287,7 +323,8 @@ class VectorDriver:
         cmds = [MOTION_CMD_ID,[convert_float_to_u32(command.linear.x),
                                convert_float_to_u32(command.linear.y),
                                convert_float_to_u32(command.angular.z)]]
-        self._add_command_to_queue(cmds)
+        if (False == self.parameter_server_is_updating):
+            self._add_command_to_queue(cmds)
             
     def _add_config_command_to_queue(self,command):
         try:
@@ -298,7 +335,16 @@ class VectorDriver:
             return
 
     def _dyn_reconfig_callback(self,config,level):
-
+        """
+        Note: for some reason the commands collide (queue gets garbled) if the
+        motion commands and reconfiguration are sent at the same time; so
+        we just gate the motion commands when reconfiguring which should be OK in general
+        since most result in zero velocity on the embedded side. Need to dig in further
+        to understand why this is happening
+        """
+        self.parameter_server_is_updating = True
+        rospy.sleep(0.1)
+        
         """
         The first time through we want to ignore the values because they are just defaults from the ROS
         parameter server which has no knowledge of the platform being used
@@ -329,21 +375,6 @@ class VectorDriver:
                                    convert_float_to_u32(config.wheel_track_width_m),
                                    convert_float_to_u32(config.gear_ratio),
                                    config_bitmap]]
-        
-        rospy.loginfo("Reconfigure Requested!")
-        rospy.loginfo("x_vel_limit_mps:          %f"%config.x_vel_limit_mps)
-        rospy.loginfo("y_vel_limit_mps:          %f"%config.y_vel_limit_mps)
-        rospy.loginfo("accel_limit_mps2:         %f"%config.accel_limit_mps2)
-        rospy.loginfo("decel_limit_mps2:         %f"%config.decel_limit_mps2)
-        rospy.loginfo("dtz_decel_limit_mps2:     %f"%config.dtz_decel_limit_mps2)
-        rospy.loginfo("yaw_rate_limit_rps:       %f"%config.yaw_rate_limit_rps)
-        rospy.loginfo("yaw_accel_limit_rps2:     %f"%config.yaw_accel_limit_rps2)
-        rospy.loginfo("wheel_diameter_m:         %f"%config.wheel_diameter_m)
-        rospy.loginfo("wheel_base_length_m:      %f"%config.wheel_base_length_m)
-        rospy.loginfo("wheel_track_width_m:      %f"%config.wheel_track_width_m)
-        rospy.loginfo("gear_ratio:               %f"%config.gear_ratio)
-        rospy.loginfo("motion_while_charging:    %u"%config.motion_while_charging)
-        rospy.loginfo("motion_ctl_input_filter:  %u"%config.motion_ctl_input_filter)
              
         """
         The teleop limits are always the minimum of the actual machine limit and the ones set for teleop
@@ -363,31 +394,99 @@ class VectorDriver:
                                                     config.teleop_yaw_rate_limit_rps,
                                                     config.teleop_yaw_accel_limit_rps2])
                                                     
+        
+        """
+        Define the configuration parameters for all the platforms
+        """
+        self.valid_pid_cmd  = [SET_PID_CONFIG_CMD_ID,
+                                  [convert_float_to_u32(config.p_gain_rps_per_rps),
+                                   convert_float_to_u32(config.i_gain_rps_per_rad),
+                                   convert_float_to_u32(config.d_gain_rps_per_rps2),
+                                   convert_float_to_u32(config.fdfwd_gain_rps_per_motor_rps),
+                                   convert_float_to_u32(config.p_error_limit_rps),
+                                   convert_float_to_u32(config.i_error_limit_rad),
+                                   convert_float_to_u32(config.d_error_limit_rps2),
+                                   convert_float_to_u32(config.i_error_drain_rate_rad_per_frame),
+                                   convert_float_to_u32(config.output_limit_rps),
+                                   convert_float_to_u32(config.input_target_limit_rps)]]
+                                                    
         """
         Update the linear actuator velocity limit
         """
-        self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps) 
+ 
         
         """
         Check and see if we need to store the parameters in NVM before we try, although the NVM is F-RAM
         with unlimited read/write, uneccessarily setting the parameters only introduces risk for error 
         """
+        load_config_params = False
         if self.param_server_initialized:
-            load_params = False
-            for i in range(NUMBER_OF_CONFIG_PARAM_VARIABLES):
-                if (self.vector_data.config_param.configuration_feedback[i] != self.valid_config_cmd[1][i]):
-                    load_params = True
-            if (True == load_params):
-                self._add_command_to_queue(self.valid_config_cmd)
-                rospy.loginfo("Sent config update command")
+            if ((1<<7) == ((1<<7) & level)):
+                self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps)
+            if ((1<<2) == ((1<<2) & level)):
+                self._force_machine_configuration()
+                load_config_params = True
+
+            config.x_vel_limit_mps = round(self.vector_data.config_param.machcfg.x_vel_limit_mps,3)
+            config.y_vel_limit_mps = round(self.vector_data.config_param.machcfg.y_vel_limit_mps,3)
+            config.accel_limit_mps2 = round(self.vector_data.config_param.machcfg.accel_limit_mps2,3)
+            config.decel_limit_mps2 = round(self.vector_data.config_param.machcfg.decel_limit_mps2,3)
+            config.dtz_decel_limit_mps2 = round(self.vector_data.config_param.machcfg.dtz_decel_limit_mps2,3)
+            config.yaw_rate_limit_rps = round(self.vector_data.config_param.machcfg.yaw_rate_limit_rps,3)
+            config.yaw_accel_limit_rps2 = round(self.vector_data.config_param.machcfg.yaw_accel_limit_rps2,3)
+            config.wheel_diameter_m = round(self.vector_data.config_param.machcfg.wheel_diameter_m,3)
+            config.wheel_base_length_m = round(self.vector_data.config_param.machcfg.wheelbase_length_m,3)
+            config.wheel_track_width_m = round(self.vector_data.config_param.machcfg.wheel_track_width_m,3)
+            config.gear_ratio = round(self.vector_data.config_param.machcfg.gear_ratio,3)
+            config.motion_while_charging = ((self.vector_data.config_param.machcfg.config_bitmap >> DISABLE_AC_PRESENT_CSI_SHIFT) & 1) ^ 1
+            config.motion_ctl_input_filter = (self.vector_data.config_param.machcfg.config_bitmap >> MOTION_MAPPING_FILTER_SHIFT) & VALID_MOTION_MAPPING_FILTER_MASK
+        
+
+                                   
+        if self.param_server_initialized:
+            if ((1<<5) == ((1<<5) & level)):
+                if self.vector_data.config_param.ctlconfig.control_tuning_unlocked:
+                    self._force_pid_configuration()
+                    
+            if (True == config.set_default_gains):
+                cmds = [GENERAL_PURPOSE_CMD_ID,[2002,0]]
+                self._add_command_to_queue(cmds)
+                config.set_default_gains = False
+                rospy.sleep(0.1)
+
+            config.p_gain_rps_per_rps = round(self.vector_data.config_param.ctlconfig.p_gain_rps_per_rps,3)
+            config.i_gain_rps_per_rad = round(self.vector_data.config_param.ctlconfig.i_gain_rps_per_rad,3)
+            config.d_gain_rps_per_rps2 = round(self.vector_data.config_param.ctlconfig.d_gain_rps_per_rps2,3)
+            config.fdfwd_gain_rps_per_motor_rps = round(self.vector_data.config_param.ctlconfig.fdfwd_gain_rps_per_motor_rps,3)
+            config.p_error_limit_rps = round(self.vector_data.config_param.ctlconfig.p_error_limit_rps,3)
+            config.i_error_limit_rad = round(self.vector_data.config_param.ctlconfig.i_error_limit_rad,3)
+            config.d_error_limit_rps2 = round(self.vector_data.config_param.ctlconfig.d_error_limit_rps2,3)
+            config.i_error_drain_rate_rad_per_frame = round(self.vector_data.config_param.ctlconfig.i_error_drain_rate_rad_per_frame,5)
+            config.output_limit_rps = round(self.vector_data.config_param.ctlconfig.output_limit_rps,3)
+            config.input_target_limit_rps = round(self.vector_data.config_param.ctlconfig.input_target_limit_rps,3)
+
+                
+        if (True == config.send_unlock_request):
+            try:
+                key = int(config.unlock_key,16)
+                self._unlock_gain_tuning(key)
+            except:
+                rospy.logerr("Invalid Key Value!!!! Must be a string in 32bit hex format") 
+            config.send_unlock_request = False            
+        
+        
+        self.valid_config = config
+        
+        if (True == load_config_params) or (False == self.param_server_initialized):
+            self.update_base_local_planner = True
+            self._update_move_base_params()
         
         self.param_server_initialized = True
-        self.valid_config = config
-        self.update_base_local_planner = True
-        self._update_move_base_params(None)
+        self.parameter_server_is_updating = False
         return config
+        
     
-    def _update_move_base_params(self,config):
+    def _update_move_base_params(self):
         
         """
         If parameter updates have not been called in the last 5 seconds allow the
@@ -415,7 +514,23 @@ class VectorDriver:
                 pass
             
             
-            rospy.loginfo("Vector Driver updated move_base parameters to match machine parameters")   
+            rospy.loginfo("Vector Driver updated move_base parameters to match machine parameters")
+            
+    def _unlock_gain_tuning(self,key):
+        r = rospy.Rate(10)
+        attempts = 0
+        while (False == self.vector_data.config_param.ctlconfig.control_tuning_unlocked) and (attempts < 3):
+            
+            cmds = [GENERAL_PURPOSE_CMD_ID,[2001,key]]
+            self._add_command_to_queue(cmds)
+            attempts += 1
+            r.sleep()
+        if (True == self.vector_data.config_param.ctlconfig.control_tuning_unlocked):
+            rospy.loginfo("Controller tuning successfully unlocked")
+        else:
+            rospy.logerr("Failed to unlock controller tuning, the key is likely incorrect")
+            
+               
 
     def _continuous_data(self,start_cont):
         set_continuous = [GENERAL_PURPOSE_CMD_ID,[GENERAL_PURPOSE_CMD_SEND_CONTINUOUS_DATA,start_cont]]
@@ -450,24 +565,78 @@ class VectorDriver:
             
         return not self.extracting_faultlog
     
-    def _initial_param_force_update(self):
+    def _force_machine_configuration(self,echo=False):
         """
         Load all the parameters on the machine at startup; first check if they match, if they do continue.
         Otherwise load them and check again.
         """
-        r = rospy.Rate(2)
+        r = rospy.Rate(5)
         start_time = rospy.get_time()
         params_loaded = False
-        while ((rospy.get_time() - start_time) < 3.0) and (False == params_loaded):
+        new_params = False
+        while ((rospy.get_time() - start_time) < 10.0) and (False == params_loaded):
             load_params = False
             for i in range(NUMBER_OF_CONFIG_PARAM_VARIABLES):
                 if (self.vector_data.config_param.configuration_feedback[i] != self.valid_config_cmd[1][i]):
                     load_params = True
             if (True == load_params):
                 self._add_command_to_queue(self.valid_config_cmd)
+                new_params = True
                 r.sleep()
             else:
                 params_loaded = True
         
+        if (new_params == True) or (echo == True):
+            rospy.loginfo("New Machine Parameters Loaded.......")
+            rospy.loginfo("x_vel_limit_mps:          %.4f"%self.vector_data.config_param.machcfg.x_vel_limit_mps)
+            rospy.loginfo("y_vel_limit_mps:          %.4f"%self.vector_data.config_param.machcfg.y_vel_limit_mps)
+            rospy.loginfo("accel_limit_mps2:         %.4f"%self.vector_data.config_param.machcfg.accel_limit_mps2)
+            rospy.loginfo("decel_limit_mps2:         %.4f"%self.vector_data.config_param.machcfg.decel_limit_mps2)
+            rospy.loginfo("dtz_decel_limit_mps2:     %.4f"%self.vector_data.config_param.machcfg.dtz_decel_limit_mps2)
+            rospy.loginfo("yaw_rate_limit_rps:       %.4f"%self.vector_data.config_param.machcfg.yaw_rate_limit_rps)
+            rospy.loginfo("yaw_accel_limit_rps2:     %.4f"%self.vector_data.config_param.machcfg.yaw_accel_limit_rps2)
+            rospy.loginfo("wheel_diameter_m:         %.4f"%self.vector_data.config_param.machcfg.wheel_diameter_m)
+            rospy.loginfo("wheel_base_length_m:      %.4f"%self.vector_data.config_param.machcfg.wheelbase_length_m)
+            rospy.loginfo("wheel_track_width_m:      %.4f"%self.vector_data.config_param.machcfg.wheel_track_width_m)
+            rospy.loginfo("gear_ratio:               %.4f"%self.vector_data.config_param.machcfg.gear_ratio)
+            rospy.loginfo("motion_while_charging:    %u"%(((self.vector_data.config_param.machcfg.config_bitmap >> DISABLE_AC_PRESENT_CSI_SHIFT) & 1) ^ 1))
+            rospy.loginfo("motion_ctl_input_filter:  %u\n"%((self.vector_data.config_param.machcfg.config_bitmap >> MOTION_MAPPING_FILTER_SHIFT) & VALID_MOTION_MAPPING_FILTER_MASK))
+        elif not params_loaded:
+            rospy.logerr("Failed to load machine parameters!!!!!!!!!!")
+            
+        return params_loaded
+
+    def _force_pid_configuration(self,echo=False):                
+        r = rospy.Rate(5)
+        start_time = rospy.get_time()
+        params_loaded = False
+        new_params = False
+        while ((rospy.get_time() - start_time) < 10.0) and (False == params_loaded):
+            load_params = False
+            for i in range(16,(16+NUMBER_OF_PID_PARAM_VARIABLES)):
+                if (self.vector_data.config_param.configuration_feedback[i] != self.valid_pid_cmd[1][i-16]):
+                    load_params = True
+
+            if (True == load_params):
+                self._add_command_to_queue(self.valid_pid_cmd)
+                r.sleep()
+                new_params = True
+            else:
+                params_loaded = True
+                
+        if (new_params == True) or (echo == True):                
+            rospy.loginfo("New PID Parameters Loaded.......")
+            rospy.loginfo("p_gain_rps_per_rps:                %.4f"%self.vector_data.config_param.ctlconfig.p_gain_rps_per_rps)
+            rospy.loginfo("i_gain_rps_per_rps:                %.4f"%self.vector_data.config_param.ctlconfig.i_gain_rps_per_rad)
+            rospy.loginfo("d_gain_rps_per_rps:                %.4f"%self.vector_data.config_param.ctlconfig.d_gain_rps_per_rps2)
+            rospy.loginfo("fdfwd_gain_rps_per_motor_rps:      %.4f"%self.vector_data.config_param.ctlconfig.fdfwd_gain_rps_per_motor_rps)
+            rospy.loginfo("p_error_limit_rps:                 %.4f"%self.vector_data.config_param.ctlconfig.p_error_limit_rps)
+            rospy.loginfo("i_error_limit_rps:                 %.4f"%self.vector_data.config_param.ctlconfig.i_error_limit_rad)
+            rospy.loginfo("d_error_limit_rps:                 %.4f"%self.vector_data.config_param.ctlconfig.d_error_limit_rps2)
+            rospy.loginfo("i_error_drain_rate_rad_per_frame:  %.4f"%self.vector_data.config_param.ctlconfig.i_error_drain_rate_rad_per_frame)
+            rospy.loginfo("output_limit_rps:                  %.4f"%self.vector_data.config_param.ctlconfig.output_limit_rps)
+            rospy.loginfo("input_target_limit_rps:            %.4f\n"%self.vector_data.config_param.ctlconfig.input_target_limit_rps)
+        elif not params_loaded:
+            rospy.logerr("Failed to load machine parameters!!!!!!!!!!")        
         return params_loaded
     

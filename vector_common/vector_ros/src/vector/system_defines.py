@@ -346,6 +346,12 @@ guide.
 NO_FAULT                                    = 0x00000000
 ALL_FAULTS                                  = 0xFFFFFFFF
 
+
+"""------------------------------------------------------------------------
+PID parameter configuration command
+------------------------------------------------------------------------"""
+SET_PID_CONFIG_CMD_ID       = 0x1804
+
 """
 Transient faults: These faults are not latching and can be asserted and then
 cleared during runtime. There are currently no transient faults for the RMP
@@ -626,12 +632,25 @@ ROS_FRAM_ETH_IP_ADDRESS_INDEX       =(106)
 ROS_FRAM_ETH_PORT_NUMBER_INDEX      =(107)
 ROS_FRAM_ETH_SUBNET_MASK_INDEX      =(108)
 ROS_FRAM_ETH_GATEWAY_INDEX          =(109)
-END_FRAM_CONFIG_BLOCK               =(110)
+ROS_FRAM_PID_P_GAIN_INDEX           =(110)
+ROS_FRAM_PID_I_GAIN_INDEX           =(111)
+ROS_FRAM_PID_D_GAIN_INDEX           =(112)
+ROS_FRAM_PID_FDFWD_GAIN_INDEX       =(113)
+ROS_FRAM_PID_P_ERROR_LIMIT_INDEX    =(114)
+ROS_FRAM_PID_I_ERROR_LIMIT_INDEX    =(115)
+ROS_FRAM_PID_D_ERROR_LIMIT_INDEX    =(116)
+ROS_FRAM_PID_I_DRAIN_RATE_INDEX     =(117)
+ROS_FRAM_PID_OUTPUT_LIMIT_INDEX     =(118)
+ROS_FRAM_PID_TARGET_LIMIT_INDEX     =(119)
+ROS_FRAM_PID_TUNING_UNLOCKED_INDEX  =(120)
+END_FRAM_CONFIG_BLOCK               =(121)
 
-ROS_CHECKSUM_INDEX                  =(110)
+
+ROS_CHECKSUM_INDEX                  =(122)
 
 
 NUMBER_OF_CONFIG_PARAM_VARIABLES      =(ROS_FRAM_ETH_IP_ADDRESS_INDEX - START_FRAM_CONFIG_BLOCK)
+NUMBER_OF_PID_PARAM_VARIABLES         =(ROS_FRAM_PID_TUNING_UNLOCKED_INDEX - ROS_FRAM_PID_P_GAIN_INDEX)
 NUMBER_OF_VECTOR_RSP_WORDS            =(END_FRAM_CONFIG_BLOCK)
 NUMBER_OF_FAULTLOG_WORDS              =(311)
 
