@@ -26,7 +26,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <xacro:property name="wheel_radius" value="0.0762" />
 
 	<xacro:macro name="vector_base" params="name">
-	
+	<xacro:arg name="simulation_urdf" default="false"/>
+
         <!-- Base link is the center of the robot's chassis between the motors projected on the ground -->
         <link name="${name}_link"/>
         
@@ -49,8 +50,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                              iyx="0"  iyy="3.71" iyz="0"
                              izx="0" izy="0" izz="2.53" />
                 </xacro:unless>
-                <!-- Set appropriate inertial values if in simulation -->
                 <xacro:if value="$(arg simulation_urdf)">
+                <!-- Set appropriate inertial values if in simulation -->
                     <inertia ixx="3000"  ixy="0" ixz="0"
                              iyx="3000"  iyy="3.71" iyz="0"
                              izx="3000" izy="0" izz="2.53" />
