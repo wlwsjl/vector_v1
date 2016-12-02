@@ -32,6 +32,7 @@
     <run_depend>visualization_msgs</run_depend>
     <run_depend>python-easygui</run_depend>
     <run_depend>wpi_jaco_msgs</run_depend>
+    <run_depend>poli_description</run_depend>
     
 	<export>
 	</export>
