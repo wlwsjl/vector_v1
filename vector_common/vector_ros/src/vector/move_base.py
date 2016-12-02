@@ -136,7 +136,7 @@ class VectorMoveBase():
         rospy.Subscriber("/vector/feedback/status", Status, self._handle_status)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped,  self._simple_goal_cb)
         rospy.Subscriber('/vector/teleop/abort_navigation',Bool,self._shutdown)
-        rospy.Subscriber('/clicked_point',PointStamped,self._add_waypoint)
+        rospy.Subscriber('/vector/waypoints_clicked',PoseStamped,self._add_waypoint)
         rospy.Subscriber('/vector/teleop/record_pose',Bool,self._add_waypoint_pose)
         rospy.Subscriber('/vector/waypoint_cmd',String,self._process_waypoint_cmd)
         self.simple_goal_pub = rospy.Publisher('/vector_move_base/goal', MoveBaseActionGoal, queue_size=10)
@@ -305,7 +305,7 @@ class VectorMoveBase():
             self.waypoints = []
             self._init_markers()
             self.present_waypoint = 0
-            
+
             #Query user for desired waypoint file
             user_msg ="Which Waypoints file would you like to load?"
             title = "Load Waypoints"
@@ -313,11 +313,11 @@ class VectorMoveBase():
             #User is presented with a populated list of saved waypoint files
             rospack = rospkg.RosPack()
             map_name = rospy.get_param("map_file")
-            path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/" 
+            path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/"
             choices = [f for f in listdir(path) if isfile(join(path, f))]
             choice = easygui.choicebox(user_msg, title, choices)
 
-            
+
             fullpath = self.goals_path + map_name + '/' + choice
             try:
                 goalfile = open(fullpath,'r')
@@ -331,10 +331,9 @@ class VectorMoveBase():
                 rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
 
 
-    def _add_waypoint(self,point):
+    def _add_waypoint(self,pose):
         rospy.loginfo("Adding waypoint")
-        pose = Pose(point.point,Quaternion(0.0,0.0,0.0,1.0))
-        self._append_waypoint_pose(pose)
+        self._append_waypoint_pose(pose.pose)
 
     def _add_waypoint_pose(self):
         current_pose = self._get_current_pose()
