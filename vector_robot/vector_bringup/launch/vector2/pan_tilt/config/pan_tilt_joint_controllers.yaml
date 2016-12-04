@@ -7,9 +7,9 @@ pan_controller:
     joint_speed: 3.0
     motor:
         id: 1
-        init: 2048
-        min: 1024
-        max: 3072
+        init: 2570
+        min: 1950
+        max: 3180
 
 tilt_controller:
     controller:
@@ -18,8 +18,9 @@ tilt_controller:
         type: JointPositionController
     joint_name: tilt_joint
     joint_speed: 3.0
+    reverse: true
     motor:
         id: 2
-        init: 2048
-        min: 1502
-        max: 3072
+        init: 2055
+        min: 1880 
+        max: 2450
