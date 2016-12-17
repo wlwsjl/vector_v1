@@ -51,7 +51,7 @@ export EXT_IMU_RPY="0 0 0"
 # 2D scanner configuration for launch files; should change hokuyo
 # to sick if using a SICK LMS1XX
 export VECTOR_HAS_ONE_2D_LASER=true
-export VECTOR_HAS_SECOND_2D_LASER=true
+export VECTOR_HAS_SECOND_2D_LASER=false
 
 # Hokuyo configuration (only supports two by default) watch 
 # wavelength on multi-laser systems
@@ -67,7 +67,7 @@ export LASER1_MAX_RANGE=30.0
 export LASER1_MIN_RANGE=0.01
 export LASER1_PREFIX="base"
 
-export VECTOR_LASER2_IS_HOKUYO=true
+export VECTOR_LASER2_IS_HOKUYO=false
 export VECTOR_LASER2_IS_SICK_TIM=false
 export VECTOR_LASER2_IP=10.66.171.8
 #export VECTOR_LASER2_PORT=2112
