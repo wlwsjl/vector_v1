@@ -26,6 +26,17 @@ export VECTOR_USE_2D_ODOMETRY=true
 #
 export VECTOR_USE_PLATFORM_ODOMETRY=true
 
+#
+# This enables the laser scan matcher which generates a /vector/lsm/pose_stamped in the odom frame
+#
+export VECTOR_ENABLE_LSM=true
+
+#
+# Set this if you want the platform odometry to be corrected by LSM. This is stable indoors, but should be tested with
+# teleoperation before using it
+#
+export VECTOR_USE_LSM_TO_CORRECT_ODOMETRY=true
+
 # This will run the full system tele-op node (ie can control all the joints in the system) it is not
 # collision aware and is really only meant for demonstration purposes. If set false, teleop just controls
 # the platform
@@ -67,7 +78,7 @@ export LASER1_MAX_RANGE=10.0
 export LASER1_MIN_RANGE=0.01
 export LASER1_MAX_ANGLE=2.0
 export LASER1_MIN_ANGLE=-2.0
-export LASER1_PREFIX="base"
+export LASER1_PREFIX="front"
 
 export VECTOR_LASER2_IS_HOKUYO=false
 export VECTOR_LASER2_IS_SICK_TIM=true

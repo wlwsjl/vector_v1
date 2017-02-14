@@ -87,7 +87,6 @@ if [ "$?" != "0" ]; then
   exit 1
 fi
 
-
 temp=1
 cnts=0
 while [ $cnts -lt 10 ] && [ $temp -ne 0 ]; do
@@ -114,40 +113,40 @@ if [ $temp -ne 0 ]; then
   echo "Unable to ping platform at $VECTOR_IP_ADDRESS."
   exit 1
 else
-  echo "Successfully pinged VECTOR at $VECTOR_IP_ADDRESS." 
+  echo "Successfully pinged Vector platform at $VECTOR_IP_ADDRESS." 
 fi
 
-if [ $VECTOR_HAS_HOKUYO == true ]; then
+if [ $VECTOR_HAS_ONE_2D_LASER == true ]; then
   temp=1
   cnts=0
   while [ $cnts -lt 5 ] && [ $temp -ne 0 ]; do
-    ping -q -c 1 -W 1 $VECTOR_HOKUYO_IP >/dev/null
+    ping -q -c 1 -W 1 $VECTOR_LASER1_IP >/dev/null
     temp=$?
     cnts=$[$cnts+1]
   done
 
   if [ $temp -ne 0 ]; then
-    echo "failed to ping HOKUYO at $VECTOR_HOKUYO_IP."
+    echo "failed to ping LASER1 at $VECTOR_LASER1_IP."
     exit 1
   else
-    echo "Successfully pinged HOKUYO at $VECTOR_HOKUYO_IP." 
+    echo "Successfully pinged LASER1 at $VECTOR_LASER1_IP." 
   fi
 fi
 
-if [ $VECTOR_HAS_TiM1XX == true ]; then
+if [ $VECTOR_HAS_SECOND_2D_LASER == true ]; then
   temp=1
   cnts=0
   while [ $cnts -lt 5 ] && [ $temp -ne 0 ]; do
-    ping -q -c 1 -W 1 $VECTOR_TiM1XX_IP >/dev/null
+    ping -q -c 1 -W 1 $VECTOR_LASER2_IP >/dev/null
     temp=$?
     cnts=$[$cnts+1]
   done
 
   if [ $temp -ne 0 ]; then
-    echo "failed to ping SICK at $VECTOR_TiM1XX_IP."
+    echo "failed to ping LASER2 at $VECTOR_LASER2_IP."
     exit 1
   else
-    echo "Successfully pinged SICK at $VECTOR_TiM1XX_IP." 
+    echo "Successfully pinged LASER2 at $VECTOR_LASER2_IP." 
   fi
 fi
 

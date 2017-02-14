@@ -50,7 +50,7 @@ arising out of or based upon:
 import struct
 import socket
 import math
-from crc32 import calc_crc32,valid_crc32
+from crc32 import calc_crc32, valid_crc32
 import array
 from system_defines import *
 import timeit

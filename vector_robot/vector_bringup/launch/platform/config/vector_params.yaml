@@ -11,7 +11,7 @@ wheel_base_length_m:                  0.50173
 wheel_track_width_m:                  0.42835
 gear_ratio:                           5.0
 motion_while_charging:                0
-motion_ctl_input_filter:              0
+motion_ctl_input_filter:              2
 
 #Correction factors
 strafe_correction_factor:             0.0

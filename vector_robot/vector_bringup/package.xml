@@ -13,6 +13,8 @@
     <run_depend>vector_common</run_depend>
     <run_depend>vector_upstart</run_depend>
     <run_depend>vector_sensor_filters</run_depend>
+    <run_depend>robot_localization</run_depend>
+    <run_depend>scan_tools</run_depend>
     
 	<export>
 	</export>

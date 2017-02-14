@@ -56,7 +56,7 @@ from dynamic_reconfigure.server import Server
 from dynamic_reconfigure.client import Client
 from dynamic_reconfigure.msg import Config
 from io_eth import IoEthThread
-from vector_data_classes import MOVO_DATA
+from vector_data_classes import VECTOR_DATA
 from vector_linear_actuator import LinearActuator
 import multiprocessing
 import rospy
@@ -94,7 +94,7 @@ class VectorDriver:
         """
         Initialize the publishers for MOVO
         """
-        self.vector_data = MOVO_DATA()
+        self.vector_data = VECTOR_DATA()
         
         """
         Start the thread for the linear actuator commands
@@ -136,7 +136,7 @@ class VectorDriver:
         """
         self.tx_queue_ = multiprocessing.Queue()
         self.rx_queue_ = multiprocessing.Queue()
-        self.comm = IoEthThread(('10.66.171.5',8080),
+        self.comm = IoEthThread((os.environ['VECTOR_IP_ADDRESS'],int(os.environ['VECTOR_IP_PORT_NUM'])),
                                 self.tx_queue_,
                                 self.rx_queue_,
                                 max_packet_size=1248)
@@ -331,8 +331,7 @@ class VectorDriver:
                  command.duration_sec,
                  convert_float_to_u32(command.magnitude)]]
                  
-        print "MOTION_TEST IS GOING TO BE SENT!!!!!!!!!!!!!!"
-        print cmds
+        rospy.loginfo("MOTION_TEST IS GOING TO BE SENT!!!!!!!!!!!!!!")
         self._add_command_to_queue(cmds)        
          
 
@@ -384,6 +383,8 @@ class VectorDriver:
         rospy.loginfo("gear_ratio:               %f"%config.gear_ratio)
         rospy.loginfo("motion_while_charging:    %u"%config.motion_while_charging)
         rospy.loginfo("motion_ctl_input_filter:  %u"%config.motion_ctl_input_filter)
+        rospy.loginfo("strafe_correction_factor: %u"%config.strafe_correction_factor)
+        rospy.loginfo("yaw_correction_factor:    %u"%config.yaw_correction_factor)
         
              
         """
@@ -409,15 +410,20 @@ class VectorDriver:
         """
         self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps)
         
-        if ((1<<4) == (level & (1<<4))):
-            cmds = [GENERAL_PURPOSE_CMD_ID,
-                    [6,convert_float_to_u32(config.strafe_correction_factor)]]
-            self._add_command_to_queue(cmds)
+        if self.param_server_initialized:
+            if ((1<<4) == (level & (1<<4))):
+                rospy.sleep(0.1)
+                cmds = [GENERAL_PURPOSE_CMD_ID,
+                        [6,convert_float_to_u32(config.strafe_correction_factor)]]
+                self._add_command_to_queue(cmds)
+                rospy.sleep(0.1)
 
-        if ((1<<5) == (level & (1<<5))):
-            cmds = [GENERAL_PURPOSE_CMD_ID,
-                    [7,convert_float_to_u32(config.yaw_correction_factor)]]
-            self._add_command_to_queue(cmds)
+            if ((1<<5) == (level & (1<<5))):
+                rospy.sleep(0.1)
+                cmds = [GENERAL_PURPOSE_CMD_ID,
+                        [7,convert_float_to_u32(config.yaw_correction_factor)]]
+                self._add_command_to_queue(cmds)
+                rospy.sleep(0.1)
         
         """
         Check and see if we need to store the parameters in NVM before we try, although the NVM is F-RAM
@@ -437,10 +443,6 @@ class VectorDriver:
         self.update_base_local_planner = True
         self._update_move_base_params(None)
         return config
-        
-    def _update_strafe_and_yaw_corrections(self,strafe,yaw):
-        cmds = [GENERAL_PURPOSE_CMD_ID,[command_ids[command.gp_cmd],command.gp_param]]
-        self._add_command_to_queue(cmds)
     
     def _update_move_base_params(self,config):
         
