@@ -472,14 +472,14 @@ class VectorMoveBase():
         """
         r = rospy.Rate(10)
         start_time = rospy.get_time()
-        while ((rospy.get_time() - start_time) < 30.0) and (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
+        while ((rospy.get_time() - start_time) < 30.0) and (MOVO_MODES_DICT[requested] != self.vector_operational_state):
             config_cmd.header.stamp = rospy.get_rostime()
             config_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             config_cmd.gp_param = requested
             self.cmd_config_cmd_pub.publish(config_cmd)
             r.sleep()
 
-        if (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
+        if (MOVO_MODES_DICT[requested] != self.vector_operational_state):
             rospy.logerr("Could not set operational Mode")
             rospy.loginfo("The platform did not respond, ")
             return False

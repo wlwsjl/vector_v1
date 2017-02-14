@@ -6,16 +6,6 @@ scan_filter_chain:
     max_angle: 175
     neighbors: 5
     window: 1
-- type: laser_filters/LaserScanAngularBoundsFilter
-  name: angle
-  params:
-    lower_angle: -2.0
-    upper_angle: 2.0
-- type: laser_filters/LaserScanRangeFilter
-  name: range
-  params: 
-    lower_threshold: 0.1
-    upper_threshold: 10.0 
 - type: laser_filters/LaserScanIntensityFilter
   name: intensity
   params: 

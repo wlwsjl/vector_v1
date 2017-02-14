@@ -51,6 +51,7 @@ import select
 import socket
 import threading
 import os
+import array
 
 class IoEthThread(object):
     def __init__(self,remote_address,tx_queue,rx_queue,max_packet_size=1500):
@@ -66,11 +67,11 @@ class IoEthThread(object):
             self.conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.conn.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             self.conn.setblocking(0)
-            self.conn.bind((os.environ['ROS_IP'],self.remote_address[1]))
+            self.conn.bind(('',self.remote_address[1]))
             self.conn.connect(self.remote_address)
         except:
             try:
-                self.conn.Close()
+                self.conn.close()
             except:
                 pass
             self.link_up = False
@@ -85,7 +86,7 @@ class IoEthThread(object):
         self.transmitThread.start()        
         self.link_up = True
     
-    def __del__(self):
+    def Close(self):
         with self.listen_terminate_mutex, self.transmit_terminate_mutex:
             self.need_to_terminate = True
         
@@ -93,32 +94,27 @@ class IoEthThread(object):
         assert(self.transmitThread)
         self.listenThread.join()
         self.transmitThread.join()
+        self.conn.close()
+        self.link_up = False
         
     def listen(self):
         while True:
             with self.listen_terminate_mutex:
                 if self.need_to_terminate:
                     break
-            result = select.select([self.conn],[],[],0.1)
+            result = select.select([self.conn],[],[],1.0)
             if (len(result[0])>0):
                 message = result[0][0].recv(self.max_packet_size)
-                message_bytes= map(ord, message)
+                message_bytes= array.array('B',message)
                 self.rx_queue.put(message_bytes)
             
     def transmit(self):
         while True:
-            with self.listen_terminate_mutex:
+            with self.transmit_terminate_mutex:
                 if self.need_to_terminate:
                     break    
-            result = select.select([self.tx_queue._reader],[],[],0.1)
+            result = select.select([self.tx_queue._reader],[],[],1.0)
             if (len(result[0])>0):
                 data = result[0][0].recv()
-                message_bytes=[chr(i) for i in data]
-                message_bytes = ''.join(message_bytes)
-                self.conn.send(message_bytes)
-
-    def Close(self):
-        self.__del__()
-        self.conn.close()
-        self.link_up = False
+                self.conn.sendall(data.tostring())
         

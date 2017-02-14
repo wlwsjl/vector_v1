@@ -5,10 +5,9 @@ find_package(catkin REQUIRED)
 
 catkin_package()
 
-catkin_add_env_hooks(50.vector_config
-  SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
-
-install(PROGRAMS vector_config.sh
+install(FILES vector_config.bash
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+catkin_add_env_hooks(50.vector_config SHELLS bash DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
 
