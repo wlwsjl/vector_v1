@@ -12,13 +12,13 @@ global_frame_id:  map
   
 # Overall filter parameters
 min_particles:        100       #default 100
-max_particles:        5000      #default 5000
+max_particles:        2000      #default 5000
 kld_err:              0.05      #default 0.01
 kld_z:                0.95      #default 0.99
 update_min_d:         0.1       #default 0.2
 update_min_a:         0.25      #default pi/6 (0.5235)
 resample_interval:    2         #default 1
-transform_tolerance:  0.3       #default 0.1
+transform_tolerance:  1.0       #default 0.1
 recovery_alpha_slow:  0.001     #default 0.0
 recovery_alpha_fast:  0.1       #default 0.0
 initial_pose_x:       0.0       #default 0.0
@@ -45,8 +45,8 @@ laser_model_type:           likelihood_field #default likelihood_field
 
 # Odometery model parameters
 odom_model_type:  omni
-odom_alpha1:      0.5     #default 0.2 rotational    drift caused by rotation
-odom_alpha2:      0.5     #default 0.2 rotational    drift caused by translation
-odom_alpha3:      0.15    #default 0.2 translational drift caused by translation
-odom_alpha4:      0.15    #default 0.2 translational drift caused by rotation
-odom_alpha5:      0.3     #default 0.2 Holonomic drive systems only
+odom_alpha1:      0.1     #default 0.2 rotational    drift caused by rotation
+odom_alpha2:      0.1     #default 0.2 rotational    drift caused by translation
+odom_alpha3:      0.1     #default 0.2 translational drift caused by translation
+odom_alpha4:      0.1     #default 0.2 translational drift caused by rotation
+odom_alpha5:      0.1     #default 0.2 Holonomic drive systems only
