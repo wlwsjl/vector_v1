@@ -4,6 +4,7 @@
     <arg name="map_file" default="playpen_map"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
+    <arg name="use_teb" default="true"/>
 
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg map_file).yaml" />
@@ -24,7 +25,11 @@
     </node>
 
     <!--- Run Move Base -->
-    <include file="$(find vector_navigation_apps)/launch/move_base.launch">
+    <include file="$(find vector_navigation_apps)/launch/move_base.launch" unless="$(arg use_teb)">
+        <arg name="no_static_map" value="false"/>
+    </include>
+
+    <include file="$(find vector_navigation_apps)/launch/move_base_teb.launch" if="$(arg use_teb)">
         <arg name="no_static_map" value="false"/>
     </include>
 

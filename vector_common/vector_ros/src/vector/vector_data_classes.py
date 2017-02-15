@@ -288,10 +288,10 @@ class Vector_Dynamics:
         else:
             dt = (msg.header.stamp.to_sec() - self._prev_lsm_update_time)
             dxdt= (msg.pose.pose.position.x - self._prev_lsm_x)/dt
-            dydt= (msg.pose.pose.position.y - self._prev_lsm_x)/dt
+            dydt= (msg.pose.pose.position.y - self._prev_lsm_y)/dt
             dwdt= (w - self._prev_lsm_w)/dt
-            self._prev_lsm_x = msg.pose.pose.orientation.x
-            self._prev_lsm_y = msg.pose.pose.orientation.y
+            self._prev_lsm_x = msg.pose.pose.position.x
+            self._prev_lsm_y = msg.pose.pose.position.y
             self._prev_lsm_w = w
             self._prev_lsm_update_time = msg.header.stamp.to_sec()
             
@@ -299,12 +299,12 @@ class Vector_Dynamics:
             dydt = (dydt+self._OdomData1.twist.twist.linear.y)/2.0
             dwdt = (dwdt+self._OdomData1.twist.twist.angular.z)/2.0
         
-        self._OdomData2.twist.twist.linear.x = dxdt
-        self._OdomData2.twist.twist.linear.y = dydt
+        self._OdomData2.twist.twist.linear.x = self._OdomData1.twist.twist.linear.x #dxdt
+        self._OdomData2.twist.twist.linear.y = self._OdomData1.twist.twist.linear.y #dydt
         self._OdomData2.twist.twist.linear.z = 0.0
         self._OdomData2.twist.twist.angular.x = 0.0
         self._OdomData2.twist.twist.angular.y = 0.0
-        self._OdomData2.twist.twist.angular.z = dwdt
+        self._OdomData2.twist.twist.angular.z = self._OdomData1.twist.twist.angular.z #dwdt
         self._OdomData2.pose = msg.pose
         
         
