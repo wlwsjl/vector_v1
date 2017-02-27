@@ -16,12 +16,26 @@
 		<remap from="move_base_simple/goal" to="move_base_navi_simple/goal"/>
 		<remap from="/odom" to="/vector/odometry/local_filtered" />
 		
-  	  	<rosparam file="$(find vector_navigation_apps)/config/teb/costmap_common_params.yaml" command="load" ns="global_costmap" />
+  	  	<!--
+        <rosparam file="$(find vector_navigation_apps)/config/teb/costmap_common_params.yaml" command="load" ns="global_costmap" />
   	 	<rosparam file="$(find vector_navigation_apps)/config/teb/costmap_common_params.yaml" command="load" ns="local_costmap" />
   		<rosparam file="$(find vector_navigation_apps)/config/teb/local_costmap_params.yaml" command="load" />
   		<rosparam file="$(find vector_navigation_apps)/config/teb/global_costmap_params.yaml" command="load" unless="$(arg no_static_map)"/>
   		<rosparam file="$(find vector_navigation_apps)/config/teb/global_costmap_sensor_params.yaml" command="load" if="$(arg no_static_map)"/>
+        -->
+
+        <!-- Load common configuration files --> 
   		<rosparam file="$(find vector_navigation_apps)/config/teb/teb_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find vector_navigation_apps)/config/common/move_base_params.yaml" command="load" />
+        <rosparam file="$(find vector_navigation_apps)/config/common/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find vector_navigation_apps)/config/common/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    
+        <!-- Load global/local costmap specific parameters --> 
+        <rosparam file="$(find vector_navigation_apps)/config/costmaps/costmap_local.yaml" command="load"/>
+        <rosparam file="$(find vector_navigation_apps)/config/costmaps/costmap_global_sensors.yaml" command="load" if="$(arg no_static_map)"/>
+        <rosparam file="$(find vector_navigation_apps)/config/costmaps/costmap_global_map.yaml" command="load" unless="$(arg no_static_map)"/>
+
+
 
 		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
 		<param name="planner_frequency" value="1.0" />

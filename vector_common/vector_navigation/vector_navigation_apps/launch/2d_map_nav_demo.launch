@@ -4,7 +4,7 @@
     <arg name="map_file" default="playpen_map"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
-    <arg name="use_teb" default="true"/>
+    <arg name="use_teb" default="false"/>
 
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg map_file).yaml" />

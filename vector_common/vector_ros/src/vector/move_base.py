@@ -153,7 +153,7 @@ class VectorMoveBase():
         if (True == self.using_amcl):
             rospy.loginfo("*** Click the 2D Pose Estimate button in RViz to set the robot's initial pose...")
             rospy.wait_for_message('initialpose', PoseWithCovarianceStamped)
-
+            """
             my_cmd = Twist()
             my_cmd.angular.z = 0.31415
             start_time = rospy.get_time()
@@ -161,7 +161,7 @@ class VectorMoveBase():
             while (rospy.get_time() - start_time) < 20.0:
                 self.cmd_vel_pub.publish(my_cmd)
                 r.sleep()
-
+            """
         my_cmd = Twist()
         my_cmd.angular.z = 0.0
         self.cmd_vel_pub.publish(my_cmd)

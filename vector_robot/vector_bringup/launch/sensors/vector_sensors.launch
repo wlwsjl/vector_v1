@@ -8,8 +8,10 @@
  <group if="$(optenv VECTOR_HAS_ONE_2D_LASER false)">
         <node pkg="urg_node" type="urg_node" name="$(optenv LASER1_PREFIX base)_laser_node" clear_params="true" respawn="true" if="$(optenv VECTOR_LASER1_IS_HOKUYO false)">
             <remap from="scan" to="/vector/$(optenv LASER1_PREFIX base)_scan" />
-            <param name="ip_address" value="$(optenv VECTOR_LASER1_IP 10.66.171.6)" />
+            <!-- <param name="ip_address" value="$(optenv VECTOR_LASER1_IP 10.66.171.6)" />
             <param name="ip_port" value="$(optenv VECTOR_LASER1_PORT 10940)" />
+            -->
+            <param name="port" value="/dev/ttyACM0"/>
             <param name="frame_id" value="$(optenv LASER1_PREFIX base)_laser_link"/>
             <param name="calibrate_time" value="false" />
             <param name="publish_intensity" value="true" />

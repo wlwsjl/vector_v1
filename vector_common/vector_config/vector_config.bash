@@ -62,12 +62,12 @@ export EXT_IMU_RPY="0 0 0"
 # 2D scanner configuration for launch files; should change hokuyo
 # to sick if using a SICK LMS1XX
 export VECTOR_HAS_ONE_2D_LASER=true
-export VECTOR_HAS_SECOND_2D_LASER=true
+export VECTOR_HAS_SECOND_2D_LASER=false
 
 # Hokuyo configuration (only supports two by default) watch 
 # wavelength on multi-laser systems
-export VECTOR_LASER1_IS_HOKUYO=false
-export VECTOR_LASER1_IS_SICK_TIM=true
+export VECTOR_LASER1_IS_HOKUYO=true
+export VECTOR_LASER1_IS_SICK_TIM=false
 export VECTOR_LASER1_IP=10.66.171.8
 export VECTOR_LASER1_PORT=2112
 #Uncomment below and comment line above for hokuyo
@@ -81,7 +81,7 @@ export LASER1_MIN_ANGLE=-2.0
 export LASER1_PREFIX="front"
 
 export VECTOR_LASER2_IS_HOKUYO=false
-export VECTOR_LASER2_IS_SICK_TIM=true
+export VECTOR_LASER2_IS_SICK_TIM=false
 export VECTOR_LASER2_IP=10.66.171.9
 export VECTOR_LASER2_PORT=2112
 #Uncomment below and comment line above for hokuyo
@@ -95,7 +95,7 @@ export LASER2_MIN_ANGLE=-2.0
 export LASER2_PREFIX="rear"
 
 # Kinect pan-tilt configuration
-export VECTOR_HAS_KINECT_PAN_TILT=false
+export VECTOR_HAS_KINECT_PAN_TILT=true
 export KINECT_PAN_TILT_PARENT_LINK=linear_actuator_fixed_link
 export KINECT_PAN_TILT_XYZ="0.16688476 0 0.96899800"
 export KINECT_PAN_TILT_RPY="0 0 0"
@@ -110,18 +110,18 @@ export FLEA3_XYZ="0.0518 0 0.35508750"
 export FLEA3_RPY="0 0 0"
 
 #Kinova arm configurations (the right arm should be the default if there is only one)
-export VECTOR_HAS_KINOVA_ARM=false
+export VECTOR_HAS_KINOVA_ARM=true
 export VECTOR_HAS_TWO_KINOVA_ARMS=false
 export KINOVA_RIGHT_ARM_SERIAL_NUMBER='PJ00900006153340003' #default arm if there is only one
 export KINOVA_LEFT_ARM_SERIAL_NUMBER='PJ00900006152990001' #must specify serial number for 2 arms
 
 #Robotiq gripper configurations
-export VECTOR_HAS_ROBOTIQ_GRIPPER=false
+export VECTOR_HAS_ROBOTIQ_GRIPPER=true
 export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=false
 export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:4:1.0-port0"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200
 
 #Linear actuator
-export VECTOR_HAS_LINEAR_ACTUATOR=false
+export VECTOR_HAS_LINEAR_ACTUATOR=true
 
 

@@ -421,6 +421,7 @@ private:
       return false;
 #endif
     }
+/*
     else if(method == "clkde")
     {
 #ifdef LIBFREENECT2_WITH_OPENCL_SUPPORT
@@ -430,6 +431,7 @@ private:
       return false;
 #endif
     }
+*/
     else if(method == "cudakde")
     {
 #ifdef LIBFREENECT2_WITH_CUDA_SUPPORT

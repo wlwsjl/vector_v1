@@ -116,22 +116,27 @@ else
   echo "Successfully pinged Vector platform at $VECTOR_IP_ADDRESS." 
 fi
 
-if [ $VECTOR_HAS_ONE_2D_LASER == true ]; then
-  temp=1
-  cnts=0
-  while [ $cnts -lt 5 ] && [ $temp -ne 0 ]; do
-    ping -q -c 1 -W 1 $VECTOR_LASER1_IP >/dev/null
-    temp=$?
-    cnts=$[$cnts+1]
-  done
+#
+# Note: if laser is USB, this holds up the whole launch sequence.
+# Removing for now, but can be fixed by introducing additional env vars
+#
 
-  if [ $temp -ne 0 ]; then
-    echo "failed to ping LASER1 at $VECTOR_LASER1_IP."
-    exit 1
-  else
-    echo "Successfully pinged LASER1 at $VECTOR_LASER1_IP." 
-  fi
-fi
+#if [ $VECTOR_HAS_ONE_2D_LASER == true ]; then
+#  temp=1
+#  cnts=0
+#  while [ $cnts -lt 5 ] && [ $temp -ne 0 ]; do
+#    ping -q -c 1 -W 1 $VECTOR_LASER1_IP >/dev/null
+#    temp=$?
+#    cnts=$[$cnts+1]
+#  done
+#
+#  if [ $temp -ne 0 ]; then
+#    echo "failed to ping LASER1 at $VECTOR_LASER1_IP."
+#    exit 1
+#  else
+#    echo "Successfully pinged LASER1 at $VECTOR_LASER1_IP." 
+#  fi
+#fi
 
 if [ $VECTOR_HAS_SECOND_2D_LASER == true ]; then
   temp=1

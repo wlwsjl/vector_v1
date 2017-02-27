@@ -6,7 +6,7 @@
 #export ROBOT_NETWORK=eth0
 
 #Uncomment if vector1
-export ROBOT_NETWORK=eth0
+export ROBOT_NETWORK=br0
 
 #ROS IP needs to be set no matter what PC
 export ROS_IP=$(ip -4 address show $ROBOT_NETWORK | grep 'inet' | sed 's/.*inet \([0-9\.]\+\).*/\1/')
