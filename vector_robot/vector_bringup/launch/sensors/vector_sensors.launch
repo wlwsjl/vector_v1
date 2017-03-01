@@ -111,8 +111,6 @@
         <remap from="/pose_with_covariance_stamped" to="/vector/lsm/pose"/>
     </node>
 
-    </group>
-   
 	<node pkg="um7" type="um7_driver" name="um7_node" if="$(optenv VECTOR_HAS_UM7_IMU false)" respawn="true">
 		<param name="port" value="$(env VECTOR_UM7_DEV)"/>
 		<param name="frame_id" value="ext_imu_frame"/>
