@@ -6,20 +6,21 @@ GlobalPlanner:
   publish_potential:            false #default: false
 
 EBandPlannerROS:
-  Ctrl_Rate:                    20.0 #default 20.0
-  differential_drive:           False #default True
-  max_acceleration:             2.5 #default 0.5
-  max_vel_lin:                  0.75 #default 0.75
-  max_vel_th:                   0.5 #default 1.0
-  min_vel_lin:                  0.01 #default 0.01
-  min_vel_th:                   0.00 #default 0.0
-  xy_goal_tolerance:            0.10 #default 0.02
-  yaw_goal_tolerance:           0.5 #default 1.5
+  differential_drive: true
+  #footprint: [[0.35,0.275809],[0.62,0.0],[0.35,-0.275809],[-0.365164,-0.275809],[-0.365164,0.275809]]
+  # velocity limits
+  max_vel_lin: 0.2
+  max_vel_th: 0.3
+  min_vel_lin: 0.1
+  min_in_place_vel_th: 0.1
+  max_acceleration: 0.2
 
-  # these control the PID for actual plan following
-  k_prop:                       4.0 #default: 4.0
-  k_damp:                       3.5 #default: 3.5
+  # goal tolerance
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.1
 
+  #eband parameters
+  eband_disallow_hysteresis: false
 
 DWAPlannerROS:
   # Robot Configuration Parameters

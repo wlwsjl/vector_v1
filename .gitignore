@@ -34,8 +34,6 @@ msg/_.*\.py$
 CMakeLists.txt.user
 
 srv/_.*\.py$
-\.pcd$
-.pyc$
 qtcreator-*
 *.user
 
@@ -50,3 +48,4 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+/CMakeLists.txt

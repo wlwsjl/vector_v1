@@ -1,8 +1,13 @@
 local_costmap:
+    update_frequency:           5.0
+    publish_frequency:          5.0
     global_frame:               odom
     rolling_window:             true
     track_unknown_space:        false
-    static_map:                 false
+    width:                      5.0
+    height:                     5.0
+    transform_tolerance:        0.2
+    footprint_padding:          0.05
 
     plugins:
         - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}

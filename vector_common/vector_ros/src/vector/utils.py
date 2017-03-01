@@ -50,9 +50,10 @@ arising out of or based upon:
 import struct
 import socket
 import math
-import crc16
+from crc32 import calc_crc32, valid_crc32
 import array
 from system_defines import *
+import timeit
 
 """
 slew limit funtion to limit the maximum rate of change
@@ -93,42 +94,46 @@ def m32(byte_array):
 
 def generate_cmd_bytes(cmd):
     cmd_bytes = []
+    
     add_bytes(cmd_bytes,cmd[0],16)
     for cmd_var in cmd[1]:
         add_bytes(cmd_bytes,cmd_var,32)
+        
+    cmd_bytes = array.array('B',cmd_bytes)
     
     """
     Generate the CRC for the command bytes
     """
-    crc16.compute_buffer_crc(cmd_bytes)
-
+    crc = calc_crc32(cmd_bytes)
+    add_bytes(cmd_bytes,crc,32)
+   
     return cmd_bytes
     
-def validate_response(rsp):
+def validate_response(rsp,expected_len):
     
     """
     Check the CRC and 
     """
-    data = array.array('B',rsp)
-    data = array.array('I',data.tostring())
-    final_data = data
-    rsp = array.array('B',data.tostring())
-    if (crc16.buffer_crc_is_valid(rsp)) and (len(rsp) > 0):
-        return True,final_data[:len(final_data)-1]
+    if (valid_crc32(rsp)) and (len(rsp) == expected_len):
+        return True
        
     """
     Not a valid CRC
     """
-    return False,None
+    return False
     
 def add_bytes(list_to_append,var2,bits):
     if bits % 2:
         return False
     
     bytes_to_make = bits/8
+    tmp_list = []
     for i in range(0,bytes_to_make):
         shift = bits - 8*(i+1)
-        list_to_append.append((var2 >> shift) & 0xFF)    
+        tmp_list.insert(0,(var2 >> shift) & 0xFF)    
+    
+    for tmp in tmp_list:
+        list_to_append.append(tmp)    
 
 """
 For IEEE754 processors this function converts a 32-bit floating point number to

@@ -4,6 +4,7 @@
     <arg name="map_file" default="playpen_map"/>
     <arg name="use_waypoints" default="false"/>
     <arg name="sim" default="false"/>
+    <arg name="use_teb" default="false"/>
 
     <!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find vector_navigation_apps)/maps/$(arg map_file).yaml" />
@@ -20,11 +21,15 @@
     <!--- Run amcl -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/amcl.yaml"/>
-        <remap from="scan" to="/vector/base_scan_filtered" />
+        <remap from="scan" to="/vector/front_scan" />
     </node>
 
     <!--- Run Move Base -->
-    <include file="$(find vector_navigation_apps)/launch/move_base.launch">
+    <include file="$(find vector_navigation_apps)/launch/move_base.launch" unless="$(arg use_teb)">
+        <arg name="no_static_map" value="false"/>
+    </include>
+
+    <include file="$(find vector_navigation_apps)/launch/move_base_teb.launch" if="$(arg use_teb)">
         <arg name="no_static_map" value="false"/>
     </include>
 
