@@ -1,7 +1,7 @@
 local_costmap:
     update_frequency:           5.0
     publish_frequency:          5.0
-    global_frame:               map
+    global_frame:               odom
     rolling_window:             true
     track_unknown_space:        false
     width:                      5.0

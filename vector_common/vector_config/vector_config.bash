@@ -35,7 +35,7 @@ export VECTOR_ENABLE_LSM=true
 # Set this if you want the platform odometry to be corrected by LSM. This is stable indoors, but should be tested with
 # teleoperation before using it
 #
-export VECTOR_USE_LSM_TO_CORRECT_ODOMETRY=true
+export VECTOR_USE_LSM_TO_CORRECT_ODOMETRY=false
 
 # This will run the full system tele-op node (ie can control all the joints in the system) it is not
 # collision aware and is really only meant for demonstration purposes. If set false, teleop just controls
@@ -74,7 +74,7 @@ export VECTOR_LASER1_PORT=2112
 #export VECTOR_LASER1_PORT=10940 
 export LASER1_XYZ="0.33255 0 0.2013"
 export LASER1_RPY="3.1415 0 0"
-export LASER1_MAX_RANGE=10.0
+export LASER1_MAX_RANGE=30.0
 export LASER1_MIN_RANGE=0.01
 export LASER1_MAX_ANGLE=2.0
 export LASER1_MIN_ANGLE=-2.0

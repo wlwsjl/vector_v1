@@ -319,7 +319,10 @@ class Vector_Dynamics:
 
     def _update_odom_yaw(self,msg):
         (r, p, y) = tf.transformations.euler_from_quaternion([msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w])
-        self._MsgData.odom_yaw_angle_rad = ( y + math.pi) % (2 * math.pi ) - math.pi
+        if self.use_lsm_for_odom is True:
+            y = ( y + math.pi) % (2 * math.pi ) - math.pi
+        
+        self._MsgData.odom_yaw_angle_rad = y
 
     def parse(self,data,header_stamp,wheel_circum):
         
@@ -372,7 +375,10 @@ class Vector_Dynamics:
         self._OdomData1.pose.pose.position.z = 0.0
         
         y = convert_u32_to_float(data[26]) 
-        y = ( y + math.pi) % (2 * math.pi ) - math.pi
+        
+        if self.use_lsm_for_odom is True:
+            y = ( y + math.pi) % (2 * math.pi ) - math.pi
+        
         self._MsgData.yaw_angle_rad = y
         rot = tf.transformations.quaternion_from_euler(0,0,convert_u32_to_float(data[26]))
         self._OdomData1.pose.pose.orientation.x = rot[0]
@@ -392,6 +398,15 @@ class Vector_Dynamics:
             self._OdomPub1.publish(self._OdomData1)
             self._MsgPub.publish(self._MsgData)
             self._jointStatePub.publish(self._jointStateMsg)
+            if (True == self._use_platform_odometry):
+                br = tf.TransformBroadcaster()
+                br.sendTransform((x, y, z),
+                                  rot,
+                                  header_stamp,
+                                  "base_link",
+                                  "odom")   
+                self._seq += 1
+            """
             if (True == self._use_platform_odometry) and (False == self.use_lsm_for_odom):
                 self._update_odom_yaw(self._OdomData1)
                 self._OdomData2 = self._OdomData1
@@ -404,7 +419,7 @@ class Vector_Dynamics:
                                  "odom") 
 
                 self._seq += 1  
-
+            """
 class Vector_Configuration:
     def __init__(self):   
         self._MsgData = Configuration()

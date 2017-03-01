@@ -5,6 +5,8 @@ global_costmap:
     track_unknown_space: true
     update_frequency: 5.0
     publish_frequency: 5.0
+    width: 5.0
+    height: 5.0
     plugins:
         - {name: static,                  type: "costmap_2d::StaticLayer"}
         - {name: obstacles_costmap2d,       type: "costmap_2d::ObstacleLayer"}
