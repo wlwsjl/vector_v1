@@ -9,7 +9,7 @@
     
 
 
-    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv VECTOR_HAS_ONBOARD_JOY false)">
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv VECTOR_JOY_IS_ATTACHED false)">
         <param name="dev" type="string" value="$(optenv VECTOR_JOY_DEV /dev/input/js0)" />
         <param name="deadzone" type="double" value="$(optenv VECTOR_JOY_DEADZONE 0.1)" />
         <param name="autorepeat_rate" type="double" value="50" />

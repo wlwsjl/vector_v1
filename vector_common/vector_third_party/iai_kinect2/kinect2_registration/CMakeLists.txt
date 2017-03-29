@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(kinect2_registration)
+project(kinect2_registration CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBT_USE_DOUBLE_PRECISION -Wall")
 # Unused warnings
@@ -28,7 +28,7 @@ find_package(cmake_modules QUIET)
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
-find_package(Eigen)
+find_package(Eigen3)
 find_package(OpenCL)
 
 if(OPENMP_FOUND)
@@ -39,8 +39,9 @@ endif()
 ## Check for modules being build based on found libraries ##
 ############################################################
 
-if(Eigen_FOUND)
+if(EIGEN3_FOUND)
   message(STATUS "CPU based depth registration enabled")
+  include_directories(${EIGEN3_INCLUDE_DIR})
   set(DEPTH_REG_CPU ON)
   add_definitions(-DDEPTH_REG_CPU)
 else()
@@ -48,8 +49,24 @@ else()
   set(DEPTH_REG_CPU OFF)
 endif()
 
-if(OPENCL_FOUND)
+if(OpenCL_FOUND)
   message(STATUS "OpenCL based depth registration enabled")
+  set(EXPORTED_DEPENDENCIES OpenCL)
+
+  if(UNIX AND NOT APPLE)
+    include(CheckOpenCLICDLoader)
+    if(OpenCL_C_WORKS AND NOT OpenCL_CXX_WORKS)
+      set(KINECT2_OPENCL_ICD_LOADER_IS_OLD 1)
+      message(WARNING "Your libOpenCL.so is incompatible with CL/cl.h. Install ocl-icd-opencl-dev to update libOpenCL.so?")
+    endif()
+
+    # Major Linux distro stable releases have buggy OpenCL ICD loader.
+    # The workaround of disabling exceptions can only be set up during compile time.
+    # Diabling it for all should be harmless. The flag is the same for GCC/Clang/ICC.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+  endif()
+  include_directories(${OpenCL_INCLUDE_DIRS})
+
   set(DEPTH_REG_OPENCL ON)
   add_definitions(-DDEPTH_REG_OPENCL)
 else()
@@ -78,7 +95,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES kinect2_registration
 #  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  DEPENDS ${EXPORTED_DEPENDENCIES}
   CFG_EXTRAS kinect2_registration.cmake
 )
 
@@ -97,21 +114,17 @@ add_custom_target(additional_files_${PROJECT_NAME}
 include_directories(include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
 )
 
 if(DEPTH_REG_CPU)
-  include_directories(
-    ${Eigen_INCLUDE_DIRS}
-  )
   set(MODULES ${MODULES} src/depth_registration_cpu.cpp)
-  set(MODULE_LIBS ${MODULE_LIBS} ${Eigen_LIBRARIES})
 endif()
 
 if(DEPTH_REG_OPENCL)
-  include_directories(${OPENCL_INCLUDE_DIRS})
   add_definitions(-DREG_OPENCL_FILE="${PROJECT_SOURCE_DIR}/src/depth_registration.cl")
   set(MODULES ${MODULES} src/depth_registration_opencl.cpp)
-  set(MODULE_LIBS ${MODULE_LIBS} ${OPENCL_LIBRARIES})
+  set(MODULE_LIBS ${MODULE_LIBS} ${OpenCL_LIBRARIES})
 endif()
 
 add_library(kinect2_registration SHARED src/kinect2_registration.cpp ${MODULES})
