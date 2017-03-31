@@ -5,5 +5,5 @@ Remote PC and sim does not need vector_network or vector_robot.
 
 Setup Instructions: https://github.com/StanleyInnovation/vector_v1/wiki/Setup-Instructions
 
-This branch is specific to gemini_develop
+This branch is specific to Gemini robot at UT Pearl Lab
 
