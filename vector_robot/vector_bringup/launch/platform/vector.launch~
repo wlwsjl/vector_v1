@@ -10,8 +10,8 @@
     </node>
 
     <!-- Platform specific robot state publisher and parameters -->
-    <include file="$(find vector_description)/launch/vector_upload.launch"/>
-    <!--include file="$(find poli_description)/launch/poli_upload.launch"/-->
+    <!--include file="$(find vector_description)/launch/vector_upload.launch"/-->
+    <include file="$(find poli_description)/launch/poli_upload.launch"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
         <param name="publish_frequency" type="double" value="100.0" />
