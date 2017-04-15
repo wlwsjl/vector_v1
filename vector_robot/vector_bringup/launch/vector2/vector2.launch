@@ -30,6 +30,7 @@
         <!-- Kinect 2 Sensor bringup -->
         <include file="$(find vector_bringup)/launch/vector2/kinect2/kinect2_bridge.launch">
             <arg name="machine" value="vector2"/>
+            <arg name="calib_path" value="/home/vector/vector_ws/src/vector_common/vector_third_party/iai_kinect2/kinect2_bridge/data/"/>
         </include>
     </group>
           

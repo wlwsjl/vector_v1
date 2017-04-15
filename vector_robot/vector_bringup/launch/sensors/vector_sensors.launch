@@ -10,7 +10,7 @@
             <remap from="scan" to="/vector/$(optenv LASER1_PREFIX base)_scan" />
             <param name="ip_address" value="$(optenv VECTOR_LASER1_IP 10.66.171.6)" />
             <param name="ip_port" value="$(optenv VECTOR_LASER1_PORT 10940)" />
-            <param name="frame_id" value="vector/$(optenv LASER1_PREFIX base)_laser_link"/>
+            <param name="frame_id" value="/$(optenv LASER1_PREFIX base)_laser_link"/>
             <param name="calibrate_time" value="false" />
             <param name="publish_intensity" value="true" />
         </node>
@@ -21,7 +21,7 @@
             <param name="max_ang" type="double" value="2.35619449019" />
             <param name="intensity" type="bool" value="True" />
             <param name="skip" type="int" value="0" />
-            <param name="frame_id" type="str" value="vector/$(optenv LASER1_PREFIX base)_laser_link" />
+            <param name="frame_id" type="str" value="/$(optenv LASER1_PREFIX base)_laser_link" />
             <param name="time_offset" type="double" value="-0.001" />
             <param name="publish_datagram" type="bool" value="False" />
             <param name="subscribe_datagram" type="bool" value="false" />
