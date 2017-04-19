@@ -21,7 +21,7 @@
     <!--- Run amcl -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen" clear_params="true">
         <rosparam command="load" file="$(find vector_navigation_apps)/config/common/amcl.yaml"/>
-        <remap from="scan" to="/vector/front_scan" />
+        <remap from="scan" to="/vector/scan_multi" />
     </node>
 
     <!--- Run Move Base -->

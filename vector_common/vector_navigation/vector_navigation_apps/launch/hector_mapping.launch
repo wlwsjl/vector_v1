@@ -22,6 +22,6 @@
     <include file="$(find hector_mapping)/launch/mapping_default.launch">
         <arg name="base_frame" value="/base_link"/>
         <arg name="odom_frame" default="/odom"/>
-        <arg name="scan_topic" value="/vector/base_scan"/>
+        <arg name="scan_topic" value="/vector/front_scan"/>
     </include>
 </launch>
