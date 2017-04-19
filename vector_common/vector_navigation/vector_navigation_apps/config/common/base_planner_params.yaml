@@ -11,8 +11,8 @@ EBandPlannerROS:
   # velocity limits
   max_vel_lin: 0.2
   max_vel_th: 0.3
-  min_vel_lin: 0.1
-  min_in_place_vel_th: 0.1
+  min_vel_lin: -0.2
+  min_in_place_vel_th: 0.0
   max_acceleration: 0.2
 
   # goal tolerance
@@ -20,7 +20,7 @@ EBandPlannerROS:
   yaw_goal_tolerance: 0.1
 
   #eband parameters
-  eband_disallow_hysteresis: false
+  eband_disallow_hysteresis: true
 
 DWAPlannerROS:
   # Robot Configuration Parameters
