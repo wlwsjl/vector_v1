@@ -16,8 +16,8 @@ EBandPlannerROS:
   max_acceleration: 0.2
 
   # goal tolerance
-  xy_goal_tolerance: 0.1
-  yaw_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.05
+  yaw_goal_tolerance: 0.05
 
   #eband parameters
   eband_disallow_hysteresis: true

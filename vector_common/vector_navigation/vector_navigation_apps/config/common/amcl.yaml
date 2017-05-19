@@ -15,8 +15,8 @@ min_particles:        1000       #default 100
 max_particles:        10000      #default 5000
 kld_err:              0.05       #default 0.01
 kld_z:                0.99       #default 0.99
-update_min_d:         0.25       #default 0.2
-update_min_a:         0.2        #default pi/6 (0.5235)
+update_min_d:         0.1       #default 0.2
+update_min_a:         0.1        #default pi/6 (0.5235)
 resample_interval:    1          #default 1
 transform_tolerance:  1.0        #default 0.1
 recovery_alpha_slow:  0.0        #default 0.0
