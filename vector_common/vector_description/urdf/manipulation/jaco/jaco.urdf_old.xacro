@@ -211,12 +211,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             </inertial>
         </link>
 
-        <joint name="${prefix}wrist_3_joint" type="revolute">
+        <joint name="${prefix}wrist_3_joint" type="continuous">
             <parent link="${prefix}wrist_2_link" />
             <child link = "${prefix}wrist_3_link" />
             <origin xyz="0 0 -0.08551408" rpy="0 -${M_PI/3} 0" />
             <axis xyz="0 0 1" />
-            <limit effort="600.8" lower="-100." upper="100." velocity="0.785"/>
+            <limit effort="600.8" velocity="0.785"/>
             <dynamics damping="0.0" friction="0.0"/>
         </joint>
         
