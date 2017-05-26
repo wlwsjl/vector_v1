@@ -119,7 +119,7 @@
         <remap from="/imu/temperature" to="/um7/temperature"/>
 	</node>
 
-    <group ns="camera" if="$(optenv VECTOR_HAS_FLEA3 false)">
+     <group ns="camera" if="$(optenv VECTOR_HAS_FLEA3 false)">
         <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" />
 
         <node pkg="nodelet" type="nodelet" name="camera_nodelet"
@@ -145,7 +145,7 @@
             args="load image_proc/rectify camera_nodelet_manager">
         </node>
 
-    </group>
+    </group> 
     
 </launch> 
     

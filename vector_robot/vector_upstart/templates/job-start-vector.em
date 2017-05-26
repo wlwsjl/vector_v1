@@ -116,11 +116,14 @@ else
   echo "Successfully pinged Vector platform at $VECTOR_IP_ADDRESS." 
 fi
 
+<<<<<<< Updated upstream
 #
 # Note: if laser is USB, this holds up the whole launch sequence.
 # Removing for now, but can be fixed by introducing additional env vars
 #
 
+=======
+>>>>>>> Stashed changes
 #if [ $VECTOR_HAS_ONE_2D_LASER == true ]; then
 #  temp=1
 #  cnts=0
