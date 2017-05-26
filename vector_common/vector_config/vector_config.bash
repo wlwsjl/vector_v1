@@ -61,11 +61,7 @@ export EXT_IMU_RPY="0 0 0"
 
 # 2D scanner configuration for launch files; should change hokuyo
 # to sick if using a SICK LMS1XX
-<<<<<<< Updated upstream
 export VECTOR_HAS_ONE_2D_LASER=true
-=======
-export VECTOR_HAS_ONE_2D_LASER=false
->>>>>>> Stashed changes
 export VECTOR_HAS_SECOND_2D_LASER=false
 
 # Hokuyo configuration (only supports two by default) watch 
