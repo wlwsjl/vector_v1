@@ -1,4 +1,4 @@
-<!-- Launch file for the pan_tilt controller manager -->
+ <!-- Launch file for the pan_tilt controller manager -->
 <launch>
     <!-- Load controller configuration to parameter server -->
     <rosparam file="$(find vector_pan_tilt)/config/pan_tilt_joint_controllers.yaml" command="load"/>

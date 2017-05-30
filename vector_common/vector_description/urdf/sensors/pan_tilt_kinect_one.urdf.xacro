@@ -54,7 +54,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 		</link>
 		
         <joint name="pan_joint" type="revolute">
-            <origin xyz="0 0 0.0985" rpy="0 0 0" />
+            <!-- <origin xyz="0 0 0.0985" rpy="0 0 0" /> -->
+            <origin xyz="0 0 0.0985" rpy="0 0 0.772" />
             <axis xyz="0 0 1"/>
             <parent link="pan_base_link" />
             <child link="pan_link" />
