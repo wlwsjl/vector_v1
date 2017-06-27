@@ -102,8 +102,8 @@ class VectorTeleop:
                 sys.exit(0)
                 return
         else:
-            self.vel_limit_mps = rospy.get_param('~sim_teleop_x_vel_limit_mps',0.5)
-            self.vel_limit_mps = rospy.get_param('~sim_teleop_y_vel_limit_mps',0.5)
+            self.x_vel_limit_mps = rospy.get_param('~sim_teleop_x_vel_limit_mps',0.5)
+            self.y_vel_limit_mps = rospy.get_param('~sim_teleop_y_vel_limit_mps',0.5)
             self.yaw_rate_limit_rps = rospy.get_param('~sim_teleop_yaw_rate_limit_rps',0.5)
             self.accel_lim = rospy.get_param('~sim_teleop_accel_lim',0.5)
             self.yaw_accel_lim = rospy.get_param('~sim_teleop_yaw_accel_lim',1.0)           

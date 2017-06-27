@@ -1,4 +1,14 @@
 <?xml version="1.0"?>
 <launch>
-	<param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector.urdf.xacro'" />
+    <arg name="simulation_urdf" default="false"/>
+    <arg name="use_7dof_jaco" default="true"/>
+
+    <group unless="$(arg use_7dof_jaco)">
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector.urdf.xacro' simulation_urdf:='$(arg simulation_urdf)'"/>
+    </group>
+
+    <group if="$(arg use_7dof_jaco)">
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector_7dof.urdf.xacro' simulation_urdf:='$(arg simulation_urdf)'"/>
+    </group>
+
 </launch>
