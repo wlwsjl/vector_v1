@@ -1,0 +1,27 @@
+<!-- 2D Map navigation Demo -->
+
+<launch>
+    <arg name="use_waypoints" default="false"/>
+    <arg name="sim" default="false"/>
+
+    <!-- Run vector_move_base action client for tracking status -->
+    <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true"> 
+        <param name="using_amcl" value="false"/>
+        <param name="global_frame" value="/map"/>
+        <param name="goal_timeout_sec" value="300"/>
+        <param name="load_waypoints" value="$(arg use_waypoints)"/>
+        <param name="sim" value="$(arg sim)"/>
+    </node>
+       
+    <!--- Run gmapping -->
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" clear_params="true">
+        <rosparam command="load" file="$(find vector_navigation_apps)/config/common/gmapping.yaml"/>
+        <remap from="scan" to="/vector/base_scan_filtered" />
+    </node>
+
+    <!--- Run Move Base -->
+    <include file="$(find vector_navigation_apps)/launch/move_base.launch">
+        <arg name="no_static_map" value="false"/>
+    </include>
+
+</launch>

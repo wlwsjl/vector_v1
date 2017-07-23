@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="tf_prefix" default=""/>
+	
+    <!-- Standalone launcher to visualize the robot model. -->
+    
+    <!--include file="$(find pr2_description)/robots/upload_pr2.launch"/-->
+    
+    <include file="$(find vector_description)/launch/vector_upload.launch"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" type="double" value="100.0" />
+        <param name="tf_prefix" value="$(arg tf_prefix)"/>
+    </node>
+  
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="use_gui" value="true" />
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find vector_viz)/rviz/model.rviz" />
+
+</launch>

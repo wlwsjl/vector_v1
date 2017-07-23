@@ -1,0 +1,36 @@
+<!-- Launch file for Stanley Innovation enabled Vector2 PC startup -->
+
+<launch>
+    <group if="$(optenv VECTOR_HAS_KINECT_PAN_TILT false)">
+        <machine name="vector2" address="vector2" user="vector" 
+             env-loader="/home/vector/env.sh"/>
+             
+                          
+        <!-- Vector 2 utilties bringup -->
+        <include file="$(find vector_bringup)/launch/vector2/utilities/utilities_bringup.launch">
+            <arg name="machine" value="vector2"/>
+        </include>
+                
+        <!-- Controller Manager -->
+        <include file="$(find vector_bringup)/launch/vector2/pan_tilt/pan_tilt_controller_manager.launch">
+            <arg name="machine" value="vector2"/>
+        </include>
+
+        <!-- Controller Spawner -->
+        <include file="$(find vector_bringup)/launch/vector2/pan_tilt/pan_tilt_controller_spawner.launch">
+            <arg name="machine" value="vector2"/>
+        </include>
+        
+
+        <!-- Home Pan tilt -->
+        <node pkg="si_utils" type="timed_roslaunch"
+            args="5 vector_bringup pan_tilt_home.launch"
+            name="pan_tilt_homing" output="screen"/>
+
+        <!-- Kinect 2 Sensor bringup -->
+        <include file="$(find vector_bringup)/launch/vector2/kinect2/kinect2_bridge.launch">
+            <arg name="machine" value="vector2"/>
+        </include>
+    </group>
+          
+</launch>

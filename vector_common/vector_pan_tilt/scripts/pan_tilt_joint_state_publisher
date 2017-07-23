@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+import rospy
+from sensor_msgs.msg import JointState as JointStateSensor
+from dynamixel_msgs.msg import JointState as JointStateDynamixel
+
+class JointStateMessage():
+    def __init__(self, name, position, velocity, effort):
+        self.name = name
+        self.position = position
+        self.velocity = velocity
+        self.effort = effort
+
+class JointStatePublisher():
+    def __init__(self):
+        rospy.init_node('pan_tilt_joint_state_publisher', anonymous=True)
+        
+        rate = rospy.get_param('~rate', 20)
+        r = rospy.Rate(rate)
+        
+        dynamixels = ['pan_joint','tilt_joint']
+        
+        self.joints = list()
+                                                
+        self.servos = list()
+        self.controllers = list()
+        self.joint_states = dict({})
+        
+        for joint in sorted(dynamixels):
+            controller = joint.replace("_joint", "") + "_controller"
+            self.joint_states[joint] = JointStateMessage(joint, 0.0, 0.0, 0.0)
+            self.controllers.append(controller)
+                           
+        [rospy.Subscriber(c + '/state', JointStateDynamixel, self.controller_state_handler) for c in self.controllers]
+     
+        self.joint_states_pub = rospy.Publisher('vector/pan_tilt/joint_states', JointStateSensor, queue_size=10)
+       
+        rospy.loginfo("Starting Dynamixel Joint State Publisher at " + str(rate) + "Hz")
+       
+        while not rospy.is_shutdown():
+            self.publish_joint_states()
+            r.sleep()
+           
+    def controller_state_handler(self, msg):
+        js = JointStateMessage(msg.name, msg.current_pos, msg.velocity, msg.load)
+        self.joint_states[msg.name] = js
+       
+    def publish_joint_states(self):
+        msg = JointStateSensor()
+        msg.name = []
+        msg.position = []
+        msg.velocity = []
+        msg.effort = []
+       
+        for joint in self.joint_states.values():
+            msg.name.append(joint.name)
+            msg.position.append(joint.position)
+            msg.velocity.append(joint.velocity)
+            msg.effort.append(joint.effort)
+           
+        msg.header.stamp = rospy.Time.now()
+        self.joint_states_pub.publish(msg)
+        
+if __name__ == '__main__':
+    try:
+        s = JointStatePublisher()
+        rospy.spin()
+    except rospy.ROSInterruptException: pass
+

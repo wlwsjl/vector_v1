@@ -1,0 +1,154 @@
+#!/usr/bin/env python
+"""--------------------------------------------------------------------
+COPYRIGHT 2016 Stanley Innovation Inc.
+
+Software License Agreement:
+
+The software supplied herewith by Stanley Innovation Inc. (the "Company") 
+for its licensed SI Vector Platform is intended and supplied to you, 
+the Company's customer, for use solely and exclusively with Stanley Innovation 
+products. The software is owned by the Company and/or its supplier, and is 
+protected under applicable copyright laws.  All rights are reserved. Any use in 
+violation of the foregoing restrictions may subject the user to criminal 
+sanctions under applicable laws, as well as to civil liability for the 
+breach of the terms and conditions of this license. The Company may 
+immediately terminate this Agreement upon your use of the software with 
+any products that are not Stanley Innovation products.
+
+The software was written using Python programming language.  Your use 
+of the software is therefore subject to the terms and conditions of the 
+OSI- approved open source license viewable at http://www.python.org/.  
+You are solely responsible for ensuring your compliance with the Python 
+open source license.
+
+You shall indemnify, defend and hold the Company harmless from any claims, 
+demands, liabilities or expenses, including reasonable attorneys fees, incurred 
+by the Company as a result of any claim or proceeding against the Company 
+arising out of or based upon: 
+
+(i) The combination, operation or use of the software by you with any hardware, 
+    products, programs or data not supplied or approved in writing by the Company, 
+    if such claim or proceeding would have been avoided but for such combination, 
+    operation or use.
+ 
+(ii) The modification of the software by or on behalf of you 
+
+(iii) Your use of the software.
+
+ THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
+ WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
+ TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
+ IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ 
+ \file   jaco_joint_controller
+
+ \brief  ROS Driver for interfacing with the Kinova Jaco integrated 
+         with the Stanley Innovation Vector platform
+
+ \Platform: Linux/ROS Indigo
+--------------------------------------------------------------------"""
+from control_msgs.msg import JointTrajectoryControllerState
+import rospy
+import sys
+from vector_msgs.msg import JacoJointCmd
+
+class JointRecorder(object):
+    def __init__(self):
+        self._fn = rospy.get_param('~filename','joint_record')
+        self._start_time = rospy.get_time()
+        self._done = False
+        self._updated = False
+        self._jtas_state = JointTrajectoryControllerState()
+        rospy.Subscriber("/arm_controller/state",JointTrajectoryControllerState,self._record_jtas_state)
+        
+    def stop(self):
+        self._done = True
+
+    def done(self):
+        if rospy.is_shutdown():
+            self.stop()
+        return self._done
+    def _time_stamp(self):
+        return rospy.get_time() - self._start_time
+    
+    def record(self):
+        with open('%s.csv'%self._fn, 'w') as f:
+            init=True
+            while not self._done:
+                if self._updated:
+                    if init:
+                        f.write('time,' + ','.join([j for j in self._jtas_state.joint_names]) + '\n')
+                        init = False
+                    f.write("%f," % (self._time_stamp(),))
+                    f.write(','.join([str(x) for x in self._jtas_state.desired.positions]) + '\n')
+                    self._updated=False
+                    
+    def play(self,rate=25):
+        init=True
+        with open('%s.csv'%self._fn, 'r') as f:
+            if init:
+                jmsg = JacoJointCmd()
+                jpub = rospy.Publisher('/vector/right_arm/joint_cmd',JacoJointCmd,queue_size=1)
+                print f.readline()
+                init=False
+            mem = []
+            for line in f:
+                mem.append([float(x) for x in line.strip('\n').split(',')[1:]])
+            
+            r = rospy.Rate(25)
+            x = 0
+            while (x < len(mem)) and not rospy.is_shutdown():
+                jmsg.command_type = 2
+                jmsg.joint_cmds = mem[x]
+                jmsg.header.frame_id = ''
+                jmsg.header.seq = x
+                jmsg.header.stamp = rospy.get_rostime()
+                jpub.publish(jmsg)
+                x+=1
+                r.sleep()
+            
+
+    def _record_jtas_state(self,state):
+         self._jtas_state = state
+         self._updated = True
+
+def main():
+
+    """
+    Initialize the node
+    """
+    rospy.init_node('vector_joint_recorder')
+
+    
+
+    recorder = JointRecorder()
+    rospy.on_shutdown(recorder.stop)
+    
+    print("Recording. Press Ctrl-C to stop.")
+    recorder.record()
+
+    print("\nDone.")        
+        
+
+
+if __name__ == "__main__":
+    main()
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -1,0 +1,17 @@
+controller_list:
+  - name: fake_arm_controller
+    joints:
+      - linear_joint
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_elbow_joint
+      - right_wrist_1_joint
+      - right_wrist_2_joint
+      - right_wrist_3_joint
+  - name: fake_gripper_controller
+    joints:
+      - right_robotiq_85_left_knuckle_joint
+  - name: fake_head_controller
+    joints:
+      - pan_joint
+      - tilt_joint

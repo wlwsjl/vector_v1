@@ -1,0 +1,18 @@
+<!-- 2D Mapless navigation Demo -->
+
+<launch>
+    <arg name="sim" default="false"/>
+    
+    <!-- Run vector_move_base action client for tracking status -->
+    <node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen">
+        <param name="sim" value="$(arg sim)"/> 
+        <param name="using_amcl" value="false"/>
+        <param name="global_frame" value="/odom"/>
+        <param name="goal_timeout_sec" value="300"/>
+    </node>
+
+    <!--- Run Move Base -->
+    <include file="$(find vector_navigation_apps)/launch/move_base.launch" >
+        <arg name="no_static_map" value="true"/>
+    </include>
+</launch>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    
+    <include file="$(find vector_gazebo)/launch/vector.launch">
+        <arg name="world" value="$(find vector_gazebo)/worlds/clearpath_playpen.world"/>
+        <arg name="limited" default="false"/>
+        <arg name="paused" default="false"/>
+        <arg name="gui" default="true"/>
+    </include>
+
+
+
+</launch>

@@ -1,0 +1,45 @@
+<!-- Launch file for Segway teleop startup -->
+
+<launch>
+    <arg name="sim" default="false"/>
+    <arg name="sim_teleop_vel_limit_mps" default="0.5"/>
+    <arg name="sim_teleop_yaw_rate_limit_rps" default="0.5"/>
+    <arg name="sim_teleop_accel_lim" default="0.5"/>
+    <arg name="sim_teleop_yaw_accel_lim" default="0.5"/>
+    
+
+
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(optenv VECTOR_HAS_ONBOARD_JOY false)">
+        <param name="dev" type="string" value="$(optenv VECTOR_JOY_DEV /dev/input/js0)" />
+        <param name="deadzone" type="double" value="$(optenv VECTOR_JOY_DEADZONE 0.1)" />
+        <param name="autorepeat_rate" type="double" value="50" />
+    </node>
+    
+    <node pkg="vector_ros" type="vector_teleop" name="vector_teleop" output="screen" unless="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
+        <rosparam file="$(find vector_bringup)/launch/teleop/config/$(optenv VECTOR_JOY_MAPPING xbox360).yaml" command="load"/>
+        <param name="sim" value="$(arg sim)"/>
+        <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
+        <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
+        <param name="sim_teleop_accel_lim" value="$(arg sim_teleop_accel_lim)"/>
+        <param name="sim_teleop_yaw_accel_lim" value="$(arg sim_teleop_yaw_accel_lim)"/>
+    </node>
+    
+    <node pkg="vector_ros" type="vector_teleop_full_system" name="vector_teleop" output="screen" if="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
+        <param name="sim" value="$(arg sim)"/>
+        <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
+        <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
+        <param name="sim_teleop_accel_lim" value="$(arg sim_teleop_accel_lim)"/>
+        <param name="sim_teleop_yaw_accel_lim" value="$(arg sim_teleop_yaw_accel_lim)"/>
+    </node>
+    
+    <node pkg="vector_ros" type="vector_marker_ctrl" name="vector_marker_ctrl" output="screen">
+        <param name="sim" value="$(arg sim)"/>
+    </node>
+    
+    <group ns="vector">
+        <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+        <node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet nodelet_manager">
+            <param name="yaml_cfg_file" value="$(find vector_bringup)/launch/teleop/config/cmd_vel_mux.yaml"/>
+        </node>
+    </group>
+</launch> 

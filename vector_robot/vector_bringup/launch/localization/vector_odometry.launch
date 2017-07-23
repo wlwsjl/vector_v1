@@ -1,0 +1,65 @@
+<!-- Robot localization launch file -->
+<launch>  
+
+     <!-- ekf_loc1 fuses only continuous data (imu and odometry). Publish the tf from odom_frame to base_footprint -->
+   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" clear_params="true" output="screen" unless="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)">      
+      <remap from="odometry/filtered" to="/vector/odometry/local_filtered" />
+
+      <param name="frequency" value="30.0"/>
+      <param name="sensor_timeout" value="0.1"/>
+
+      <param name="two_d_mode" type="bool" value="true"/>
+
+      <param name="odom_frame" value="odom"/>
+      <param name="base_link_frame" value="base_link"/>
+      <param name="world_frame" value="odom"/>
+
+      <param name="odom0" value="vector/feedback/wheel_odometry"/>
+      <param name="imu0" value="vector/feedback/ext_imu"/>
+      <param name="imu1" value="vector/feedback/sic_imu"/>
+      
+      <!-- The order of the boolean values are 
+           X, Y, Z, 
+           roll, pitch, yaw, 
+           X velocity, Y velocity, Z velocity, 
+           roll velocity, pitch velocity, yaw velocity, 
+           X acceleration, Y acceleration, Z acceleration--> 
+
+      <rosparam param="odom0_config">[true, true, false,
+                                      false, false, true,
+                                      false, false, true,
+                                      false, false, false,
+                                      false, false, false]</rosparam>
+
+      <!-- Be careful when setting the z-orientation value to true because you are going to fuse orientation data 
+	coming from an attitude estimatior which is more likely to use a (slow-response) compass -->	
+      <rosparam param="imu0_config">[false, false, false,
+                                     false, false, false,
+                                     false, false, false,
+                                     false,  false,  true,
+                                     true,  true,  true]</rosparam>
+      <rosparam param="imu1_config">[false, false, false,
+                                     false, false, false,
+                                     false, false, false,
+                                     true,  true,  true,
+                                     true,  true,  true]</rosparam>
+
+      <param name="odom0_differential" value="false"/>
+      <param name="imu0_differential" value="true" />
+      <param name="imu1_differential" value="true" />
+
+      <param name="odom0_relative" value="false"/>
+      <param name="imu0_relative" value="false"/>
+      <param name="imu1_relative" value="false"/>
+    
+      <param name="imu0_remove_gravitational_acceleration" type="bool" value="true"/>
+      <param name="imu1_remove_gravitational_acceleration" type="bool" value="true"/>
+      <param name="print_diagnostics" value="false"/>
+      
+      <param name="odom0_queue_size" value="10"/>
+      <param name="imu0_queue_size" value="10"/>
+      <param name="imu1_queue_size" value="10"/>
+      
+   </node>
+
+</launch>

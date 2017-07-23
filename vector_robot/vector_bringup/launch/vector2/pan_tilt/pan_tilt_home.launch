@@ -1,0 +1,5 @@
+<launch>
+    <!-- Pan Tilt Home-->
+    <node pkg="vector_pan_tilt" name="pan_tilt_home" 
+        type="pan_tilt_home" output="screen"/>
+</launch>

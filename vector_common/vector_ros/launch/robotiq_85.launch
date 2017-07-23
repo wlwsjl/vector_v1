@@ -1,0 +1,15 @@
+<!-- Launch file for Segway platform startup -->
+
+<launch>
+    <arg name="num_grippers" default="1"/>
+    <arg name="comport" default="/dev/ttyUSB0"/>
+    <arg name="baud" default="115200"/>
+	        
+    <!-- Robotiq 85 ROS Driver -->
+    <node pkg="vector_ros" type="robotiq_85_driver" name="robotiq_85_driver" respawn="true" output="screen">
+        <param name="num_grippers" value="$(arg num_grippers)"/>
+        <param name="comport" value="$(arg comport)" />
+        <param name="baud" value="$(arg baud)" />
+    </node>
+
+</launch>

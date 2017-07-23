@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+    <name>vector_config</name>
+    <version>0.0.1</version>
+    <description>Configuration for Stanley Innovation Vector</description>
+    <maintainer email="dev@stanleyinnovation.com">Patrick Hussey</maintainer>
+    <author>Patrick Hussey</author>
+    <url type="repository">https://github.com/stanley_innovation</url>
+
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <export>
+    </export>
+</package>

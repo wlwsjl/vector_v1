@@ -1,0 +1,17 @@
+<launch>
+
+    <!-- Joint state publisher -->
+    <node pkg="vector_pan_tilt" name="pan_tilt_joint_state_publisher" 
+        type="pan_tilt_joint_state_publisher" output="screen"/>
+    
+    <!-- Controller Manager -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="3 vector_pan_tilt pan_tilt_controller_manager.launch"
+        name="pan_tilt_controller_manager" output="screen"/>
+
+    <!-- Controller Spawner -->
+    <node pkg="si_utils" type="timed_roslaunch"
+        args="5 vector_pan_tilt pan_tilt_controller_spawner.launch"
+        name="pan_tilt_controller_spawner" output="screen"/>
+
+</launch>

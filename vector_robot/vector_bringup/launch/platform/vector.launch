@@ -1,0 +1,33 @@
+<!-- Launch file for Segway platform startup -->
+<launch>
+    <!--System watchdog-->
+    <node pkg="vector_ros" type="vector_wd" name="vector1_wd" output="screen" if="$(optenv VECTOR_POWERS_PC_ONBOARD false)"/>
+        
+    <!-- Vector Base platform ROS Driver -->
+    <node pkg="vector_ros" ns="vector" type="vector_driver" name="vector_driver" respawn="true" output="screen">
+        <param name="use_platform_odometry" value="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)" />
+        <param name="ext_imu_topic" value="/um7/data" if="$(optenv VECTOR_HAS_UM7_IMU false)"/>
+    </node>
+
+    <!-- Platform specific robot state publisher and parameters -->
+    <include file="$(find vector_description)/launch/vector_upload.launch"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" type="double" value="100.0" />
+        <param name="tf_prefix" value=""/>
+    </node>
+  
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <rosparam param="source_list">[vector/joint_states,
+                                       vector/pan_tilt/joint_states,
+                                       vector/right_arm/joint_states,
+                                       vector/left_arm/joint_states,
+                                       vector/right_gripper/joint_states,
+                                       vector/left_gripper/joint_states]</rosparam>
+    </node>
+    
+    <!-- Platform specific configuration -->
+    <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"
+        args="load /vector/vector_driver $(find vector_bringup)/launch/platform/config/vector_params.yaml" />
+        
+</launch>

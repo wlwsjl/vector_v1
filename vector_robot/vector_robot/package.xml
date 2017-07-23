@@ -1,0 +1,21 @@
+<package>
+    <name>vector_robot</name>
+    <version>0.0.1</version>
+    
+    <description>Startup files for Stanley Innovation Vector Platform</description>
+    <maintainer email="dev@stanleyinnovation.com">Patrick Hussey</maintainer>
+    <author>Patrick Hussey</author>
+    <url type="repository">https://github.com/stanley_innovation</url>
+    <license>BSD</license>
+    
+    <buildtool_depend>catkin</buildtool_depend>
+    
+    <run_depend>vector_bringup</run_depend>
+    <run_depend>vector_upstart</run_depend>
+    <run_depend>vector_sensor_filters</run_depend>
+    <run_depend>vector_common</run_depend>
+
+    <export>
+        <metapackage/>
+    </export>
+</package>

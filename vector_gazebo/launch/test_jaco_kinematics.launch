@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="vector_gazebo" type="jaco_moveit_test.py" name="jaco_moveit_test_node"/>
+</launch>

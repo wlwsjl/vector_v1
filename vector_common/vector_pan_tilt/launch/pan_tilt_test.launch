@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="vector_pan_tilt" name="pan_tilt_test" type="pan_tilt_test" output="screen"/>
+</launch>
