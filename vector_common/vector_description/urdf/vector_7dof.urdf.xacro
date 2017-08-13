@@ -27,7 +27,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <xacro:include filename="$(find vector_description)/urdf/vector_components/vector_base.urdf.xacro" />
     <xacro:include filename="$(find vector_description)/urdf/linear_actuator/vector_linear_actuator.urdf.xacro" />
     <xacro:include filename="$(find vector_description)/urdf/accessories.urdf.xacro" />
-    <xacro:include filename="$(find kinova_description)/urdf/j2s7s300.xacro" />
+    <xacro:include filename="$(find kinova_description)/urdf/j2s7s300_mod.xacro" />
+    <xacro:include filename="$(find vector_description)/urdf/manipulation/robotiq/robotiq_85_gripper.urdf.xacro" />
 
     <xacro:property name="M_PI" value="3.14159"/>
     <xacro:if value="$(optenv VECTOR_USE_PLATFORM_ODOMETRY false)">
@@ -79,12 +80,42 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     </xacro:if>
     
     <!-- Arms -->
-    <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
-        <xacro:j2s7s300 base_parent="linear_actuator_link" >
+    <!-- <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
+        <xacro:j2s7s300 base_parent="linear_actuator_link" > -->
 	    <!-- Note: origin is overwritten in kinova urdf -->
-            <origin xyz="0 0 0" rpy="0 0 0" />
+           <!-- <origin xyz="0 0 0" rpy="0 0 0" />
 	</xacro:j2s7s300>
-    </xacro:if>
+    </xacro:if> -->
+    <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
+	<xacro:j2s7s300 prefix="right" base_parent="linear_actuator_link" origin_xyz="0.06079866 -0.1319 0" origin_rpy="${M_PI/2} 0 ${M_PI/2}" />
+        <!--<xacro:j2s7s300 prefix="right_" base_parent="linear_actuator_link">
+            <xacro:unless value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)">
+		<xacro:property name="origin_xyz" value="0.06079866 0 0" />
+		<xacro:property name="origin_rpy" value="${M_PI/2} 0 ${M_PI/2}" />
+            </xacro:unless>
+            <xacro:if value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)">
+		<xacro:property name="origin_xyz" value="0.06079866 -0.1319 0" />
+		<xacro:property name="origin_rpy" value="${M_PI/2} 0 ${M_PI/2}" />
+            </xacro:if>
+        </xacro:j2s7s300>-->
+
+        <xacro:if value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"> 
+            <xacro:j2s7s300 prefix="left" base_parent="linear_actuator_link" origin_xyz="0.06079866 0.1319 0" origin_rpy="${M_PI/2} 0 ${M_PI/2}" />
+        </xacro:if>
+        
+        <xacro:if value="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
+            <xacro:robotiq_85_gripper prefix="right_" parent="right_link_6" >
+                <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/>
+            </xacro:robotiq_85_gripper>
+        
+        
+            <xacro:if value="$(optenv VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS false)">
+                <xacro:robotiq_85_gripper prefix="left_" parent="left_link_6" >
+                    <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/>
+                </xacro:robotiq_85_gripper>
+            </xacro:if>
+        </xacro:if>
+    </xacro:if> 
 
     <!-- Setup any accessories defined in the environment -->
     <xacro:vector_accessories />
