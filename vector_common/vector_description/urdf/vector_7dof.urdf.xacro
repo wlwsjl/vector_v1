@@ -106,13 +106,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         
         <xacro:if value="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
             <xacro:robotiq_85_gripper prefix="right_" parent="right_link_7" >
-                <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/>
+                <!-- <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/> -->
+				<origin xyz="0 0 0" rpy="0 ${M_PI/2} 0"/>
             </xacro:robotiq_85_gripper>
         
         
             <xacro:if value="$(optenv VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS false)">
                 <xacro:robotiq_85_gripper prefix="left_" parent="left_link_7" >
-                    <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/>
+                    <!-- <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/> -->
+					<origin xyz="0 0 0" rpy="0 ${M_PI/2} 0"/>
                 </xacro:robotiq_85_gripper>
             </xacro:if>
         </xacro:if>

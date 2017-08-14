@@ -17,10 +17,11 @@
     xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:include filename="$(find kinova_description)/urdf/kinova_common.xacro" />
+	<xacro:include filename="$(find vector_description)/urdf/manipulation/jaco/j2s7s300.transmission.xacro" />
     <!-- <xacro:include filename="$(find kinova_description)/urdf/kinova_finger_set.xacro" /> -->
 
     <!-- Import all Gazebo-customization elements -->
-    <xacro:include filename="$(find kinova_description)/urdf/kinova.gazebo" />
+    <!--<xacro:include filename="$(find kinova_description)/urdf/kinova.gazebo" /> -->
 
     <property name="link_base_mesh" value="base" />
     <property name="link_1_mesh" value="shoulder" />
@@ -156,8 +157,9 @@
         <xacro:kinova_virtual_joint joint_name="${prefix}_joint_end_effector" type="${joint_end_effector_type}" parent="${prefix}_link_7" child="${prefix}_end_effector" joint_axis_xyz="${joint_end_effector_axis_xyz}" joint_origin_xyz="${joint_end_effector_origin_xyz}" joint_origin_rpy="${joint_end_effector_origin_rpy}" joint_lower_limit="0" joint_upper_limit="0"/>    
 
         <xacro:kinova_3fingers link_hand="${prefix}_link_7" prefix="${prefix}_"/> -->
-    </xacro:macro>
 
+		<xacro:jaco_arm_transmission prefix="${prefix}" />
+    </xacro:macro>
     
 
 
