@@ -58,25 +58,30 @@ export VECTOR_HAS_SECOND_2D_LASER=false
 export VECTOR_LASER1_IS_HOKUYO=true
 export VECTOR_LASER1_IS_SICK_TIM=false
 export VECTOR_LASER1_IP=10.66.171.6
+#export VECTOR_LASER1_IP=10.66.171.8
 #export VECTOR_LASER1_PORT=2112
 #Uncomment below and comment line above for hokuyo
 export VECTOR_LASER1_PORT=10940 
-export LASER1_XYZ="0.35 0 0.2"
+export LASER1_XYZ="0.33255 0 0.2013"
 export LASER1_RPY="3.1415 0 0"
 export LASER1_MAX_RANGE=10.0
 export LASER1_MIN_RANGE=0.01
+export LASER1_MAX_ANGLE=2.0
+export LASER1_MIN_ANGLE=-2.0
 export LASER1_PREFIX="base"
 
 export VECTOR_LASER2_IS_HOKUYO=false
 export VECTOR_LASER2_IS_SICK_TIM=false
-export VECTOR_LASER2_IP=10.66.171.8
+export VECTOR_LASER2_IP=10.66.171.9
 export VECTOR_LASER2_PORT=2112
 #Uncomment below and comment line above for hokuyo
 #export VECTOR_LASER1_PORT=10940 
-export LASER2_XYZ="-0.35 0 0.2"
+export LASER2_XYZ="-0.33255 0 0.2013"
 export LASER2_RPY="3.1415 0 3.1415"
-export LASER2_MAX_RANGE=20.0
+export LASER2_MAX_RANGE=10.0
 export LASER2_MIN_RANGE=0.01
+export LASER2_MAX_ANGLE=2.0
+export LASER2_MIN_ANGLE=-2.0
 export LASER2_PREFIX="rear"
 
 # Kinect pan-tilt configuration
@@ -104,7 +109,8 @@ export VECTOR_HAS_KINOVA_7DOF_ARM=true
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
 export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=true
-export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:4:1.0-port0"
+export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:6:1.0-port0"
+#export ROBOTIQ_GRIPPER_COMM_PORT="/dev/ttyUSB1"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200
 
 #Linear actuator

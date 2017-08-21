@@ -31,8 +31,9 @@ class Joint:
 
 def main():
         arm = Joint()
-        arm.move_joint([0.0,0.5],1.0)
-        arm.move_joint([0.0,0.0],1.0)
+        #arm.move_joint([0.0,0.5],1.0)
+        arm.move_joint([0.0, 0.5],1.0)
+        arm.move_joint([-0.785,0.0],1.0)
                         
 if __name__ == '__main__':
       rospy.init_node('pan_tilt_home')

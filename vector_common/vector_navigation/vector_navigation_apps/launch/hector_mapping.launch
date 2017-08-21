@@ -1,0 +1,27 @@
+<!-- GMAPPING SLAM Demo -->
+
+<launch>
+    
+    <!-- Run vector_move_base action client for tracking status --> 
+    <!--node pkg="vector_ros" name="vector_move_base" type="vector_move_base" output="screen" clear_params="true"> 
+        <param name="using_amcl" value="false"/>
+        <param name="global_frame" value="/map"/>
+        <param name="goal_timeout_sec" value="300"/>
+        <param name="load_waypoints" value="false"/>
+        <param name="sim" value="false"/>
+    </node-->
+    
+    <!--- Run Move Base --> 
+    <!--include file="$(find vector_navigation_apps)/launch/move_base.launch">
+        <arg name="no_static_map" value="false"/>
+    </include-->
+
+    <!--- Run Assisted Teleop -->
+    <include file="$(find vector_remote_teleop)/launch/vector_remote_teleop.launch" />
+       
+    <include file="$(find hector_mapping)/launch/mapping_default.launch">
+        <arg name="base_frame" value="base_link"/>
+        <arg name="odom_frame" default="odom"/>
+        <arg name="scan_topic" value="/vector/base_scan_filtered"/>
+    </include>
+</launch>

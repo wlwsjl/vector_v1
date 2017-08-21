@@ -65,13 +65,15 @@ import threading
 import re
 import os
 """
-Dictionary for all VECTOR configuration command ID's
+Dictionary for all MOVO configuration command ID's
 """
 command_ids = dict({"GENERAL_PURPOSE_CMD_NONE":                   0,
                     "GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE":   1,
                     "GENERAL_PURPOSE_CMD_SEND_FAULTLOG":          2,
                     "GENERAL_PURPOSE_CMD_RESET_ODOMETRY":         3,
                     "GENERAL_PURPOSE_CMD_RESET_PARAMS_TO_DEFAULT":4,
+                    "GENERAL_PURPOSE_CMD_SET_STRAFE_CORRECTION"  :6,
+                    "GENERAL_PURPOSE_CMD_SET_YAW_CORRECTION"     :7,
                     "SIC_CMD_RESET_IN_DIAGNOSTIC_MODE":1001})
 
 class VectorDriver:
@@ -90,7 +92,7 @@ class VectorDriver:
         self.last_move_base_update = rospy.Time.now().to_sec()
 
         """
-        Initialize the publishers for VECTOR
+        Initialize the publishers for MOVO
         """
         self.vector_data = VECTOR_DATA()
         
@@ -109,7 +111,7 @@ class VectorDriver:
         self.extracting_faultlog = False
         
         """
-        Initialize the dynamic reconfigure server for VECTOR
+        Initialize the dynamic reconfigure server for MOVO
         """
         self.param_server_initialized = False
         self.dyn_reconfigure_srv = Server(vectorConfig, self._dyn_reconfig_callback)
@@ -130,7 +132,7 @@ class VectorDriver:
             return            
         
         """
-        Create the thread to run VECTOR communication
+        Create the thread to run MOVO communication
         """
         self.tx_queue_ = multiprocessing.Queue()
         self.rx_queue_ = multiprocessing.Queue()
@@ -141,7 +143,7 @@ class VectorDriver:
                                     
         
         if (False == self.comm.link_up):
-            rospy.logerr("Could not open socket for VECTOR...")
+            rospy.logerr("Could not open socket for MOVO...")
             self.comm.close()
             return
         
@@ -152,6 +154,7 @@ class VectorDriver:
         rospy.Subscriber("/vector/cmd_vel", Twist, self._add_motion_command_to_queue)
         rospy.Subscriber("/vector/gp_command",ConfigCmd,self._add_config_command_to_queue)
         rospy.Subscriber("/move_base/DWAPlannerROS/parameter_updates",Config,self._update_move_base_params)
+        rospy.Subscriber("/vector/motion_test_cmd",MotionTestCmd,self._add_motion_test_command_to_queue)
 
         """
         Start the receive handler thread
@@ -166,7 +169,7 @@ class VectorDriver:
         """
         rospy.loginfo("Stopping the data stream")
         if (False == self._continuous_data(False)):
-            rospy.logerr("Could not stop VECTOR communication stream")
+            rospy.logerr("Could not stop MOVO communication stream")
             self.Shutdown()
             return
         
@@ -178,7 +181,7 @@ class VectorDriver:
         self.extracting_faultlog = True
         
         if (False == self._extract_faultlog()):
-            rospy.logerr("Could not get retrieve VECTOR faultlog")
+            rospy.logerr("Could not get retrieve MOVO faultlog")
             self.Shutdown()
             return          
         
@@ -187,7 +190,7 @@ class VectorDriver:
         """
         rospy.loginfo("Starting the data stream")
         if (False == self._continuous_data(True)):
-            rospy.logerr("Could not start VECTOR communication stream")
+            rospy.logerr("Could not start MOVO communication stream")
             self.Shutdown()
             return
             
@@ -252,23 +255,41 @@ class VectorDriver:
         self.last_rsp_rcvd = rospy.Time.now().to_sec()
                         
     def _handle_rsp(self,data_bytes):
-        
-        self._update_rcv_frq()
+    
+        while not self.need_to_terminate:
+            """
+            Run until signaled to stop
+            Perform the actions defined based on the flags passed out
+            """
+            result = select.select([self.rx_queue_._reader],[],[],1.0)
+            if len(result[0]) > 0:
+                data = result[0][0].recv()
+                with self.terminate_mutex:
+                    if not self.need_to_terminate:
+                        self._handle_rsp(data)
+                        
+    def _handle_rsp(self,data_bytes):
         if (True == self.flush_rcvd_data):
             return
+           
+        if (self.extracting_faultlog):
+            valid_data = validate_response(data_bytes,((NUMBER_OF_FAULTLOG_WORDS+1)*4))
+        else:
+            valid_data = validate_response(data_bytes,((NUMBER_OF_MOVO_RSP_WORDS+1)*4))
         
-
-        valid_data,rsp_data = validate_response(data_bytes)
         if (False == valid_data):
             rospy.logerr("bad vector data packet")
             return
+
+        rsp_data = array.array('I',data_bytes.tostring()).tolist()       
+        rsp_data = rsp_data[:(len(rsp_data)-1)]
+
         if (self.extracting_faultlog):
-            if (len(rsp_data) == NUMBER_OF_FAULTLOG_WORDS):
-                self.extracting_faultlog = False
-                faultlog_msg = Faultlog()
-                faultlog_msg.data = rsp_data
-                self.faultlog_pub.publish(faultlog_msg)
-        elif (len(rsp_data) == NUMBER_OF_VECTOR_RSP_WORDS):
+            self.extracting_faultlog = False
+            faultlog_msg = Faultlog()
+            faultlog_msg.data = rsp_data
+            self.faultlog_pub.publish(faultlog_msg)
+        else:
             
             header_stamp = self.vector_data.status.parse(rsp_data[START_STATUS_BLOCK:END_STATUS_BLOCK])
             wheel_circum = self.vector_data.config_param.parse(rsp_data[START_APP_CONFIG_BLOCK:END_FRAM_CONFIG_BLOCK],header_stamp)
@@ -276,6 +297,7 @@ class VectorDriver:
             self.vector_data.propulsion.parse(rsp_data[START_PROPULSION_DATA_BLOCK:END_PROPULSION_DATA_BLOCK],header_stamp)
             self.vector_data.dynamics.parse(rsp_data[START_DYNAMICS_DATA_BLOCK:END_DYNAMICS_DATA_BLOCK],header_stamp,wheel_circum)            
             self.vector_data.imu.parse_data(rsp_data[START_IMU_DATA_BLOCK:END_IMU_DATA_BLOCK],header_stamp)
+            self._update_rcv_frq()
             
             rospy.logdebug("feedback received from vector")
         
@@ -296,6 +318,22 @@ class VectorDriver:
         except:
             rospy.logerr("Config param failed, it is probably not known")
             return
+            
+    def _add_motion_test_command_to_queue(self,command):
+    
+        test = command.test_type & ~MOTION_TEST_TYPE_MASK;
+        if (0 != test):
+            rospy.logerr("Bad test command see system_defines.py for details")
+            
+             
+        cmds = [MOTION_TEST_CMD_ID,
+                [command.test_type,
+                 command.duration_sec,
+                 convert_float_to_u32(command.magnitude)]]
+                 
+        rospy.loginfo("MOTION_TEST IS GOING TO BE SENT!!!!!!!!!!!!!!")
+        self._add_command_to_queue(cmds)        
+         
 
     def _dyn_reconfig_callback(self,config,level):
 
@@ -329,6 +367,7 @@ class VectorDriver:
                                    convert_float_to_u32(config.wheel_track_width_m),
                                    convert_float_to_u32(config.gear_ratio),
                                    config_bitmap]]
+         
         
         rospy.loginfo("Reconfigure Requested!")
         rospy.loginfo("x_vel_limit_mps:          %f"%config.x_vel_limit_mps)
@@ -344,6 +383,9 @@ class VectorDriver:
         rospy.loginfo("gear_ratio:               %f"%config.gear_ratio)
         rospy.loginfo("motion_while_charging:    %u"%config.motion_while_charging)
         rospy.loginfo("motion_ctl_input_filter:  %u"%config.motion_ctl_input_filter)
+        rospy.loginfo("strafe_correction_factor: %u"%config.strafe_correction_factor)
+        rospy.loginfo("yaw_correction_factor:    %u"%config.yaw_correction_factor)
+        
              
         """
         The teleop limits are always the minimum of the actual machine limit and the ones set for teleop
@@ -366,7 +408,22 @@ class VectorDriver:
         """
         Update the linear actuator velocity limit
         """
-        self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps) 
+        self._linear.UpdateVelLimit(config.linear_actuator_vel_limit_mps)
+        
+        if self.param_server_initialized:
+            if ((1<<4) == (level & (1<<4))):
+                rospy.sleep(0.1)
+                cmds = [GENERAL_PURPOSE_CMD_ID,
+                        [6,convert_float_to_u32(config.strafe_correction_factor)]]
+                self._add_command_to_queue(cmds)
+                rospy.sleep(0.1)
+
+            if ((1<<5) == (level & (1<<5))):
+                rospy.sleep(0.1)
+                cmds = [GENERAL_PURPOSE_CMD_ID,
+                        [7,convert_float_to_u32(config.yaw_correction_factor)]]
+                self._add_command_to_queue(cmds)
+                rospy.sleep(0.1)
         
         """
         Check and see if we need to store the parameters in NVM before we try, although the NVM is F-RAM
@@ -458,8 +515,10 @@ class VectorDriver:
         r = rospy.Rate(2)
         start_time = rospy.get_time()
         params_loaded = False
+
         while ((rospy.get_time() - start_time) < 3.0) and (False == params_loaded):
             load_params = False
+
             for i in range(NUMBER_OF_CONFIG_PARAM_VARIABLES):
                 if (self.vector_data.config_param.configuration_feedback[i] != self.valid_config_cmd[1][i]):
                     load_params = True

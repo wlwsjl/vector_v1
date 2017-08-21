@@ -30,7 +30,7 @@ class Robotiq85Gripper:
             return False
         try:    
             self.ser.write(self._gripper[dev].act_cmd_bytes)
-            rospy.sleep(0.005)
+            rospy.sleep(0.01)
             rsp = self.ser.read(8)
             rsp = [ord(x) for x in rsp]
             if (len(rsp) != 8):
@@ -45,7 +45,8 @@ class Robotiq85Gripper:
             return False
         try:
             self.ser.write(self._gripper[dev].stat_cmd_bytes)
-            rospy.sleep(0.005)
+            #rospy.sleep(0.005)
+            rospy.sleep(0.01)
             rsp = self.ser.read(21)
             rsp = [ord(x) for x in rsp]
             if (len(rsp) != 21):

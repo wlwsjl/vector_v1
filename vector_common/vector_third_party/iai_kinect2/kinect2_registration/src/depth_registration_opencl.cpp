@@ -19,14 +19,18 @@
 
 #include <kinect2_registration/kinect2_console.h>
 
-#ifdef __APPLE__
-#include <OpenCL/cl.hpp>
-#else
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define CL_USE_DEPRECATED_OPENCL_2_0_APIS
+
+#ifdef KINECT2_OPENCL_ICD_LOADER_IS_OLD
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include <CL/cl.h>
+#ifdef CL_VERSION_1_2
 #undef CL_VERSION_1_2
+#endif //CL_VERSION_1_2
+#endif //LIBFREENECT2_OPENCL_ICD_LOADER_IS_OLD
+
 #include <CL/cl.hpp>
-#endif
 
 #ifndef REG_OPENCL_FILE
 #define REG_OPENCL_FILE ""
@@ -34,8 +38,14 @@
 
 #include "depth_registration_opencl.h"
 
+//#define ENABLE_PROFILING_CL
+
 #define CL_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define CHECK_CL_ERROR(err, str) do { if(err != CL_SUCCESS) {OUT_ERROR(FG_BLUE "[" << CL_FILENAME << "]" FG_CYAN "(" << __LINE__ << ") " FG_YELLOW << str << FG_RED " failed: " << err); return false; } } while(0)
+#define PRINT_CL_ERROR(expr, err) OUT_ERROR(FG_BLUE "[" << CL_FILENAME << "]" FG_CYAN "(" << __LINE__ << ") " FG_YELLOW << expr << FG_RED " failed: " << err)
+
+#define CHECK_CL_PARAM(expr) do { cl_int err = CL_SUCCESS; (expr); if (err != CL_SUCCESS) { PRINT_CL_ERROR(#expr, err); return false; } } while(0)
+#define CHECK_CL_RETURN(expr) do { cl_int err = (expr); if (err != CL_SUCCESS) { PRINT_CL_ERROR(#expr, err); return false; } } while(0)
+#define CHECK_CL_ON_FAIL(expr, on_fail) do { cl_int err = (expr); if (err != CL_SUCCESS) { PRINT_CL_ERROR(#expr, err); on_fail; return false; } } while(0)
 
 struct DepthRegistrationOpenCL::OCLData
 {
@@ -67,6 +77,14 @@ struct DepthRegistrationOpenCL::OCLData
   cl::Buffer bufferSelDist;
   cl::Buffer bufferMapX;
   cl::Buffer bufferMapY;
+
+  cl::Buffer bufferOutput;
+  unsigned char *dataOutput;
+
+#ifdef ENABLE_PROFILING_CL
+  std::vector<double> timings;
+  int count;
+#endif
 };
 
 DepthRegistrationOpenCL::DepthRegistrationOpenCL()
@@ -158,11 +176,8 @@ bool DepthRegistrationOpenCL::init(const int deviceId)
     return false;
   }
 
-  cl_int err = CL_SUCCESS;
-
   std::vector<cl::Platform> platforms;
-  err = cl::Platform::get(&platforms);
-  CHECK_CL_ERROR(err, "cl::Platform::get");
+  CHECK_CL_RETURN(cl::Platform::get(&platforms));
 
   if(platforms.empty())
   {
@@ -186,28 +201,26 @@ bool DepthRegistrationOpenCL::init(const int deviceId)
   }
   OUT_INFO("selected device: " FG_YELLOW << deviceString(data->device) << NO_COLOR);
 
-  data->context = cl::Context(data->device, NULL, NULL, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Context");
+  CHECK_CL_PARAM(data->context = cl::Context(data->device, NULL, NULL, NULL, &err));
 
   std::string options;
   generateOptions(options);
 
   cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
-  data->program = cl::Program(data->context, source, &err);
-  CHECK_CL_ERROR(err, "cl::Program");
+  CHECK_CL_PARAM(data->program = cl::Program(data->context, source, &err));
 
-  err = data->program.build(options.c_str());
-  if(err != CL_SUCCESS)
-  {
-    OUT_ERROR("failed to build program: " << err);
-    OUT_ERROR("Build Status: " << data->program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(data->device));
-    OUT_ERROR("Build Options:\t" << data->program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(data->device));
-    OUT_ERROR("Build Log:\t " << data->program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(data->device));
-    return false;
-  }
+  CHECK_CL_ON_FAIL(data->program.build(options.c_str()),
+                   OUT_ERROR("failed to build program: " << err);
+                   OUT_ERROR("Build Status: " << data->program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(data->device));
+                   OUT_ERROR("Build Options:\t" << data->program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(data->device));
+                   OUT_ERROR("Build Log:\t " << data->program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(data->device)));
 
-  data->queue = cl::CommandQueue(data->context, data->device, 0, &err);
-  CHECK_CL_ERROR(err, "cl::CommandQueue");
+#ifdef ENABLE_PROFILING_CL
+  data->count = 0;
+  CHECK_CL_PARAM(data->queue = cl::CommandQueue(data->context, data->device, CL_QUEUE_PROFILING_ENABLE, &err));
+#else
+  CHECK_CL_PARAM(data->queue = cl::CommandQueue(data->context, data->device, 0, &err));
+#endif
 
   data->sizeDepth = sizeDepth.height * sizeDepth.width * sizeof(uint16_t);
   data->sizeRegistered = sizeRegistered.height * sizeRegistered.width * sizeof(uint16_t);
@@ -217,120 +230,101 @@ bool DepthRegistrationOpenCL::init(const int deviceId)
   data->sizeSelDist = sizeRegistered.height * sizeRegistered.width * sizeof(float);
   data->sizeMap = sizeRegistered.height * sizeRegistered.width * sizeof(float);
 
-  data->bufferDepth = cl::Buffer(data->context, CL_READ_ONLY_CACHE, data->sizeDepth, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferScaled = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeRegistered, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferRegistered = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeRegistered, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferIndex = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeIndex, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferImgZ = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeImgZ, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferDists = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeDists, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferSelDist = cl::Buffer(data->context, CL_READ_WRITE_CACHE, data->sizeSelDist, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferMapX = cl::Buffer(data->context, CL_READ_ONLY_CACHE, data->sizeMap, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
-  data->bufferMapY = cl::Buffer(data->context, CL_READ_ONLY_CACHE, data->sizeMap, NULL, &err);
-  CHECK_CL_ERROR(err, "cl::Buffer");
+  CHECK_CL_PARAM(data->bufferDepth = cl::Buffer(data->context, CL_MEM_READ_ONLY, data->sizeDepth, NULL, &err));
+  CHECK_CL_PARAM(data->bufferScaled = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeRegistered, NULL, &err));
+  CHECK_CL_PARAM(data->bufferRegistered = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeRegistered, NULL, &err));
+  CHECK_CL_PARAM(data->bufferIndex = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeIndex, NULL, &err));
+  CHECK_CL_PARAM(data->bufferImgZ = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeImgZ, NULL, &err));
+  CHECK_CL_PARAM(data->bufferDists = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeDists, NULL, &err));
+  CHECK_CL_PARAM(data->bufferSelDist = cl::Buffer(data->context, CL_MEM_READ_WRITE, data->sizeSelDist, NULL, &err));
+  CHECK_CL_PARAM(data->bufferMapX = cl::Buffer(data->context, CL_MEM_READ_ONLY, data->sizeMap, NULL, &err));
+  CHECK_CL_PARAM(data->bufferMapY = cl::Buffer(data->context, CL_MEM_READ_ONLY, data->sizeMap, NULL, &err));
+  CHECK_CL_PARAM(data->bufferOutput = cl::Buffer(data->context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, data->sizeRegistered, NULL, &err));
 
-  data->kernelSetZero = cl::Kernel(data->program, "setZero", &err);
-  CHECK_CL_ERROR(err, "cl::Kernel");
-  err = data->kernelSetZero.setArg(0, data->bufferRegistered);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelSetZero.setArg(1, data->bufferSelDist);
-  CHECK_CL_ERROR(err, "setArg");
+  CHECK_CL_PARAM(data->kernelSetZero = cl::Kernel(data->program, "setZero", &err));
+  CHECK_CL_RETURN(data->kernelSetZero.setArg(0, data->bufferRegistered));
+  CHECK_CL_RETURN(data->kernelSetZero.setArg(1, data->bufferSelDist));
 
-  data->kernelProject = cl::Kernel(data->program, "project", &err);
-  CHECK_CL_ERROR(err, "cl::Kernel");
-  err = data->kernelProject.setArg(0, data->bufferScaled);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelProject.setArg(1, data->bufferIndex);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelProject.setArg(2, data->bufferImgZ);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelProject.setArg(3, data->bufferDists);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelProject.setArg(4, data->bufferSelDist);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelProject.setArg(5, data->bufferRegistered);
+  CHECK_CL_PARAM(data->kernelProject = cl::Kernel(data->program, "project", &err));
+  CHECK_CL_RETURN(data->kernelProject.setArg(0, data->bufferScaled));
+  CHECK_CL_RETURN(data->kernelProject.setArg(1, data->bufferIndex));
+  CHECK_CL_RETURN(data->kernelProject.setArg(2, data->bufferImgZ));
+  CHECK_CL_RETURN(data->kernelProject.setArg(3, data->bufferDists));
+  CHECK_CL_RETURN(data->kernelProject.setArg(4, data->bufferSelDist));
+  CHECK_CL_RETURN(data->kernelProject.setArg(5, data->bufferRegistered));
 
-  data->kernelCheckDepth = cl::Kernel(data->program, "checkDepth", &err);
-  CHECK_CL_ERROR(err, "cl::Kernel");
-  err = data->kernelCheckDepth.setArg(0, data->bufferIndex);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelCheckDepth.setArg(1, data->bufferImgZ);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelCheckDepth.setArg(2, data->bufferDists);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelCheckDepth.setArg(3, data->bufferSelDist);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelCheckDepth.setArg(4, data->bufferRegistered);
-  CHECK_CL_ERROR(err, "setArg");
+  CHECK_CL_PARAM(data->kernelCheckDepth = cl::Kernel(data->program, "checkDepth", &err));
+  CHECK_CL_RETURN(data->kernelCheckDepth.setArg(0, data->bufferIndex));
+  CHECK_CL_RETURN(data->kernelCheckDepth.setArg(1, data->bufferImgZ));
+  CHECK_CL_RETURN(data->kernelCheckDepth.setArg(2, data->bufferDists));
+  CHECK_CL_RETURN(data->kernelCheckDepth.setArg(3, data->bufferSelDist));
+  CHECK_CL_RETURN(data->kernelCheckDepth.setArg(4, data->bufferRegistered));
 
-  data->kernelRemap = cl::Kernel(data->program, "remapDepth", &err);
-  CHECK_CL_ERROR(err, "cl::Kernel");
-  err = data->kernelRemap.setArg(0, data->bufferDepth);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelRemap.setArg(1, data->bufferScaled);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelRemap.setArg(2, data->bufferMapX);
-  CHECK_CL_ERROR(err, "setArg");
-  err = data->kernelRemap.setArg(3, data->bufferMapY);
-  CHECK_CL_ERROR(err, "setArg");
+  CHECK_CL_PARAM(data->kernelRemap = cl::Kernel(data->program, "remapDepth", &err));
+  CHECK_CL_RETURN(data->kernelRemap.setArg(0, data->bufferDepth));
+  CHECK_CL_RETURN(data->kernelRemap.setArg(1, data->bufferScaled));
+  CHECK_CL_RETURN(data->kernelRemap.setArg(2, data->bufferMapX));
+  CHECK_CL_RETURN(data->kernelRemap.setArg(3, data->bufferMapY));
 
-  err = data->queue.enqueueWriteBuffer(data->bufferMapX, CL_TRUE, 0, data->sizeMap, mapX.data);
-  CHECK_CL_ERROR(err, "enqueueWriteBuffer");
-  err = data->queue.enqueueWriteBuffer(data->bufferMapY, CL_TRUE, 0, data->sizeMap, mapY.data);
-  CHECK_CL_ERROR(err, "enqueueWriteBuffer");
+  CHECK_CL_RETURN(data->queue.enqueueWriteBuffer(data->bufferMapX, CL_TRUE, 0, data->sizeMap, mapX.data));
+  CHECK_CL_RETURN(data->queue.enqueueWriteBuffer(data->bufferMapY, CL_TRUE, 0, data->sizeMap, mapY.data));
 
-
+  CHECK_CL_PARAM(data->dataOutput = (unsigned char *)data->queue.enqueueMapBuffer(data->bufferOutput, CL_TRUE, CL_MAP_READ, 0, data->sizeRegistered, NULL, NULL, &err));
   return true;
 }
 
 bool DepthRegistrationOpenCL::registerDepth(const cv::Mat &depth, cv::Mat &registered)
 {
-  if(registered.empty() || registered.rows != sizeRegistered.height || registered.cols != sizeRegistered.width || registered.type() != CV_16U)
-  {
-    registered = cv::Mat(sizeRegistered, CV_16U);
-  }
-
-  cl_int err = CL_SUCCESS;
-  cl::Event eventKernel, eventZero;
+  cl::Event eventRead;
+  std::vector<cl::Event> eventZero(2), eventRemap(1), eventProject(1), eventCheckDepth1(1), eventCheckDepth2(1);
   cl::NDRange range(sizeRegistered.height * sizeRegistered.width);
 
-  err = data->queue.enqueueWriteBuffer(data->bufferDepth, CL_TRUE, 0, data->sizeDepth, depth.data);
-  CHECK_CL_ERROR(err, "enqueueWriteBuffer");
-  err = data->queue.enqueueNDRangeKernel(data->kernelSetZero, cl::NullRange, range, cl::NullRange, NULL, &eventZero);
-  CHECK_CL_ERROR(err, "enqueueNDRangeKernel");
+  CHECK_CL_RETURN(data->queue.enqueueWriteBuffer(data->bufferDepth, CL_FALSE, 0, data->sizeDepth, depth.data, NULL, &eventZero[0]));
+  CHECK_CL_RETURN(data->queue.enqueueNDRangeKernel(data->kernelSetZero, cl::NullRange, range, cl::NullRange, NULL, &eventZero[1]));
 
-  err = data->queue.enqueueNDRangeKernel(data->kernelRemap, cl::NullRange, range, cl::NullRange, NULL, &eventKernel);
-  CHECK_CL_ERROR(err, "enqueueNDRangeKernel");
-  err = eventKernel.wait();
-  CHECK_CL_ERROR(err, "wait");
-  err = eventZero.wait();
-  CHECK_CL_ERROR(err, "wait");
+  CHECK_CL_RETURN(data->queue.enqueueNDRangeKernel(data->kernelRemap, cl::NullRange, range, cl::NullRange, &eventZero, &eventRemap[0]));
 
-  err = data->queue.enqueueNDRangeKernel(data->kernelProject, cl::NullRange, range, cl::NullRange, NULL, &eventKernel);
-  CHECK_CL_ERROR(err, "enqueueNDRangeKernel");
-  err = eventKernel.wait();
-  CHECK_CL_ERROR(err, "wait");
+  CHECK_CL_RETURN(data->queue.enqueueNDRangeKernel(data->kernelProject, cl::NullRange, range, cl::NullRange, &eventRemap, &eventProject[0]));
 
-  err = data->queue.enqueueNDRangeKernel(data->kernelCheckDepth, cl::NullRange, range, cl::NullRange, NULL, &eventKernel);
-  CHECK_CL_ERROR(err, "enqueueNDRangeKernel");
-  err = eventKernel.wait();
-  CHECK_CL_ERROR(err, "wait");
+  CHECK_CL_RETURN(data->queue.enqueueNDRangeKernel(data->kernelCheckDepth, cl::NullRange, range, cl::NullRange, &eventProject, &eventCheckDepth1[0]));
 
-  err = data->queue.enqueueNDRangeKernel(data->kernelCheckDepth, cl::NullRange, range, cl::NullRange, NULL, &eventKernel);
-  CHECK_CL_ERROR(err, "enqueueNDRangeKernel");
-  err = eventKernel.wait();
-  CHECK_CL_ERROR(err, "wait");
+  CHECK_CL_RETURN(data->queue.enqueueNDRangeKernel(data->kernelCheckDepth, cl::NullRange, range, cl::NullRange, &eventCheckDepth1, &eventCheckDepth2[0]));
 
-  err = data->queue.enqueueReadBuffer(data->bufferRegistered, CL_TRUE, 0, data->sizeRegistered, registered.data);
-  CHECK_CL_ERROR(err, "enqueueReadBuffer");
+  CHECK_CL_RETURN(data->queue.enqueueReadBuffer(data->bufferRegistered, CL_FALSE, 0, data->sizeRegistered, data->dataOutput, &eventCheckDepth2, &eventRead));
 
+  CHECK_CL_RETURN(eventRead.wait());
+
+  registered = cv::Mat(sizeRegistered, CV_16U, data->dataOutput);
+
+#ifdef ENABLE_PROFILING_CL
+  if(data->count == 0)
+  {
+    data->timings.clear();
+    data->timings.resize(7, 0.0);
+  }
+
+  data->timings[0] += eventZero[0].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventZero[0].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[1] += eventZero[1].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventZero[1].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[2] += eventRemap[0].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventRemap[0].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[3] += eventProject[0].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventProject[0].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[4] += eventCheckDepth1[0].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventCheckDepth1[0].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[5] += eventCheckDepth2[0].getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventCheckDepth2[0].getProfilingInfo<CL_PROFILING_COMMAND_START>();
+  data->timings[6] += eventRead.getProfilingInfo<CL_PROFILING_COMMAND_END>() - eventRead.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+
+  if(++data->count == 100)
+  {
+    double sum = data->timings[0] + data->timings[1] + data->timings[2] + data->timings[3] + data->timings[4] + data->timings[5] + data->timings[6];
+    OUT_INFO("writing depth: " << data->timings[0] / 100000000.0 << " ms.");
+    OUT_INFO("setting zero: " << data->timings[1] / 100000000.0 << " ms.");
+    OUT_INFO("remap: " << data->timings[2] / 100000000.0 << " ms.");
+    OUT_INFO("project: " << data->timings[3] / 100000000.0 << " ms.");
+    OUT_INFO("check depth 1: " << data->timings[4] / 100000000.0 << " ms.");
+    OUT_INFO("check depth 2: " << data->timings[5] / 100000000.0 << " ms.");
+    OUT_INFO("read registered: " << data->timings[6] / 100000000.0 << " ms.");
+    OUT_INFO("overall: " << sum / 100000000.0 << " ms.");
+    data->count = 0;
+  }
+#endif
   return true;
 }
 

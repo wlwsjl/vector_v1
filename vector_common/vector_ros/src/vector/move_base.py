@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """--------------------------------------------------------------------
 COPYRIGHT 2016 Stanley Innovation Inc.
 
@@ -47,18 +48,25 @@ arising out of or based upon:
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
+import random
 import rospy
 import tf
 import actionlib
+import rospkg
+import easygui
 from system_defines import *
 from actionlib_msgs.msg import *
 from vector_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseStamped, PointStamped, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import *
-from std_msgs.msg import Bool, UInt32
+from std_msgs.msg import Bool, String, UInt32
 from math import pow, sqrt
 from system_defines import *
 from visualization_msgs.msg import MarkerArray,Marker
+import os
+from os import listdir
+from os.path import isfile, join
+from math import atan2
 import rospkg
 
 class VectorMoveBase():
@@ -85,8 +93,11 @@ class VectorMoveBase():
         self.marker_array_pub = rospy.Publisher('/vector/waypoints',MarkerArray,queue_size=10)
 
 
+        self.waypoint_is_executing = False
 
         rospack = rospkg.RosPack()
+        self.goals_path = rospack.get_path('vector_navigation_apps') + "/goals/"
+        self.goals_filename = self.goals_path + rospy.get_param("~goalfile", "vector_goals")  + ".txt"
         self.goals_filename = rospack.get_path('vector_navigation_apps') + "/goals/" + rospy.get_param("~goalfile", "vector_goals")  + ".txt"
 
         """
@@ -126,9 +137,9 @@ class VectorMoveBase():
         rospy.Subscriber("/vector/feedback/status", Status, self._handle_status)
         rospy.Subscriber("/move_base_simple/goal", PoseStamped,  self._simple_goal_cb)
         rospy.Subscriber('/vector/teleop/abort_navigation',Bool,self._shutdown)
-        rospy.Subscriber('/clicked_point',PointStamped,self._add_waypoint)
+        rospy.Subscriber('/vector/waypoints_clicked',PoseStamped,self._add_waypoint)
         rospy.Subscriber('/vector/teleop/record_pose',Bool,self._add_waypoint_pose)
-        rospy.Subscriber('/vector/waypoint_cmd',UInt32,self._process_waypoint_cmd)
+        rospy.Subscriber('/vector/waypoint_cmd',String,self._process_waypoint_cmd)
         self.simple_goal_pub = rospy.Publisher('/vector_move_base/goal', MoveBaseActionGoal, queue_size=10)
         self.new_goal = MoveBaseActionGoal()
 
@@ -152,14 +163,6 @@ class VectorMoveBase():
         if (True == self.using_amcl):
             rospy.loginfo("*** Click the 2D Pose Estimate button in RViz to set the robot's initial pose...")
             rospy.wait_for_message('initialpose', PoseWithCovarianceStamped)
-
-            my_cmd = Twist()
-            my_cmd.angular.z = 1.0
-            start_time = rospy.get_time()
-            r = rospy.Rate(10)
-            while (rospy.get_time() - start_time) < 5.0:
-                self.cmd_vel_pub.publish(my_cmd)
-                r.sleep()
 
         my_cmd = Twist()
         my_cmd.angular.z = 0.0
@@ -197,7 +200,6 @@ class VectorMoveBase():
         self.move_base_server.start()
 
         rospy.loginfo("Vector move base server started")
-        self.waypoint_is_executing = False
         self._run_waypoints()
 
     def _run_waypoints(self):
@@ -209,7 +211,24 @@ class VectorMoveBase():
                 goal = PoseStamped()
                 goal.header.stamp = rospy.get_rostime()
                 goal.header.frame_id = self.global_frame
-                goal.pose = self.waypoints[self.present_waypoint]
+                if ((True == self.waypoints[self.present_waypoint][0]) and (len(self.waypoints)>1)) :
+                    pos1 = self.waypoints[self.present_waypoint][1]
+                    
+                    if (self.present_waypoint == (len(self.waypoints)-1)):
+                        pos2 = self.waypoints[0][1]
+                    else:
+                        pos2 = self.waypoints[self.present_waypoint+1][1]    
+                    
+                    y2y1= pos2.position.y-pos1.position.y
+                    x2x1= pos2.position.x-pos1.position.x
+                    heading = tf.transformations.quaternion_from_euler(0,0,atan2(y2y1,x2x1))
+                    self.waypoints[self.present_waypoint][1].orientation.x = heading[0]
+                    self.waypoints[self.present_waypoint][1].orientation.y = heading[1]
+                    self.waypoints[self.present_waypoint][1].orientation.z = heading[2]
+                    self.waypoints[self.present_waypoint][1].orientation.w = heading[3]
+                    
+                goal.pose = self.waypoints[self.present_waypoint][1] 
+
                 self._simple_goal_cb(goal)
 
             self.marker_array_pub.publish(self.marker_array_msg)
@@ -235,20 +254,21 @@ class VectorMoveBase():
             marker.ns = "Goal-%u"%i
             self.marker_array_msg.markers.append(marker)
 
-    def _process_waypoint_cmd(self,cmd):
-        cmd = cmd.data
-        rospy.loginfo("cmd rcvd %u"%cmd)
-        if (1<<0 == cmd):
+    def _process_waypoint_cmd(self,cmd_in):
+        cmd = cmd_in.data[0]
+
+        if ('0' == cmd):
             self._add_waypoint_pose()
-        elif (1<<1 == cmd):
+        elif ('1' == cmd):
+            rospy.loginfo("run_waypoints = true!")
             self.run_waypoints = True
-        elif (1<<2 == cmd):
+        elif ('2' == cmd):
             self.run_waypoints = False
             if (True == self.waypoint_is_executing):
                 self.move_base_client.cancel_goal()
                 self.move_base_server.set_aborted(None, "User stopped waypoints")
                 rospy.loginfo("User commanded waypoint record to stop")
-        elif (1<<3 == cmd):
+        elif ('3' == cmd):
             self.run_waypoints = False
             self.present_waypoint = 0
             if (True == self.waypoint_is_executing):
@@ -258,24 +278,27 @@ class VectorMoveBase():
             for i in range(self.max_markers):
                 self.marker_array_msg.markers[i].color.r = 1.0
                 self.marker_array_msg.markers[i].color.g = 0.0
-        elif (1<<4 == cmd):
+        elif ('4' == cmd):
             self.waypoints = []
             self._init_markers()
             self.present_waypoint = 0
+        elif ('5' == cmd):
+            # Query user for loading map file
+            rospack = rospkg.RosPack()
+            map_name = rospy.get_param("map_file")
+            directory = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name
 
-        elif (1<<5 == cmd):
-            self.waypoints = []
-            self._init_markers()
-            self.present_waypoint = 0
+            if not os.path.exists(directory):
+                rospy.loginfo("Waypoint directory not extant for current map.")
+                rospy.loginfo("Creating directory %s", directory)
+                os.makedirs(directory)
 
-            goalfile = open(self.goals_filename,'r')
-            for line in goalfile:
-                goal = [float(i) for i in line.strip('\n').split(',')]
-                pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
-                self._append_waypoint_pose(pose)
-            goalfile.close()
-        elif (1<<6 == cmd):
-            goalfile = open(self.goals_filename,'w')
+            #User presents filename for the waypoints given
+            filename = easygui.enterbox(msg='Name these waypoints:', title='Waypoint Filename')
+
+            fullpath = self.goals_path + map_name + "/" + filename + ".txt"
+            goalfile = open(fullpath,'w')
+
             for pose in self.waypoints:
                 goal  = "%.3f,"%pose.position.x
                 goal += "%.3f,"%pose.position.y
@@ -286,12 +309,53 @@ class VectorMoveBase():
                 goal += "%.3f\n"%pose.orientation.w
                 goalfile.write(goal)
             goalfile.close()
-            rospy.loginfo("Waypoint Record Saved: %s"%self.goals_filename)
+            rospy.loginfo("Waypoint Record Saved: %s"%fullpath)
+
+        elif ('6' == cmd):
+            self.waypoints = []
+            self._init_markers()
+            self.present_waypoint = 0
+
+            #Query user for desired waypoint file
+            user_msg ="Which Waypoints file would you like to load?"
+            title = "Load Waypoints"
+
+            #User is presented with a populated list of saved waypoint files
+            rospack = rospkg.RosPack()
+            map_name = rospy.get_param("map_file")
+            path = rospack.get_path('vector_navigation_apps') + "/goals/" + map_name + "/"
+            choices = [f for f in listdir(path) if isfile(join(path, f))]
+            choice = easygui.choicebox(user_msg, title, choices)
+            fullpath = self.goals_path + map_name + '/' + choice
+            try:
+                goalfile = open(fullpath,'r')
+                for line in goalfile:
+                    goal = [float(i) for i in line.strip('\n').split(',')]
+                    pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
+                    self._append_waypoint_pose(pose)
+                goalfile.close()
+            except (OSError, IOError) as e:
+                rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
+
+        elif ('9' == cmd): #given waypoint file as a reqest
+            rospack = rospkg.RosPack()
+            fullpath = rospack.get_path('vector_navigation_apps') + "/goals/" + cmd_in.data[1:]
+            rospy.loginfo("Movebase received waypoint request. Opening file at: %s", fullpath)
+            try:
+                goalfile = open(fullpath,'r')
+                for line in goalfile:
+                    goal = [float(i) for i in line.strip('\n').split(',')]
+                    pose = Pose(Point(goal[0], goal[1], goal[2]), Quaternion(goal[3],goal[4],goal[5],goal[6]))
+                    self._append_waypoint_pose(pose)
+                goalfile.close()
+ 
+            except (OSError, IOError) as e:
+                rospy.logerr("Unable to open file %s. Does it exist?", fullpath)
 
 
-    def _add_waypoint(self,point):
-        pose = Pose(point.point,Quaternion(0.0,0.0,0.0,1.0))
-        self._append_waypoint_pose(pose)
+    def _add_waypoint(self,pose):
+        rospy.loginfo("Adding waypoint")
+        self._append_waypoint_pose(pose.pose)
 
     def _add_waypoint_pose(self):
         current_pose = self._get_current_pose()
@@ -301,9 +365,8 @@ class VectorMoveBase():
         else:
             rospy.logerror("Invalid waypoint pose")
 
-    def _append_waypoint_pose(self,pose):
-        print pose
-        self.waypoints.append(pose)
+    def _append_waypoint_pose(self,pose,create_heading=False):
+        self.waypoints.append([create_heading,pose])
         marker = Marker()
         marker.header.frame_id = self.global_frame
         marker.id = self.marker_idx
@@ -472,14 +535,14 @@ class VectorMoveBase():
         """
         r = rospy.Rate(10)
         start_time = rospy.get_time()
-        while ((rospy.get_time() - start_time) < 30.0) and (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
+        while ((rospy.get_time() - start_time) < 30.0) and (MOVO_MODES_DICT[requested] != self.vector_operational_state):
             config_cmd.header.stamp = rospy.get_rostime()
             config_cmd.gp_cmd = 'GENERAL_PURPOSE_CMD_SET_OPERATIONAL_MODE'
             config_cmd.gp_param = requested
             self.cmd_config_cmd_pub.publish(config_cmd)
             r.sleep()
 
-        if (VECTOR_MODES_DICT[requested] != self.vector_operational_state):
+        if (MOVO_MODES_DICT[requested] != self.vector_operational_state):
             rospy.logerr("Could not set operational Mode")
             rospy.loginfo("The platform did not respond, ")
             return False

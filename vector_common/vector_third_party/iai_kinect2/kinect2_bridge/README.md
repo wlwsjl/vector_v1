@@ -127,15 +127,15 @@ png_level:=<int>
     default: 1
     info:    PNG compression level from 0 to 9
 depth_method:=<string>
-    default: opencl
-    info:    Use specific depth processing: default, cpu, opengl, opencl
+    default: cuda
+    info:    Use specific depth processing: default, cpu, opengl, opencl, cuda, clkde, cudakde
 depth_device:=<int>
     default: -1
     info:    openCL device to use for depth processing
 reg_method:=<string>
     default: opencl
     info:    Use specific depth registration: default, cpu, opencl
-reg_devive:=<int>
+reg_device:=<int>
     default: -1
     info:    openCL device to use for depth registration
 max_depth:=<double>

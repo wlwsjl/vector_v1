@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="vector_ros" type="vector_faultlog_parser" name="vector_faultlog_parser"/>
+</launch>

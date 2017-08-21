@@ -17,6 +17,7 @@
     <run_depend>joint_state_publisher</run_depend>
     <run_depend>rviz</run_depend>
     <run_depend>rviz_imu_plugin</run_depend>
+    <run_depend>poli_description</run_depend>
 
     <export>
     </export>

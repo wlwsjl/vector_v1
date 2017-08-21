@@ -80,6 +80,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     </xacro:if>
     
     <!-- Arms -->
+    <!-- Ideally hte prefix for two arms should have been $(arm_name)_arm_ . If needs to be change, also update the moveit package and joint_remapper in hlpr_utils-->
 	<xacro:unless value="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"> 
 		<xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
 		    <xacro:j2s7s300 base_parent="linear_actuator_link" >

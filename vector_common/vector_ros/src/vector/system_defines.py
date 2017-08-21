@@ -43,14 +43,14 @@ arising out of or based upon:
  
  \file   system_defines.py
 
- \brief  This module defines the interface for the SI VECTOR
+ \brief  This module defines the interface for the SI MOVO
 
  \Platform: Linux/ROS Indigo
 --------------------------------------------------------------------"""
 
 """------------------------------------------------------------------------
-SI VECTOR Command structures
-There are three types of messages the SI VECTOR will accept:
+SI MOVO Command structures
+There are three types of messages the SI MOVO will accept:
 
 2. Holonomic motion command message: This message contains three 32-bit IEEE754 floating 
 point variables in the standard ROS twist message format. Only vx,vy, and vtheta are 
@@ -89,6 +89,20 @@ MOTION_CMD_ID                = 0x1800
 MOTION_CMD_VEL_X_INDEX       = 0
 MOTION_CMD_VEL_Y_INDEX       = 1
 MOTION_CMD_YAW_RATE_INDEX    = 2
+
+"""
+This section defines the layout of the motion test
+"""
+MOTION_TEST_CMD_ID          = 0x1804
+MOTION_TEST_TYPE_INDEX      = 0
+MOTION_TEST_DURATION_INDEX  = 1
+MOTION_TEST_MAGNITUDE_INDEX = 2
+
+MOTION_TEST_TYPE_MASK  = 0x80000007
+MOTION_TEST_RESET_ODOM = 0x80000000
+MOTION_TEST_X          = 0x00000001
+MOTION_TEST_Y          = 0x00000002
+MOTION_TEST_YAW        = 0x00000004
 
 """
 Linear actuator commands
@@ -299,7 +313,7 @@ DTZ_REQUEST       = 3
 STANDBY_REQUEST   = 4
 TRACTOR_REQUEST   = 5
 
-VECTOR_MODES_DICT = dict({TRACTOR_REQUEST:5,STANDBY_REQUEST:4,POWERDOWN_REQUEST:6})
+MOVO_MODES_DICT = dict({TRACTOR_REQUEST:5,STANDBY_REQUEST:4,POWERDOWN_REQUEST:6})
 
 """------------------------------------------------------------------------
 This command requests the faultlog from the machine. The general purpose parameter 
@@ -632,6 +646,6 @@ ROS_CHECKSUM_INDEX                  =(110)
 
 
 NUMBER_OF_CONFIG_PARAM_VARIABLES      =(ROS_FRAM_ETH_IP_ADDRESS_INDEX - START_FRAM_CONFIG_BLOCK)
-NUMBER_OF_VECTOR_RSP_WORDS            =(END_FRAM_CONFIG_BLOCK)
+NUMBER_OF_MOVO_RSP_WORDS            =(END_FRAM_CONFIG_BLOCK)
 NUMBER_OF_FAULTLOG_WORDS              =(311)
 
