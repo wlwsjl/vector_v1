@@ -19,13 +19,18 @@
             <param name="arm_name" value="left"/>
         </node>
         -->
+
+        <include file="$(find wpi_jaco_wrapper)/launch/arm.launch"/>
+
         <!-- Gripper node, enumeration should be performed with the robotiq tool using id=0 for right gripper and id=1 for left gripper,
              if there is only one gripper it will default to id=0 or right gripper-->
+        
         <node pkg="vector_ros" type="robotiq_85_driver" name="robotiq_85_driver" respawn="true" output="screen" if="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
             <param name="num_grippers" value="1" unless="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"/>
             <param name="num_grippers" value="2" if="$(optenv VECTOR_HAS_TWO_KINOVA_ARMS false)"/>
             <param name="comport" value="$(optenv ROBOTIQ_GRIPPER_COMM_PORT /dev/ttyUSB0)"/>
             <param name="baud" value="$(optenv ROBOTIQ_GRIPPER_BAUDRATE 115200)"/>
         </node>
+        
     </group>
 </launch>
