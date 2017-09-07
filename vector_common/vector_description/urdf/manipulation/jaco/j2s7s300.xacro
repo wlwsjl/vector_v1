@@ -108,7 +108,12 @@
     <property name="joint_7_origin_rpy" value="${-J_PI/2} 0 ${J_PI}" />
     <property name="joint_7_lower_limit" value="${-2*J_PI}" />
     <property name="joint_7_upper_limit" value="${2*J_PI}" />
-	
+    
+    <property name="ee_fixed_joint" value="ee_fixed_joint" />
+    <property name="ee_fixed_joint_type" value="fixed" />
+    <property name="ee_fixed_joint_origin_xyz" value="0 0 -0.09380704" />
+    <property name="ee_fixed_joint_origin_rpy" value="${M_PI} ${M_PI/2} 0" />
+    
 	<!--
     <property name="joint_end_effector" value="end_effector_offset" />
     <property name="joint_end_effector_type" value="fixed" />
@@ -147,6 +152,31 @@
 		<!--xacro:kinova_armlink link_name="${prefix}_link_7"/> -->
 		<link name="${prefix}_link_7"/>	
 		<xacro:kinova_armjoint joint_name="${prefix}_joint_7" type="${joint_7_type}" parent="${prefix}_link_6" child="${prefix}_link_7" joint_axis_xyz="${joint_7_axis_xyz}" joint_origin_xyz="${joint_7_origin_xyz}" joint_origin_rpy="${joint_7_origin_rpy}" joint_lower_limit="${joint_7_lower_limit}" joint_upper_limit="${joint_7_upper_limit}"/>
+		
+		
+		<!-- -->
+		
+		<!--xacro:kinova_armjoint joint_name="${prefix}_ee_fixed_joint" type="${ee_fixed_joint_type}" parent="${prefix}_link_7" child="${prefix}_ee_base" joint_origin_xyz="${joint_6_origin_xyz}" joint_origin_rpy="${joint_6_origin_rpy}"/-->
+		
+		<joint name="${prefix}_ee_fixed_joint" type="fixed">
+            <parent link="${prefix}_link_7" />
+            <child link = "${prefix}_ee_base" />
+            <origin xyz="0 0 -0.09380704" rpy="${M_PI} ${M_PI/2} 0" /> <!--0.09380704156-->
+        </joint>
+
+        <link name="${prefix}_ee_base"/>
+        
+        <!-- Add in an EEF link for the center of the gripper -->
+        <!--xacro:kinova_armjoint joint_name="${prefix}_ee_fixed_joint" type="fixed" parent="${prefix}_ee_base" child="${prefix}_ee_link" joint_origin_xyz="0.13 0 0"/-->
+        
+        <joint name="${prefix}_ee_gripper" type="fixed">
+            <parent link="${prefix}_ee_base" />
+            <child link ="${prefix}_ee_link" />
+            <origin xyz="0.13 0 0" />
+        </joint>
+
+        <link name="${prefix}_ee_link"/>
+	
 
 <!--
         <xacro:kinova_armlink link_name="${prefix}_link_7" link_mesh="${link_7_mesh}" use_ring_mesh="true" ring_mesh="ring_small" mesh_no="${link_7_mesh_no}"/>
