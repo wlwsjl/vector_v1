@@ -102,15 +102,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
             <xacro:j2s7s300 prefix="left" base_parent="linear_actuator_link" origin_xyz="0.06079866 0.1319 0" origin_rpy="${M_PI/2} 0 ${M_PI/2}" />
         
         <xacro:if value="$(optenv VECTOR_HAS_ROBOTIQ_GRIPPER false)">
-            <xacro:robotiq_85_gripper prefix="right_" parent="right_link_7" >
+            <!-- <xacro:robotiq_85_gripper prefix="right_" parent="right_link_7" > -->
+            <xacro:robotiq_85_gripper prefix="right_" parent="right_ee_base" >
                 <!-- <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/> -->
-				<origin xyz="0 0 0" rpy="0 ${M_PI/2} 0"/>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
             </xacro:robotiq_85_gripper>
         
             <xacro:if value="$(optenv VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS false)">
-                <xacro:robotiq_85_gripper prefix="left_" parent="left_link_7" >
+                <!-- <xacro:robotiq_85_gripper prefix="left_" parent="left_link_7" > -->
+                <xacro:robotiq_85_gripper prefix="left_" parent="left_ee_base" >
                     <!-- <origin xyz="0 0.10375 0" rpy="-${M_PI/2} 0 ${M_PI/2}"/> -->
-					<origin xyz="0 0 0" rpy="0 ${M_PI/2} 0"/>
+					<origin xyz="0 0 0" rpy="0 0 0"/>
                 </xacro:robotiq_85_gripper>
             </xacro:if>
         </xacro:if>

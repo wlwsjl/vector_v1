@@ -30,7 +30,7 @@
     <property name="link_4_mesh" value="forearm" />
     <property name="link_5_mesh" value="wrist_spherical_1" />
     <property name="link_6_mesh" value="wrist_spherical_2" />
-    <!-- <property name="link_7_mesh" value="hand_3finger" /> -->
+    <property name="link_7_mesh" value="wrist_3" />
 
     <!--Used for conditional arguments for setting inertial parameters
         base 0, shoulder 1, arm 2, forearm 3, wrist 4, arm_mico 5,
@@ -45,7 +45,9 @@
     <property name="link_4_mesh_no" value="3" />
     <property name="link_5_mesh_no" value="8" />
     <property name="link_6_mesh_no" value="9" />
-    <!-- <property name="link_7_mesh_no" value="55" /> -->
+    <!-- <property name="link_7_mesh_no" value="11" /> -->
+    <property name="link_7_mesh_no" value="55" />
+
     
     <property name="joint_base" value="joint_base" />
     <property name="joint_base_type" value="fixed" />
@@ -104,15 +106,11 @@
     <property name="joint_7" value="joint_7" />
     <property name="joint_7_type" value="continuous" />
     <property name="joint_7_axis_xyz" value="0 0 1" />
-    <property name="joint_7_origin_xyz" value="0 0.10375 0" />
+    <!--property name="joint_7_origin_xyz" value="0 0.10375 0" /-->
+    <property name="joint_7_origin_xyz" value="0 0.060 0" />
     <property name="joint_7_origin_rpy" value="${-J_PI/2} 0 ${J_PI}" />
     <property name="joint_7_lower_limit" value="${-2*J_PI}" />
     <property name="joint_7_upper_limit" value="${2*J_PI}" />
-    
-    <property name="ee_fixed_joint" value="ee_fixed_joint" />
-    <property name="ee_fixed_joint_type" value="fixed" />
-    <property name="ee_fixed_joint_origin_xyz" value="0 0 -0.09380704" />
-    <property name="ee_fixed_joint_origin_rpy" value="${M_PI} ${M_PI/2} 0" />
     
 	<!--
     <property name="joint_end_effector" value="end_effector_offset" />
@@ -125,7 +123,7 @@
     <xacro:macro name="j2s7s300" params="base_parent prefix origin_xyz origin_rpy">
 
         <!--xacro:gazebo_config robot_namespace="${prefix}"/> -->
-        <xacro:gazebo_config robot_namespace="/"/>
+        <!-- <xacro:gazebo_config robot_namespace="/"/> -->
     
         <xacro:kinova_armlink link_name="${prefix}_link_base" link_mesh="${link_base_mesh}" mesh_no="${link_base_mesh_no}"/>
         <!--xacro:kinova_armjoint joint_name="${prefix}_joint_base" type="${joint_base_type}" parent="${base_parent}" child="${prefix}_link_base" joint_axis_xyz="${joint_base_axis_xyz}" joint_origin_xyz="${joint_base_origin_xyz}" joint_origin_rpy="${joint_base_origin_rpy}" joint_lower_limit="0" joint_upper_limit="0" fixed="true"/> -->
@@ -150,25 +148,23 @@
         <xacro:kinova_armjoint joint_name="${prefix}_joint_6" type="${joint_6_type}" parent="${prefix}_link_5" child="${prefix}_link_6" joint_axis_xyz="${joint_6_axis_xyz}" joint_origin_xyz="${joint_6_origin_xyz}" joint_origin_rpy="${joint_6_origin_rpy}" joint_lower_limit="${joint_6_lower_limit}" joint_upper_limit="${joint_6_upper_limit}"/>
 	
 		<!--xacro:kinova_armlink link_name="${prefix}_link_7"/> -->
-		<link name="${prefix}_link_7"/>	
-		<xacro:kinova_armjoint joint_name="${prefix}_joint_7" type="${joint_7_type}" parent="${prefix}_link_6" child="${prefix}_link_7" joint_axis_xyz="${joint_7_axis_xyz}" joint_origin_xyz="${joint_7_origin_xyz}" joint_origin_rpy="${joint_7_origin_rpy}" joint_lower_limit="${joint_7_lower_limit}" joint_upper_limit="${joint_7_upper_limit}"/>
+		<!--link name="${prefix}_link_7"/-->	
+<!-- 		<xacro:kinova_armjoint joint_name="${prefix}_joint_7" type="${joint_7_type}" parent="${prefix}_link_6" child="${prefix}_link_7" joint_axis_xyz="${joint_7_axis_xyz}" joint_origin_xyz="${joint_7_origin_xyz}" joint_origin_rpy="${joint_7_origin_rpy}" joint_lower_limit="${joint_7_lower_limit}" joint_upper_limit="${joint_7_upper_limit}"/> -->
 		
-		
-		<!-- -->
-		
-		<!--xacro:kinova_armjoint joint_name="${prefix}_ee_fixed_joint" type="${ee_fixed_joint_type}" parent="${prefix}_link_7" child="${prefix}_ee_base" joint_origin_xyz="${joint_6_origin_xyz}" joint_origin_rpy="${joint_6_origin_rpy}"/-->
-		
-		<joint name="${prefix}_ee_fixed_joint" type="fixed">
+	   <!-- Modifications to mount robotiq gripper -->
+        <xacro:kinova_armlink link_name="${prefix}_link_7" link_mesh="${link_7_mesh}" use_ring_mesh="false" ring_mesh="ring_small" mesh_no="${link_7_mesh_no}"/>
+
+        <xacro:kinova_armjoint joint_name="${prefix}_joint_7" type="${joint_7_type}" parent="${prefix}_link_6" child="${prefix}_link_7" joint_axis_xyz="${joint_7_axis_xyz}" joint_origin_xyz="${joint_7_origin_xyz}" joint_origin_rpy="${joint_7_origin_rpy}" joint_lower_limit="${joint_7_lower_limit}" joint_upper_limit="${joint_7_upper_limit}"/>
+
+        <joint name="${prefix}_ee_fixed_joint" type="fixed">
             <parent link="${prefix}_link_7" />
             <child link = "${prefix}_ee_base" />
             <origin xyz="0 0 -0.09380704" rpy="${M_PI} ${M_PI/2} 0" /> <!--0.09380704156-->
         </joint>
 
         <link name="${prefix}_ee_base"/>
-        
+ 
         <!-- Add in an EEF link for the center of the gripper -->
-        <!--xacro:kinova_armjoint joint_name="${prefix}_ee_fixed_joint" type="fixed" parent="${prefix}_ee_base" child="${prefix}_ee_link" joint_origin_xyz="0.13 0 0"/-->
-        
         <joint name="${prefix}_ee_gripper" type="fixed">
             <parent link="${prefix}_ee_base" />
             <child link ="${prefix}_ee_link" />
@@ -176,8 +172,6 @@
         </joint>
 
         <link name="${prefix}_ee_link"/>
-	
-
 <!--
         <xacro:kinova_armlink link_name="${prefix}_link_7" link_mesh="${link_7_mesh}" use_ring_mesh="true" ring_mesh="ring_small" mesh_no="${link_7_mesh_no}"/>
         <xacro:kinova_armjoint joint_name="${prefix}_joint_7" type="${joint_7_type}" parent="${prefix}_link_6" child="${prefix}_link_7" joint_axis_xyz="${joint_7_axis_xyz}" joint_origin_xyz="${joint_7_origin_xyz}" joint_origin_rpy="${joint_7_origin_rpy}" joint_lower_limit="${joint_7_lower_limit}" joint_upper_limit="${joint_7_upper_limit}"/>    -->
