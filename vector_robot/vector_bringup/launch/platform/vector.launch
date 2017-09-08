@@ -13,11 +13,6 @@
     <include file="$(find vector_description)/launch/vector_upload.launch"/>
     <!--include file="$(find poli_description)/launch/poli_upload.launch"/-->
 
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
-        <param name="publish_frequency" type="double" value="100.0" />
-        <param name="tf_prefix" value=""/>
-    </node>
-  
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
         <rosparam param="source_list">[vector/joint_states,
                                        vector/pan_tilt/joint_states,
@@ -26,6 +21,12 @@
                                        vector/right_gripper/joint_states,
                                        vector/left_gripper/joint_states]</rosparam>
     </node>
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" type="double" value="50.0" />
+        <param name="tf_prefix" value=""/>
+    </node>
+  
     
     <!-- Platform specific configuration -->
     <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"

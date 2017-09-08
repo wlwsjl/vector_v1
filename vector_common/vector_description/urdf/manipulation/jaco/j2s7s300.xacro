@@ -108,6 +108,7 @@
     <property name="joint_7_axis_xyz" value="0 0 1" />
     <!--property name="joint_7_origin_xyz" value="0 0.10375 0" /-->
     <property name="joint_7_origin_xyz" value="0 0.060 0" />
+    <!--property name="joint_7_origin_xyz" value="0 0 0" /-->
     <property name="joint_7_origin_rpy" value="${-J_PI/2} 0 ${J_PI}" />
     <property name="joint_7_lower_limit" value="${-2*J_PI}" />
     <property name="joint_7_upper_limit" value="${2*J_PI}" />
@@ -159,7 +160,8 @@
         <joint name="${prefix}_ee_fixed_joint" type="fixed">
             <parent link="${prefix}_link_7" />
             <child link = "${prefix}_ee_base" />
-            <origin xyz="0 0 -0.09380704" rpy="${M_PI} ${M_PI/2} 0" /> <!--0.09380704156-->
+            <origin xyz="0 0 -0.09380704" rpy="${M_PI/2} ${M_PI/2} 0" /> <!--0.09380704156-->
+            <!--origin xyz="0 0 -0.09380704" rpy="0 ${M_PI/2} 0" /-->
         </joint>
 
         <link name="${prefix}_ee_base"/>
