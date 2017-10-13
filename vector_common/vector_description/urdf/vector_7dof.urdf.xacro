@@ -80,9 +80,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     
     <!-- Arms -->
     <xacro:if value="$(optenv VECTOR_HAS_KINOVA_ARM false)"> 
-        <xacro:j2s7s300 base_parent="linear_actuator_link" >
+        <xacro:j2s7s300 base_parent="linear_actuator_link" trans="0.06079866 0 0" rot="${J_PI/2} 0 ${J_PI/2}">
 	    <!-- Note: origin is overwritten in kinova urdf -->
-            <origin xyz="0 0 0" rpy="0 0 0" />
+            <origin xyz="0.06079866 0 0" rpy="${J_PI/2} 0 ${J_PI/2}" />
 	</xacro:j2s7s300>
     </xacro:if>
 
