@@ -4,7 +4,7 @@
 
 # If there is an onboard PC powered by the system this will run the watchdog
 # to make sure it gets gracefully shutdown before the system power cuts out.
-export VECTOR_POWERS_PC_ONBOARD=true
+export VECTOR_POWERS_PC_ONBOARD=false
 
 #Default Vector RMP_V3 network 
 export VECTOR_IP_ADDRESS=10.66.171.5
@@ -62,7 +62,7 @@ export EXT_IMU_RPY="0 0 0"
 # 2D scanner configuration for launch files; should change hokuyo
 # to sick if using a SICK LMS1XX
 export VECTOR_HAS_ONE_2D_LASER=true
-export VECTOR_HAS_SECOND_2D_LASER=false
+export VECTOR_HAS_SECOND_2D_LASER=true
 
 # Hokuyo configuration (only supports two by default) watch 
 # wavelength on multi-laser systems
@@ -80,12 +80,12 @@ export LASER1_MAX_ANGLE=2.0
 export LASER1_MIN_ANGLE=-2.0
 export LASER1_PREFIX="front"
 
-export VECTOR_LASER2_IS_HOKUYO=false
+export VECTOR_LASER2_IS_HOKUYO=true
 export VECTOR_LASER2_IS_SICK_TIM=false
-export VECTOR_LASER2_IP=10.66.171.9
-export VECTOR_LASER2_PORT=2112
+export VECTOR_LASER2_IP=10.66.171.6
+#export VECTOR_LASER2_PORT=2112
 #Uncomment below and comment line above for hokuyo
-#export VECTOR_LASER1_PORT=10940 
+export VECTOR_LASER1_PORT=10940 
 export LASER2_XYZ="-0.33255 0 0.2013"
 export LASER2_RPY="3.1415 0 3.1415"
 export LASER2_MAX_RANGE=10.0
@@ -119,7 +119,7 @@ export VECTOR_HAS_KINOVA_7DOF_ARM=true
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
 export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=false
-export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:4:1.0-port0"
+export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:3:1.0-port0"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200
 
 #Linear actuator
