@@ -21,7 +21,7 @@
         -->
 
         <group if="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
-            <include file="$(find kinova_driver)/launch/arm.launch"/>
+            <include file="$(find kinova_bringup)/launch/arm.launch"/>
         </group>
         <group unless="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
             <include file="$(find wpi_jaco_wrapper)/launch/arm.launch"/>
