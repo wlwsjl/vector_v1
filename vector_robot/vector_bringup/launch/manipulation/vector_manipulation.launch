@@ -20,12 +20,14 @@
         </node>
         -->
 
+        <!--
         <group if="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
             <include file="$(find kinova_bringup)/launch/arm.launch"/>
         </group>
         <group unless="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
             <include file="$(find wpi_jaco_wrapper)/launch/arm.launch"/>
         </group>
+        -->
 
         <!-- Gripper node, enumeration should be performed with the robotiq tool using id=0 for right gripper and id=1 for left gripper,
              if there is only one gripper it will default to id=0 or right gripper-->
