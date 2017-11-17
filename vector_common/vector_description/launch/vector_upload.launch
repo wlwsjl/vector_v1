@@ -1,4 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-	<param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector.urdf.xacro'" />
+    <arg name="simulation_urdf" default="false"/>
+
+    <group unless="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
+        <param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector.urdf.xacro' simulation_urdf:='$(arg simulation_urdf)'"/>
+    </group>
+
+    <group if="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
+        <param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector_7dof.urdf.xacro' simulation_urdf:='$(arg simulation_urdf)'"/>
+    </group>
+
 </launch>

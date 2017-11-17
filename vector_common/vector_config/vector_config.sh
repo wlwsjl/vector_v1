@@ -99,6 +99,7 @@ export VECTOR_HAS_KINOVA_ARM=true
 export VECTOR_HAS_TWO_KINOVA_ARMS=false
 export KINOVA_RIGHT_ARM_SERIAL_NUMBER='PJ00900006153340003' #default arm if there is only one
 export KINOVA_LEFT_ARM_SERIAL_NUMBER='PJ00900006152990001' #must specify serial number for 2 arms
+export VECTOR_HAS_KINOVA_7DOF_ARM=true
 
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
