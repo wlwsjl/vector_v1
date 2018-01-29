@@ -21,6 +21,7 @@
         <rosparam param="source_list">[vector/joint_states,
                                        vector/pan_tilt/joint_states,
                                        vector/right_arm/joint_states,
+                                       j2s7s300_driver/out/joint_state,
                                        vector/left_arm/joint_states,
                                        vector/right_gripper/joint_states,
                                        vector/left_gripper/joint_states]</rosparam>

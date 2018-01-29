@@ -82,7 +82,7 @@ export LASER2_PREFIX="rear"
 # Kinect pan-tilt configuration
 export VECTOR_HAS_KINECT_PAN_TILT=true
 export KINECT_PAN_TILT_PARENT_LINK=linear_actuator_fixed_link
-export KINECT_PAN_TILT_XYZ="0.16688476 0 0.96899800"
+export KINECT_PAN_TILT_XYZ="0.17888476 0 1.00505"
 export KINECT_PAN_TILT_RPY="0 0 0"
 export OCL_IGNORE_SELF_TEST=1
 
@@ -99,6 +99,7 @@ export VECTOR_HAS_KINOVA_ARM=true
 export VECTOR_HAS_TWO_KINOVA_ARMS=false
 export KINOVA_RIGHT_ARM_SERIAL_NUMBER='PJ00900006153340003' #default arm if there is only one
 export KINOVA_LEFT_ARM_SERIAL_NUMBER='PJ00900006152990001' #must specify serial number for 2 arms
+export VECTOR_HAS_KINOVA_7DOF_ARM=true
 
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
