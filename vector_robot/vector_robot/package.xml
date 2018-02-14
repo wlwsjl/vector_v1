@@ -12,8 +12,8 @@
     
     <run_depend>vector_bringup</run_depend>
     <run_depend>vector_upstart</run_depend>
-    <run_depend>vector_sensor_filters</run_depend>
-    <run_depend>vector_common</run_depend>
+    <run_depend>range_sensor_filters</run_depend>
+    <run_depend>vector_msgs</run_depend>
 
     <export>
         <metapackage/>
