@@ -51,18 +51,19 @@ arising out of or based upon:
 
 Edited 7/25/2016: Vivian Chu, vchu@gatech - included support for simulation
 Edited 11/07/2016: David Kent, dekent@gatech - integrated arm commands with wpi_jaco
+Edited 02/21/2018: Angel Daruna, adaruna3@gatech - updates arm commands to use kinova_ros
 
 --------------------------------------------------------------------"""
 from utils import *
 from system_defines import *
 from vector_msgs.msg import *
 from sensor_msgs.msg import Joy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Point, Quaternion
 from std_msgs.msg import Bool,Float64
 from trajectory_msgs.msg import JointTrajectoryPoint
 from dynamixel_controllers.srv import *  
 from control_msgs.msg import JointTrajectoryAction, JointTrajectoryGoal, FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTrajectoryControllerState
-from wpi_jaco_msgs.msg import CartesianCommand
+from kinova_msgs.msg import PoseVelocity
 import rospy
 import sys
 import math
@@ -167,12 +168,14 @@ class VectorTeleopFullSystem(object):
         
         self.arm_pub = [0]*2
         self.gripper_pub = [0]*2
+         # right arm publishes (simulation and physical teleop working)
         if self.is_sim:
             self.arm_pub[0] = rospy.Publisher('/vector/right_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
         else:
-            self.arm_pub[0] = rospy.Publisher('/jaco_arm/cartesian_cmd', CartesianCommand, queue_size=10)
+            self.arm_pub[0] = rospy.Publisher('/j2s7s300_driver/in/cartesian_velocity', PoseVelocity, queue_size=2000)
         self.gripper_pub[0] = rospy.Publisher('/vector/right_gripper/cmd', GripperCmd, queue_size=10)
 
+        # left arm publishers (only simulation working)
         if self.is_sim:
             self.arm_pub[1] = rospy.Publisher('/vector/left_arm/cartesian_vel_cmd', JacoCartesianVelocityCmd, queue_size=10)
         else:
@@ -281,17 +284,14 @@ class VectorTeleopFullSystem(object):
                 arm_cmd.header.stamp=rospy.get_rostime()
                 arm_cmd.header.frame_id=''
             else:
-                arm_cmd = CartesianCommand()
-                arm_cmd.position = False
-                arm_cmd.armCommand = True
-                arm_cmd.fingerCommand = False
-                arm_cmd.repeat = False
-                arm_cmd.arm.linear.x = 0
-                arm_cmd.arm.linear.y = 0
-                arm_cmd.arm.linear.z = 0
-                arm_cmd.arm.angular.x = 0
-                arm_cmd.arm.angular.y = 0
-                arm_cmd.arm.angular.z = 0
+                # update for 7-dof
+                arm_cmd = PoseVelocity()
+                arm_cmd.twist_linear_x = 0
+                arm_cmd.twist_linear_y = 0
+                arm_cmd.twist_linear_z = 0
+                arm_cmd.twist_angular_x = 0
+                arm_cmd.twist_angular_y = 0
+                arm_cmd.twist_angular_z = 0
             self.arm_pub[0].publish(arm_cmd)
             self.arm_pub[1].publish(arm_cmd)
             home = Float64()
@@ -306,11 +306,8 @@ class VectorTeleopFullSystem(object):
                 arm_cmd.header.stamp=rospy.get_rostime()
                 arm_cmd.header.frame_id=''
             else:
-                arm_cmd = CartesianCommand()
-                arm_cmd.position = False
-                arm_cmd.armCommand = True
-                arm_cmd.fingerCommand = False
-                arm_cmd.repeat = True
+                # update for 7-dof
+                arm_cmd = PoseVelocity()
             
             gripper_cmd = GripperCmd()
             
@@ -320,17 +317,17 @@ class VectorTeleopFullSystem(object):
                 arm_idx = 1
             
             if self.button_state['dead_man']:
-                if self.is_sim:
+                if self.is_sim: # move arm along x,z (joy left/right or for/aft)
                     arm_cmd.x = self.axis_value['left_right'] * 0.1
                     arm_cmd.z = self.axis_value['for_aft'] * 0.1
                 else:
-                    arm_cmd.arm.linear.x = self.axis_value['left_right'] * 0.1
-                    arm_cmd.arm.linear.z = self.axis_value['for_aft'] * 0.1
+                    arm_cmd.twist_linear_x = self.axis_value['left_right'] * 0.1
+                    arm_cmd.twist_linear_z = self.axis_value['for_aft'] * 0.1
                 if not self.button_state['man_ovvrd']:
-                    if self.is_sim:
+                    if self.is_sim: # move arm along y (joy twisting)
                         arm_cmd.y = self.axis_value['twist'] * 0.1
                     else:
-                        arm_cmd.arm.linear.y = self.axis_value['twist'] * 0.1
+                        arm_cmd.twist_linear_y = self.axis_value['twist'] * 0.1
                 else:
                     # Check if we're in simulation - if so set the last known position
                     if self.is_sim == True:
@@ -340,7 +337,7 @@ class VectorTeleopFullSystem(object):
                         
                     dt = rospy.get_time() - self.last_arm_update
                     self.lincmd.desired_position_m += (self.axis_value['twist'] * 0.05) * dt
-                    
+                    # move arm with linear actuator
                     if (self.lincmd.desired_position_m  > 0.855):
                         self.lincmd.desired_position_m  = 0.855
                     elif self.lincmd.desired_position_m  < 0.0:
@@ -351,26 +348,25 @@ class VectorTeleopFullSystem(object):
                     self.linpub.publish(self.lincmd)
                     self.lincmd.header.seq+=1
                 self.last_arm_update = rospy.get_time()
-                if self.is_sim:
+                if self.is_sim: # move the wrist about x/y (dpad up/down and left/right)
                     arm_cmd.theta_y = self.axis_value['dpad_ud'] * 100.0
                     arm_cmd.theta_x = self.axis_value['dpad_lr'] * 100.0
                 else:
-                    arm_cmd.arm.angular.y = self.axis_value['dpad_ud'] * 100.0
-                    arm_cmd.arm.angular.x = self.axis_value['dpad_lr'] * 100.0
+                    arm_cmd.twist_angular_y = self.axis_value['dpad_ud'] * 100.0
+                    arm_cmd.twist_angular_x = self.axis_value['dpad_lr'] * 100.0
 
-                if self.is_sim:
+                if self.is_sim: # move wrist about z (left/right button on dpad)
                     if self.button_state['standby']:
                         arm_cmd.theta_z = 100.0
                     elif self.button_state['tractor']:
                         arm_cmd.theta_z = -100.0
                 else:
                     if self.button_state['standby']:
-                        arm_cmd.arm.angular.z = 100.0
+                        arm_cmd.twist_angular_z = 100.0
                     elif self.button_state['tractor']:
-                        arm_cmd.arm.angular.z = -100.0
-            
+                        arm_cmd.twist_angular_z = -100.0
+            # send the gripper a new command
             gripper_val =  (self.axis_value['flipper'] + 1.0)/2.0
-            
             if abs(self._last_gripper_val-gripper_val) > 0.05: 
                 gripper_cmd.position = gripper_val * 0.085
                 gripper_cmd.speed = 0.05
