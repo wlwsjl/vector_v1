@@ -335,8 +335,13 @@ class Vector_Configuration:
         self._MsgData1 = Configuration()
         self._MsgPub1 = rospy.Publisher('/vector/feedback/active_configuration', Configuration, queue_size=10)
         self._MsgData1.header.frame_id = ''
+        self._MsgData2 = CtlParams()
+        self._MsgPub2 = rospy.Publisher('/vector/feedback/control_parameters', CtlParams, queue_size=10)
+        self._MsgData2.header.frame_id = ''
         self._seq = 0 
-        self.configuration_feedback = [0]*16
+        self.configuration_feedback = [0]*26
+        self.machcfg = Configuration()
+        self.ctlconfig = CtlParams()
 
     def SetTeleopConfig(self,data):
         self._MsgData.teleop_x_vel_limit_mps = data[0]
@@ -355,7 +360,9 @@ class Vector_Configuration:
         self._MsgData.header.stamp = header_stamp
         self._MsgData.header.seq = self._seq 
         self._MsgData1.header.stamp = header_stamp
-        self._MsgData1.header.seq = self._seq 
+        self._MsgData1.header.seq = self._seq
+        self._MsgData2.header.stamp = header_stamp
+        self._MsgData2.header.seq = self._seq  
                 
         """
         This is the data presently being used by the application
@@ -397,12 +404,32 @@ class Vector_Configuration:
         self._MsgData.eth_port_number = data[29]
         self._MsgData.eth_subnet_mask = numToDottedQuad(data[30])
         self._MsgData.eth_gateway = numToDottedQuad(data[31])
+        
+        """
+        These are the tuning parameters for the control loop
+        """
+        
+        self._MsgData2.p_gain_rps_per_rps = convert_u32_to_float(data[32]) 
+        self._MsgData2.i_gain_rps_per_rad = convert_u32_to_float(data[33])
+        self._MsgData2.d_gain_rps_per_rps2 = convert_u32_to_float(data[34])
+        self._MsgData2.fdfwd_gain_rps_per_motor_rps = convert_u32_to_float(data[35])
+        self._MsgData2.p_error_limit_rps = convert_u32_to_float(data[36])
+        self._MsgData2.i_error_limit_rad = convert_u32_to_float(data[37])
+        self._MsgData2.d_error_limit_rps2 = convert_u32_to_float(data[38])
+        self._MsgData2.i_error_drain_rate_rad_per_frame = convert_u32_to_float(data[39])
+        self._MsgData2.output_limit_rps = convert_u32_to_float(data[40])
+        self._MsgData2.input_target_limit_rps = convert_u32_to_float(data[41])
+        self._MsgData2.control_tuning_unlocked = (data[42] & 1)
+        
+        self.machcfg = self._MsgData
+        self.ctlconfig = self._MsgData2
 
         wheel_circum = self._MsgData1.wheel_diameter_m * math.pi
         
         if not rospy.is_shutdown():
             self._MsgPub.publish(self._MsgData)
             self._MsgPub1.publish(self._MsgData1)
+            self._MsgPub2.publish(self._MsgData2)
             self._seq += 1
         
         return wheel_circum
