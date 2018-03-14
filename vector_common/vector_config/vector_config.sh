@@ -101,14 +101,14 @@ export FLEA3_RPY="0 0 0"
 
 #Kinova arm configurations (the right arm should be the default if there is only one)
 export VECTOR_HAS_KINOVA_ARM=true
-export VECTOR_HAS_TWO_KINOVA_ARMS=true
+export VECTOR_HAS_TWO_KINOVA_ARMS=false
 export KINOVA_RIGHT_ARM_SERIAL_NUMBER='PJ00900006153340003' #default arm if there is only one
 export KINOVA_LEFT_ARM_SERIAL_NUMBER='PJ00900006152990001' #must specify serial number for 2 arms
 export VECTOR_HAS_KINOVA_7DOF_ARM=true
 
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
-export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=true
+export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=false
 export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:6:1.0-port0"
 #export ROBOTIQ_GRIPPER_COMM_PORT="/dev/ttyUSB1"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200

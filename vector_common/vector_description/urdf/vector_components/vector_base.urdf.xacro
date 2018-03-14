@@ -41,13 +41,21 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         </joint>
         
         <link name="${name}_chassis_link">
-			<inertial>
-				<mass value="55.914402" />
-				<origin xyz="0 0 0" />
-				<inertia ixx="3.54"  ixy="0" ixz="0"
-                         iyx="0"  iyy="3.71" iyz="0"
-                         izx="0" izy="0" izz="2.53" />
-			</inertial>
+            <inertial>
+                <mass value="55.914402" />
+                <origin xyz="0 0 0" />
+                <xacro:unless value="$(arg simulation_urdf)">
+                    <inertia ixx="3.53"  ixy="0" ixz="0"
+                             iyx="0"  iyy="3.71" iyz="0"
+                             izx="0" izy="0" izz="2.53" />
+                </xacro:unless>
+                <!-- Set appropriate inertial values if in simulation -->
+                <xacro:if value="$(arg simulation_urdf)">
+                    <inertia ixx="3000"  ixy="0" ixz="0"
+                             iyx="3000"  iyy="3.71" iyz="0"
+                             izx="3000" izy="0" izz="2.53" />
+                </xacro:if>         
+            </inertial>
             <collision>
 				<geometry>
 					<mesh filename="package://vector_description/meshes/chassis_collision.STL" />

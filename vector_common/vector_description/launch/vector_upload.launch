@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="simulation_urdf" default="false"/>
+    <arg name="simulation_urdf" default="true"/>
 
     <group unless="$(optenv VECTOR_HAS_KINOVA_7DOF_ARM false)">
         <param name="robot_description" command="$(find xacro)/xacro.py '$(find vector_description)/urdf/vector.urdf.xacro' simulation_urdf:='$(arg simulation_urdf)'"/>
