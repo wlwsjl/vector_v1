@@ -109,8 +109,8 @@ export VECTOR_HAS_KINOVA_7DOF_ARM=true
 #Robotiq gripper configurations
 export VECTOR_HAS_ROBOTIQ_GRIPPER=true
 export VECTOR_HAS_TWO_ROBOTIQ_GRIPPERS=true
-#export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:6:1.0-port0"
-export ROBOTIQ_GRIPPER_COMM_PORT="/dev/ttyUSB0"
+export ROBOTIQ_GRIPPER_COMM_PORT="/dev/serial/by-path/pci-0000:00:14.0-usb-0:6:1.0-port0"
+#export ROBOTIQ_GRIPPER_COMM_PORT="/dev/ttyUSB0"
 export ROBOTIQ_GRIPPER_BAUDRATE=115200
 
 #Linear actuator
