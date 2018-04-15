@@ -25,6 +25,8 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(catkin REQUIRED COMPONENTS roscpp)
 find_package(cmake_modules QUIET)
 
+add_definitions( -fexceptions )
+
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
